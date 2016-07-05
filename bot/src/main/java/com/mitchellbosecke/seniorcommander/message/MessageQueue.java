@@ -1,3 +1,5 @@
+package com.mitchellbosecke.seniorcommander.message;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,7 +12,7 @@ public class MessageQueue {
 
     public void addMessage(Message message) {
         queue.add(message);
-        System.out.println(message.getContent());
+        System.out.println(message.getSender() + ": " + message.getContent());
     }
 
 

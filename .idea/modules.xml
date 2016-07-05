@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/senior_commander.iml" filepath="$PROJECT_DIR$/.idea/modules/senior_commander.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/SeniorCommander.iml" filepath="$PROJECT_DIR$/.idea/modules/SeniorCommander.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/senior_commander_main.iml" filepath="$PROJECT_DIR$/.idea/modules/senior_commander_main.iml" group="senior_commander" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/senior_commander_test.iml" filepath="$PROJECT_DIR$/.idea/modules/senior_commander_test.iml" group="senior_commander" />
     </modules>
