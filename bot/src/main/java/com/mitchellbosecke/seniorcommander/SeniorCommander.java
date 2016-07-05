@@ -2,6 +2,7 @@ package com.mitchellbosecke.seniorcommander;
 
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.channel.IrcChannel;
+import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageHandler;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.message.PrintMessageHandler;
@@ -37,6 +38,13 @@ public class SeniorCommander {
                     throw new RuntimeException(e);
                 }
             });
+        }
+
+        for(int i = 0; i < 10; i ++) {
+            Message message = messageQueue.readMessage();
+            for (MessageHandler handler : messageHandlers) {
+                handler.handle(message);
+            }
         }
 
 

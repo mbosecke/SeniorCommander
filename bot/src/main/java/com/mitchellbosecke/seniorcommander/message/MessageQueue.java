@@ -16,7 +16,6 @@ public class MessageQueue {
      */
     public void addMessage(Message message) {
         queue.add(message);
-        System.out.println(message.getSender() + ": " + message.getContent());
     }
 
     /**
