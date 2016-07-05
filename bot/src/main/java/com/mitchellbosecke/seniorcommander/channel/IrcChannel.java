@@ -21,38 +21,45 @@ public class IrcChannel extends PircBot implements Channel {
 
     private MessageQueue messageQueue;
 
+    /**
+     * Ensure that either startup or shutdown are performed exclusively.
+     */
+    private Object startupLock = new Object();
+
+    /**
+     * If shutdown was called before channel had an attempt to startup
+     */
+    private boolean interrupted = false;
+
     @Override
     public void listen(Configuration configuration, MessageQueue messageQueue) throws IOException {
-        this.messageQueue = messageQueue;
-
-
-        this.setName(configuration.getProperty(CONFIG_IRC_USERNAME));
-        try {
-            this.connect(configuration.getProperty(CONFIG_IRC_SERVER), Integer.valueOf(configuration.getProperty(CONFIG_IRC_PORT)), configuration.getProperty(CONFIG_IRC_OAUTH_KEY));
-        } catch (IrcException e) {
-            throw new RuntimeException(e);
+        synchronized (startupLock) {
+            if (!interrupted) {
+                this.messageQueue = messageQueue;
+                this.setName(configuration.getProperty(CONFIG_IRC_USERNAME));
+                try {
+                    this.connect(configuration.getProperty(CONFIG_IRC_SERVER), Integer.valueOf(configuration.getProperty(CONFIG_IRC_PORT)), configuration.getProperty(CONFIG_IRC_OAUTH_KEY));
+                } catch (IrcException e) {
+                    throw new RuntimeException(e);
+                }
+                this.joinChannel(configuration.getProperty(CONFIG_IRC_CHANNEL));
+            }
         }
-        this.joinChannel(configuration.getProperty(CONFIG_IRC_CHANNEL));
-    }
-
-
-    @Override
-    protected void onQuit(String sourceNick, String sourceLogin, String sourceHostname, String reason) {
-        super.onQuit(sourceNick, sourceLogin, sourceHostname, reason);
-        System.out.println("onQuit");
-    }
-
-    @Override
-    protected void onDisconnect() {
-        super.onDisconnect();
-        System.out.println("onDisconnect");
     }
 
     @Override
     public void shutdown() {
-        this.disconnect();
-        this.quitServer();
-        System.out.println("Is connected: " + this.isConnected());
+        synchronized (startupLock) {
+            System.out.println("Shutting down.");
+            if (this.isConnected()) {
+                this.disconnect();
+                this.quitServer();
+                this.dispose();
+            } else {
+                this.interrupted = true;
+            }
+        }
+
     }
 
     @Override

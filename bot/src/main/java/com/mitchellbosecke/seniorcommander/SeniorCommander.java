@@ -39,6 +39,7 @@ public class SeniorCommander {
             });
         }
 
+
         for (Channel channel : channels) {
             channel.shutdown();
         }
