@@ -35,6 +35,26 @@ public class IrcChannel extends PircBot implements Channel {
         this.joinChannel(configuration.getProperty(CONFIG_IRC_CHANNEL));
     }
 
+
+    @Override
+    protected void onQuit(String sourceNick, String sourceLogin, String sourceHostname, String reason) {
+        super.onQuit(sourceNick, sourceLogin, sourceHostname, reason);
+        System.out.println("onQuit");
+    }
+
+    @Override
+    protected void onDisconnect() {
+        super.onDisconnect();
+        System.out.println("onDisconnect");
+    }
+
+    @Override
+    public void shutdown() {
+        this.disconnect();
+        this.quitServer();
+        System.out.println("Is connected: " + this.isConnected());
+    }
+
     @Override
     protected void onMessage(String channel, String sender, String login, String hostname, String message) {
         messageQueue.addMessage(new Message(sender, message, getClass()));

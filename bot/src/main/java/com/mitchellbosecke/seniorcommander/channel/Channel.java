@@ -12,4 +12,6 @@ public interface Channel {
 
     void listen(Configuration configuration, MessageQueue messageQueue) throws IOException;
 
+    void shutdown();
+
 }
