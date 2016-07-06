@@ -1,22 +1,24 @@
 package com.mitchellbosecke.seniorcommander.message;
 
-import com.mitchellbosecke.seniorcommander.channel.Channel;
-
 /**
  * Created by mitch_000 on 2016-07-03.
  */
 public class Message {
 
+    public enum Type {
+        USER_PROVIDED, OUTPUT
+    }
+
+    private final Type type;
+
     private final String content;
 
     private final String sender;
 
-    private final Class<? extends Channel> channelClass;
-
-    public Message(String sender, String content, Class<? extends Channel> channelClass) {
+    public Message(Type type, String sender, String content) {
         this.content = content;
         this.sender = sender;
-        this.channelClass = channelClass;
+        this.type = type;
     }
 
     public String getContent() {
@@ -27,8 +29,8 @@ public class Message {
         return sender;
     }
 
-    public Class<? extends Channel> getChannelClass() {
-        return channelClass;
+    public Type getType() {
+        return type;
     }
 }
 

@@ -31,8 +31,14 @@ public class IrcChannel extends PircBot implements Channel {
      */
     private boolean interrupted = false;
 
+    private final Configuration configuration;
+
+    public IrcChannel(Configuration configuration) {
+        this.configuration = configuration;
+    }
+
     @Override
-    public void listen(Configuration configuration, MessageQueue messageQueue) throws IOException {
+    public void listen(MessageQueue messageQueue) throws IOException {
         synchronized (startupLock) {
             if (!interrupted) {
                 this.messageQueue = messageQueue;
@@ -45,6 +51,12 @@ public class IrcChannel extends PircBot implements Channel {
                 this.joinChannel(configuration.getProperty(CONFIG_IRC_CHANNEL));
             }
         }
+    }
+
+    @Override
+    public void sendMessage(String content) {
+        String channel = configuration.getProperty(CONFIG_IRC_CHANNEL);
+        this.sendMessage(channel, content);
     }
 
     @Override
@@ -64,6 +76,6 @@ public class IrcChannel extends PircBot implements Channel {
 
     @Override
     protected void onMessage(String channel, String sender, String login, String hostname, String message) {
-        messageQueue.addMessage(new Message(sender, message, getClass()));
+        messageQueue.addMessage(new Message(Message.Type.USER_PROVIDED, sender, message));
     }
 }

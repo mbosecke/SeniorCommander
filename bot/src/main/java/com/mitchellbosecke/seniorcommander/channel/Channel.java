@@ -1,6 +1,5 @@
 package com.mitchellbosecke.seniorcommander.channel;
 
-import com.mitchellbosecke.seniorcommander.Configuration;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 
 import java.io.IOException;
@@ -10,7 +9,9 @@ import java.io.IOException;
  */
 public interface Channel {
 
-    void listen(Configuration configuration, MessageQueue messageQueue) throws IOException;
+    void listen(MessageQueue messageQueue) throws IOException;
+
+    void sendMessage(String content);
 
     void shutdown();
 

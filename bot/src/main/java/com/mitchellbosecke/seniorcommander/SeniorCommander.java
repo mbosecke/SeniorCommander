@@ -2,10 +2,7 @@ package com.mitchellbosecke.seniorcommander;
 
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.channel.IrcChannel;
-import com.mitchellbosecke.seniorcommander.message.Message;
-import com.mitchellbosecke.seniorcommander.message.MessageHandler;
-import com.mitchellbosecke.seniorcommander.message.MessageQueue;
-import com.mitchellbosecke.seniorcommander.message.PrintMessageHandler;
+import com.mitchellbosecke.seniorcommander.message.*;
 import org.jibble.pircbot.IrcException;
 
 import java.io.IOException;
@@ -24,8 +21,8 @@ public class SeniorCommander {
 
         MessageQueue messageQueue = new MessageQueue();
 
-        List<Channel> channels = buildChannels();
-        List<MessageHandler> messageHandlers = buildMessageHandlers();
+        List<Channel> channels = buildChannels(configuration);
+        List<MessageHandler> messageHandlers = buildMessageHandlers(messageQueue, channels);
 
 
         // each channel runs on it's own thread
@@ -33,14 +30,14 @@ public class SeniorCommander {
         for (Channel channel : channels) {
             executor.submit(() -> {
                 try {
-                    channel.listen(configuration, messageQueue);
+                    channel.listen(messageQueue);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             });
         }
 
-        for(int i = 0; i < 10; i ++) {
+        for (int i = 0; i < 10; i++) {
             Message message = messageQueue.readMessage();
             for (MessageHandler handler : messageHandlers) {
                 handler.handle(message);
@@ -54,15 +51,20 @@ public class SeniorCommander {
         executor.shutdown();
     }
 
-    private List<Channel> buildChannels() {
+    private List<Channel> buildChannels(Configuration configuration) {
         List<Channel> channels = new ArrayList<>();
-        channels.add(new IrcChannel());
+        channels.add(new IrcChannel(configuration));
         return channels;
     }
 
-    private List<MessageHandler> buildMessageHandlers() {
+    private List<MessageHandler> buildMessageHandlers(MessageQueue messageQueue, List<Channel> channels) {
         List<MessageHandler> messageHandlers = new ArrayList<>();
-        messageHandlers.add(new PrintMessageHandler());
+        messageHandlers.add(new LoggingHandler());
+        messageHandlers.add(new DiceHandler(messageQueue));
+
+        for (Channel channel : channels) {
+            messageHandlers.add(new OutputHandler(channel));
+        }
         return messageHandlers;
     }
 
