@@ -16,7 +16,9 @@ public class DiceHandler implements MessageHandler {
 
     private final Pattern pattern = Pattern.compile("!d(\\d+)");
 
-    private final Cooldown cooldown = new Cooldown(1, TimeUnit.MINUTES);
+    private final int cooldownMinutes = 30;
+
+    private final Cooldown cooldown = new Cooldown(cooldownMinutes, TimeUnit.MINUTES);
 
     @Override
     public void handle(Context context, Message message) {
@@ -30,11 +32,11 @@ public class DiceHandler implements MessageHandler {
                 Random generator = new Random();
                 int result = generator.nextInt(num) + 1;
 
-                context.getMessageQueue().add(Message.response(message, "You rolled a " + result + "."));
+                context.getMessageQueue().add(Message.response(message, String.format("You rolled a %d.", result)));
                 cooldown.reset(user);
             } else {
-                context.getMessageQueue().add(Message.response(message, "Son, you need to slow down. " + cooldown
-                        .secondsRemaining(message.getUser()) + " seconds remaining."));
+                context.getMessageQueue().add(Message.response(message, String
+                        .format("Son, you need to slow down. " + "That command can only be run once every %d minutes.", cooldownMinutes)));
             }
         }
     }
