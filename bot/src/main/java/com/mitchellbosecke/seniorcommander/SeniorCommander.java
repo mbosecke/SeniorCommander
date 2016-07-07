@@ -2,6 +2,8 @@ package com.mitchellbosecke.seniorcommander;
 
 import com.mitchellbosecke.seniorcommander.core.CoreExtension;
 import org.jibble.pircbot.IrcException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,6 +17,7 @@ import java.util.concurrent.Executors;
  */
 public class SeniorCommander {
 
+    Logger logger = LoggerFactory.getLogger(getClass());
 
     public SeniorCommander(Configuration configuration, List<Extension> extensions) {
 
@@ -39,7 +42,7 @@ public class SeniorCommander {
                     handler.handle(context, message);
                 }catch(Exception ex){
                     // we don't want to die! Just log the error.
-                   System.out.println(ex.getMessage());
+                  logger.error("Error when handling message", ex);
                 }
             }
         }
