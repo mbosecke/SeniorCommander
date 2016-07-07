@@ -1,8 +1,6 @@
-package com.mitchellbosecke.seniorcommander.channel;
+package com.mitchellbosecke.seniorcommander.core.channel;
 
-import com.mitchellbosecke.seniorcommander.Configuration;
-import com.mitchellbosecke.seniorcommander.message.Message;
-import com.mitchellbosecke.seniorcommander.message.MessageQueue;
+import com.mitchellbosecke.seniorcommander.*;
 import org.jibble.pircbot.IrcException;
 import org.jibble.pircbot.PircBot;
 
@@ -19,8 +17,6 @@ public class IrcChannel extends PircBot implements Channel {
     private static final String CONFIG_IRC_OAUTH_KEY = "irc.oauthkey";
     private static final String CONFIG_IRC_CHANNEL = "irc.channel";
 
-    private MessageQueue messageQueue;
-
     /**
      * Ensure that either startup or shutdown are performed exclusively.
      */
@@ -31,17 +27,14 @@ public class IrcChannel extends PircBot implements Channel {
      */
     private boolean interrupted = false;
 
-    private final Configuration configuration;
-
-    public IrcChannel(Configuration configuration) {
-        this.configuration = configuration;
-    }
+    private Context context;
 
     @Override
-    public void listen(MessageQueue messageQueue) throws IOException {
+    public void listen(Context context) throws IOException {
         synchronized (startupLock) {
             if (!interrupted) {
-                this.messageQueue = messageQueue;
+                this.context = context;
+                Configuration configuration = context.getConfiguration();
                 this.setName(configuration.getProperty(CONFIG_IRC_USERNAME));
                 try {
                     this.connect(configuration.getProperty(CONFIG_IRC_SERVER), Integer.valueOf(configuration.getProperty(CONFIG_IRC_PORT)), configuration.getProperty(CONFIG_IRC_OAUTH_KEY));
@@ -49,13 +42,14 @@ public class IrcChannel extends PircBot implements Channel {
                     throw new RuntimeException(e);
                 }
                 this.joinChannel(configuration.getProperty(CONFIG_IRC_CHANNEL));
+                System.out.println("Listening");
             }
         }
     }
 
     @Override
-    public void sendMessage(String content) {
-        String channel = configuration.getProperty(CONFIG_IRC_CHANNEL);
+    public void sendMessage(Context context, String content) {
+        String channel = context.getConfiguration().getProperty(CONFIG_IRC_CHANNEL);
         this.sendMessage(channel, content);
     }
 
@@ -76,6 +70,6 @@ public class IrcChannel extends PircBot implements Channel {
 
     @Override
     protected void onMessage(String channel, String sender, String login, String hostname, String message) {
-        messageQueue.addMessage(new Message(Message.Type.USER_PROVIDED, sender, message));
+        context.getMessageQueue().addMessage(new Message(Message.Type.USER_PROVIDED, sender, message));
     }
 }

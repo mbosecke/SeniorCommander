@@ -1,4 +1,4 @@
-package com.mitchellbosecke.seniorcommander.message;
+package com.mitchellbosecke.seniorcommander;
 
 /**
  * Created by mitch_000 on 2016-07-03.
