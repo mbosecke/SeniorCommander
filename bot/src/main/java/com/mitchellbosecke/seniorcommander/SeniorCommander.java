@@ -6,6 +6,7 @@ import com.mitchellbosecke.seniorcommander.extension.Extension;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageHandler;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
+import com.mitchellbosecke.seniorcommander.scheduled.ScheduledTask;
 import org.jibble.pircbot.IrcException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,14 +41,19 @@ public class SeniorCommander {
             });
         }
 
+        // initiate the scheduled tasks
+        for (ScheduledTask scheduledTask : context.getScheduledTasks()) {
+            scheduledTask.initiate(context);
+        }
+
         for (int i = 0; i < 10; i++) {
             Message message = context.getMessageQueue().readMessage();
             for (MessageHandler handler : context.getMessageHandlers()) {
                 try {
                     handler.handle(context, message);
-                }catch(Exception ex){
+                } catch (Exception ex) {
                     // we don't want to die! Just log the error.
-                  logger.error("Error when handling message", ex);
+                    logger.error("Error when handling message", ex);
                 }
             }
         }
@@ -61,13 +67,15 @@ public class SeniorCommander {
     private Context buildContext(Configuration configuration, List<Extension> extensions) {
         List<Channel> channels = new ArrayList<>();
         List<MessageHandler> handlers = new ArrayList<>();
+        List<ScheduledTask> scheduledTasks = new ArrayList<>();
         for (Extension extension : extensions) {
             channels.addAll(extension.getChannels());
             handlers.addAll(extension.getMessageHandlers());
+            scheduledTasks.addAll(extension.getScheduledTasks());
         }
-        return new Context(configuration, new MessageQueue(), channels, handlers);
+        return new Context(configuration, new MessageQueue(), channels, handlers, scheduledTasks, Executors
+                .newScheduledThreadPool(10));
     }
-
 
     public static void main(String[] args) throws IOException, IrcException {
         Configuration config = new Configuration("config.properties");

@@ -6,6 +6,8 @@ import com.mitchellbosecke.seniorcommander.channel.IrcChannel;
 import com.mitchellbosecke.seniorcommander.handler.DiceHandler;
 import com.mitchellbosecke.seniorcommander.handler.LoggingHandler;
 import com.mitchellbosecke.seniorcommander.handler.OutputHandler;
+import com.mitchellbosecke.seniorcommander.scheduled.ScheduledTask;
+import com.mitchellbosecke.seniorcommander.scheduled.TimedShout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,5 +31,13 @@ public class CoreExtension implements Extension {
         List<Channel> channels = new ArrayList<>();
         channels.add(new IrcChannel());
         return channels;
+    }
+
+    @Override
+    public List<ScheduledTask> getScheduledTasks() {
+        List<ScheduledTask> scheduledTask = new ArrayList<>();
+        scheduledTask.add(new TimedShout("To be a good commander, you must be willing to order the death of the thing" +
+                " you love", 60));
+        return scheduledTask;
     }
 }

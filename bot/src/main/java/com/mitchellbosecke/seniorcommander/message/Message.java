@@ -49,6 +49,10 @@ public class Message {
         return whisper;
     }
 
+    public static Message shout(String content) {
+        return new Builder().type(Type.OUTPUT).content(content).build();
+    }
+
     public static Message response(Message originalMessage, String content) {
         return new Builder().channel(originalMessage.channel).type(Type.OUTPUT).user(originalMessage.user)
                 .content(content).whisper(originalMessage.whisper).build();
@@ -88,7 +92,7 @@ public class Message {
         }
 
         public Message build() {
-            whisper = whisper == null? false : whisper;
+            whisper = whisper == null ? false : whisper;
             return new Message(type, channel, user, content, whisper);
         }
     }
