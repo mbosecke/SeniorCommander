@@ -1,5 +1,7 @@
 package com.mitchellbosecke.seniorcommander;
 
+import java.util.Map;
+
 /**
  * Created by mitch_000 on 2016-07-03.
  */
@@ -15,10 +17,16 @@ public class Message {
 
     private final String sender;
 
-    public Message(Type type, String sender, String content) {
+    private final Channel sourceChannel;
+
+    private final Map<String, Object> meta;
+
+    public Message(Channel sourceChannel, Type type, String sender, String content, Map<String, Object> meta) {
         this.content = content;
         this.sender = sender;
         this.type = type;
+        this.sourceChannel = sourceChannel;
+        this.meta = meta;
     }
 
     public String getContent() {
@@ -31,6 +39,14 @@ public class Message {
 
     public Type getType() {
         return type;
+    }
+
+    public Channel getSourceChannel() {
+        return sourceChannel;
+    }
+
+    public Map<String, Object> getMeta() {
+        return meta;
     }
 }
 

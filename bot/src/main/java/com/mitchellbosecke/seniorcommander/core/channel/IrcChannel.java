@@ -1,15 +1,25 @@
 package com.mitchellbosecke.seniorcommander.core.channel;
 
-import com.mitchellbosecke.seniorcommander.*;
+import com.mitchellbosecke.seniorcommander.Channel;
+import com.mitchellbosecke.seniorcommander.Configuration;
+import com.mitchellbosecke.seniorcommander.Context;
+import com.mitchellbosecke.seniorcommander.Message;
 import org.jibble.pircbot.IrcException;
 import org.jibble.pircbot.PircBot;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * Created by mitch_000 on 2016-07-03.
  */
 public class IrcChannel extends PircBot implements Channel {
+
+    Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final String CONFIG_IRC_USERNAME = "irc.username";
     private static final String CONFIG_IRC_SERVER = "irc.server";
@@ -37,13 +47,55 @@ public class IrcChannel extends PircBot implements Channel {
                 Configuration configuration = context.getConfiguration();
                 this.setName(configuration.getProperty(CONFIG_IRC_USERNAME));
                 try {
-                    this.connect(configuration.getProperty(CONFIG_IRC_SERVER), Integer.valueOf(configuration.getProperty(CONFIG_IRC_PORT)), configuration.getProperty(CONFIG_IRC_OAUTH_KEY));
+                    connect(configuration.getProperty(CONFIG_IRC_SERVER), Integer.valueOf(configuration.getProperty(CONFIG_IRC_PORT)), configuration.getProperty(CONFIG_IRC_OAUTH_KEY));
+                    logger.debug("IRC server connected");
                 } catch (IrcException e) {
                     throw new RuntimeException(e);
                 }
                 this.joinChannel(configuration.getProperty(CONFIG_IRC_CHANNEL));
-                System.out.println("Listening");
+                logger.debug("IRC channel listening");
             }
+        }
+    }
+
+    @Override
+    protected void onServerResponse(int code, String response) {
+        logger.debug(String.format("[%d] %s", code, response));
+    }
+
+    @Override
+    protected void onConnect() {
+        // required to receive whispers
+        sendRawLine("CAP REQ :twitch.tv/commands");
+
+        //sendRawLine("CAP REQ :twitch.tv/membership");
+    }
+
+    @Override
+    protected void onUnknown(String line) {
+        StringTokenizer tokenizer = new StringTokenizer(line);
+        String senderInfo = tokenizer.nextToken();
+        String command = tokenizer.nextToken();
+
+        String sourceNick = "";
+        String sourceLogin = "";
+        String sourceHostname = "";
+
+        int exclamation = senderInfo.indexOf("!");
+        int at = senderInfo.indexOf("@");
+        if (senderInfo.startsWith(":")) {
+            if (exclamation > 0 && at > 0 && exclamation < at) {
+                sourceNick = senderInfo.substring(1, exclamation);
+                sourceLogin = senderInfo.substring(exclamation + 1, at);
+                sourceHostname = senderInfo.substring(at + 1);
+            }
+        }
+
+        command = command.toUpperCase();
+        if ("WHISPER".equals(command)) {
+            this.onPrivateMessage(sourceNick, sourceLogin, sourceHostname, line.substring(line.indexOf(" :") + 2));
+        }else{
+            logger.debug("Received unknown command: " + line);
         }
     }
 
@@ -53,10 +105,15 @@ public class IrcChannel extends PircBot implements Channel {
         this.sendMessage(channel, content);
     }
 
+    private void sendWhisper(Context context, String recipient, String content){
+        String channel =  context.getConfiguration().getProperty(CONFIG_IRC_CHANNEL);
+        sendRawLineViaQueue(String.format("PRIVMSG %s :/w %s %s", channel, recipient, content));
+    }
+
     @Override
     public void shutdown() {
         synchronized (startupLock) {
-            System.out.println("Shutting down.");
+            logger.debug("IRC Channel shutting down");
             if (this.isConnected()) {
                 this.disconnect();
                 this.quitServer();
@@ -65,11 +122,21 @@ public class IrcChannel extends PircBot implements Channel {
                 this.interrupted = true;
             }
         }
+    }
 
+
+    @Override
+    protected void onPrivateMessage(String sender, String login, String hostname, String message) {
+        Map<String, Object> meta = new HashMap<>();
+        meta.put("whisper", true);
+        logger.trace("Received private message on IRC Channel: " + message);
+        context.getMessageQueue().addMessage(new Message(this, Message.Type.USER_PROVIDED, sender, message, meta));
     }
 
     @Override
     protected void onMessage(String channel, String sender, String login, String hostname, String message) {
-        context.getMessageQueue().addMessage(new Message(Message.Type.USER_PROVIDED, sender, message));
+        Map<String, Object> meta = new HashMap<>();
+        logger.trace("Received message on IRC Channel: " + message);
+        context.getMessageQueue().addMessage(new Message(this, Message.Type.USER_PROVIDED, sender, message, meta));
     }
 }
