@@ -1,6 +1,11 @@
 package com.mitchellbosecke.seniorcommander;
 
-import com.mitchellbosecke.seniorcommander.core.CoreExtension;
+import com.mitchellbosecke.seniorcommander.channel.Channel;
+import com.mitchellbosecke.seniorcommander.extension.CoreExtension;
+import com.mitchellbosecke.seniorcommander.extension.Extension;
+import com.mitchellbosecke.seniorcommander.message.Message;
+import com.mitchellbosecke.seniorcommander.message.MessageHandler;
+import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import org.jibble.pircbot.IrcException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

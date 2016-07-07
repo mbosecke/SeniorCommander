@@ -1,8 +1,8 @@
-package com.mitchellbosecke.seniorcommander.core.handler;
+package com.mitchellbosecke.seniorcommander.handler;
 
 import com.mitchellbosecke.seniorcommander.Context;
-import com.mitchellbosecke.seniorcommander.Message;
-import com.mitchellbosecke.seniorcommander.MessageHandler;
+import com.mitchellbosecke.seniorcommander.message.Message;
+import com.mitchellbosecke.seniorcommander.message.MessageHandler;
 
 import java.util.Random;
 import java.util.regex.Matcher;

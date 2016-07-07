@@ -1,4 +1,4 @@
-package com.mitchellbosecke.seniorcommander;
+package com.mitchellbosecke.seniorcommander.message;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;

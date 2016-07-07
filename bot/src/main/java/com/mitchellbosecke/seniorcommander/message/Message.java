@@ -1,4 +1,6 @@
-package com.mitchellbosecke.seniorcommander;
+package com.mitchellbosecke.seniorcommander.message;
+
+import com.mitchellbosecke.seniorcommander.channel.Channel;
 
 import java.util.Map;
 

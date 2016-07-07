@@ -1,12 +1,11 @@
-package com.mitchellbosecke.seniorcommander.core;
+package com.mitchellbosecke.seniorcommander.extension;
 
-import com.mitchellbosecke.seniorcommander.Channel;
-import com.mitchellbosecke.seniorcommander.Extension;
-import com.mitchellbosecke.seniorcommander.MessageHandler;
-import com.mitchellbosecke.seniorcommander.core.channel.IrcChannel;
-import com.mitchellbosecke.seniorcommander.core.handler.DiceHandler;
-import com.mitchellbosecke.seniorcommander.core.handler.LoggingHandler;
-import com.mitchellbosecke.seniorcommander.core.handler.OutputHandler;
+import com.mitchellbosecke.seniorcommander.channel.Channel;
+import com.mitchellbosecke.seniorcommander.message.MessageHandler;
+import com.mitchellbosecke.seniorcommander.channel.IrcChannel;
+import com.mitchellbosecke.seniorcommander.handler.DiceHandler;
+import com.mitchellbosecke.seniorcommander.handler.LoggingHandler;
+import com.mitchellbosecke.seniorcommander.handler.OutputHandler;
 
 import java.util.ArrayList;
 import java.util.List;

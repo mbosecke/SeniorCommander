@@ -1,4 +1,6 @@
-package com.mitchellbosecke.seniorcommander;
+package com.mitchellbosecke.seniorcommander.channel;
+
+import com.mitchellbosecke.seniorcommander.Context;
 
 import java.io.IOException;
 

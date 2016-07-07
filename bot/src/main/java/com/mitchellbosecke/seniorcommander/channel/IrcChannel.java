@@ -1,9 +1,8 @@
-package com.mitchellbosecke.seniorcommander.core.channel;
+package com.mitchellbosecke.seniorcommander.channel;
 
-import com.mitchellbosecke.seniorcommander.Channel;
 import com.mitchellbosecke.seniorcommander.Configuration;
 import com.mitchellbosecke.seniorcommander.Context;
-import com.mitchellbosecke.seniorcommander.Message;
+import com.mitchellbosecke.seniorcommander.message.Message;
 import org.jibble.pircbot.IrcException;
 import org.jibble.pircbot.PircBot;
 import org.slf4j.Logger;
@@ -123,7 +122,6 @@ public class IrcChannel extends PircBot implements Channel {
             }
         }
     }
-
 
     @Override
     protected void onPrivateMessage(String sender, String login, String hostname, String message) {
