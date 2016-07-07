@@ -22,7 +22,8 @@ public class DiceHandler implements MessageHandler {
             Integer num = Integer.valueOf(matcher.group(1));
             Random generator = new Random();
             int result = generator.nextInt(num) + 1;
-            context.getMessageQueue().addMessage(new Message(null, Message.Type.OUTPUT, null, "You are rolled a " + result, null));
+
+            context.getMessageQueue().add(Message.response(message, "You rolled a " + result));
         }
     }
 }

@@ -15,6 +15,6 @@ public class LoggingHandler implements MessageHandler {
 
     @Override
     public void handle(Context context, Message message) {
-        logger.trace(message.getSender() + ": " + message.getContent());
+        logger.trace(message.getUser() + ": " + message.getContent());
     }
 }

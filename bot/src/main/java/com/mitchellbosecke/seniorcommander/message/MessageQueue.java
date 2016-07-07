@@ -14,7 +14,7 @@ public class MessageQueue {
      * Does not block
      * @param message
      */
-    public void addMessage(Message message) {
+    public void add(Message message) {
         queue.add(message);
     }
 

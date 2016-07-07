@@ -12,7 +12,15 @@ public class OutputHandler implements MessageHandler {
     @Override
     public void handle(Context context, Message message) {
         if (Message.Type.OUTPUT.equals(message.getType())) {
-            context.getChannels().get(0).sendMessage(context, message.getContent());
+            if (message.getUser() != null) {
+                if (message.isWhisper()) {
+                    message.getChannel().sendWhisper(context, message.getUser(), message.getContent());
+                }else {
+                    message.getChannel().sendMessage(context, message.getUser(), message.getContent());
+                }
+            }else {
+                message.getChannel().sendMessage(context, message.getContent());
+            }
         }
     }
 }

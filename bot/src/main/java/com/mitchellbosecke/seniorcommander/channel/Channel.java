@@ -13,6 +13,10 @@ public interface Channel {
 
     void sendMessage(Context context, String content);
 
+    void sendMessage(Context context, String recipient, String content);
+
+    void sendWhisper(Context context, String recipient, String content);
+
     void shutdown();
 
 }
