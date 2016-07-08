@@ -8,12 +8,12 @@ import com.mitchellbosecke.seniorcommander.message.MessageHandler;
 /**
  * Created by mitch_000 on 2016-07-08.
  */
-public class ConversationalHandler  implements MessageHandler {
+public class ConversationalHandler implements MessageHandler {
 
     @Override
     public void handle(Context context, Message message) {
 
-        if(SeniorCommander.class.getName().equals(message.getRecipient())){
+        if (SeniorCommander.class.getName().equals(message.getRecipient()) && !message.getContent().startsWith("!")) {
             context.getMessageQueue().add(Message.response(message, "Hello friend!"));
         }
     }
