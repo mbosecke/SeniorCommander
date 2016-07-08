@@ -38,7 +38,7 @@ public class Cooldown {
         if(userTimestamps.containsKey(user)){
             seconds = secondsRemaining(userTimestamps.get(user));
         }
-        logger.trace(String.format("Cooldown seconds remaining for user [%s] is: %d", user, seconds));
+        logger.trace(String.format("Cooldown seconds remaining for sender [%s] is: %d", user, seconds));
         return seconds;
     }
 

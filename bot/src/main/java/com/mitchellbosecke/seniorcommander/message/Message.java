@@ -15,26 +15,29 @@ public class Message {
 
     private final String content;
 
-    private final String user;
+    private final String sender;
 
     private final Channel channel;
 
     private final Boolean whisper;
 
-    private Message(Type type, Channel channel, String user, String content, Boolean whisper) {
+    private final String recipient;
+
+    private Message(Type type, Channel channel, String sender, String recipient, String content, Boolean whisper) {
         this.content = content;
-        this.user = user;
+        this.sender = sender;
         this.type = type;
         this.channel = channel;
         this.whisper = whisper;
+        this.recipient = recipient;
     }
 
     public String getContent() {
         return content;
     }
 
-    public String getUser() {
-        return user;
+    public String getSender() {
+        return sender;
     }
 
     public Type getType() {
@@ -49,12 +52,16 @@ public class Message {
         return whisper;
     }
 
+    public String getRecipient() {
+        return recipient;
+    }
+
     public static Message shout(String content) {
         return new Builder().type(Type.OUTPUT).content(content).build();
     }
 
     public static Message response(Message originalMessage, String content) {
-        return new Builder().channel(originalMessage.channel).type(Type.OUTPUT).user(originalMessage.user)
+        return new Builder().channel(originalMessage.channel).type(Type.OUTPUT).recipient(originalMessage.sender)
                 .content(content).whisper(originalMessage.whisper).build();
     }
 
@@ -62,7 +69,8 @@ public class Message {
 
         private Channel channel;
         private Type type;
-        private String user;
+        private String sender;
+        private String recipient;
         private String content;
         private Boolean whisper;
 
@@ -76,8 +84,13 @@ public class Message {
             return this;
         }
 
-        public Builder user(String user) {
-            this.user = user;
+        public Builder sender(String sender) {
+            this.sender = sender;
+            return this;
+        }
+
+        public Builder recipient(String recipient) {
+            this.recipient = recipient;
             return this;
         }
 
@@ -93,7 +106,7 @@ public class Message {
 
         public Message build() {
             whisper = whisper == null ? false : whisper;
-            return new Message(type, channel, user, content, whisper);
+            return new Message(type, channel, sender, recipient, content, whisper);
         }
     }
 }

@@ -2,6 +2,7 @@ package com.mitchellbosecke.seniorcommander.channel;
 
 import com.mitchellbosecke.seniorcommander.Configuration;
 import com.mitchellbosecke.seniorcommander.Context;
+import com.mitchellbosecke.seniorcommander.SeniorCommander;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import org.jibble.pircbot.IrcException;
 import org.jibble.pircbot.PircBot;
@@ -9,7 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by mitch_000 on 2016-07-03.
@@ -35,6 +37,8 @@ public class IrcChannel extends PircBot implements Channel {
     private boolean interrupted = false;
 
     private Context context;
+
+    private Pattern targetedMessage = Pattern.compile("@(\\w+),?\\s+?(.*)");
 
     @Override
     public void listen(Context context) throws IOException {
@@ -72,27 +76,11 @@ public class IrcChannel extends PircBot implements Channel {
 
     @Override
     protected void onUnknown(String line) {
-        StringTokenizer tokenizer = new StringTokenizer(line);
-        String senderInfo = tokenizer.nextToken();
-        String command = tokenizer.nextToken();
+        IrcProtocolMessage ircProtocolMessage = new IrcProtocolMessage(line);
 
-        String sourceNick = "";
-        String sourceLogin = "";
-        String sourceHostname = "";
-
-        int exclamation = senderInfo.indexOf("!");
-        int at = senderInfo.indexOf("@");
-        if (senderInfo.startsWith(":")) {
-            if (exclamation > 0 && at > 0 && exclamation < at) {
-                sourceNick = senderInfo.substring(1, exclamation);
-                sourceLogin = senderInfo.substring(exclamation + 1, at);
-                sourceHostname = senderInfo.substring(at + 1);
-            }
-        }
-
-        command = command.toUpperCase();
-        if ("WHISPER".equals(command)) {
-            this.onPrivateMessage(sourceNick, sourceLogin, sourceHostname, line.substring(line.indexOf(" :") + 2));
+        if ("WHISPER".equals(ircProtocolMessage.getCommand())) {
+            this.onPrivateMessage(ircProtocolMessage.getNick(), ircProtocolMessage.getLogin(), ircProtocolMessage
+                    .getHostname(), ircProtocolMessage.getLastParam());
         } else {
             logger.debug("Received unknown command: " + line);
         }
@@ -132,23 +120,35 @@ public class IrcChannel extends PircBot implements Channel {
 
     @Override
     protected void onPrivateMessage(String sender, String login, String hostname, String message) {
-        if (context.getConfiguration().getProperty(CONFIG_IRC_USERNAME).equalsIgnoreCase(sender)) {
+        String botUsername = context.getConfiguration().getProperty(CONFIG_IRC_USERNAME);
+        if (botUsername.equalsIgnoreCase(sender)) {
             return;
         }
         logger.trace("Received whisper on IRC Channel: " + message);
-        context.getMessageQueue()
-                .add(new Message.Builder().channel(this).type(Message.Type.USER).user(sender).content(message)
-                        .whisper(true).build());
+        context.getMessageQueue().add(new Message.Builder().channel(this).type(Message.Type.USER).sender(sender)
+                .recipient(SeniorCommander.class.getName()).content(message).whisper(true).build());
     }
 
     @Override
     protected void onMessage(String channel, String sender, String login, String hostname, String message) {
-        if (context.getConfiguration().getProperty(CONFIG_IRC_USERNAME).equalsIgnoreCase(sender)) {
+        String botUsername = context.getConfiguration().getProperty(CONFIG_IRC_USERNAME);
+        if (botUsername.equalsIgnoreCase(sender)) {
             return;
         }
         logger.trace("Received message on IRC Channel: " + message);
+
+        String recipient = null;
+        Matcher matcher = targetedMessage.matcher(message);
+        if (matcher.matches()) {
+            recipient = matcher.group(1);
+            message = matcher.group(2);
+
+            if(botUsername.equalsIgnoreCase(recipient)){
+                recipient = SeniorCommander.class.getName();
+            }
+        }
         context.getMessageQueue()
-                .add(new Message.Builder().channel(this).type(Message.Type.USER).user(sender).content(message)
-                        .whisper(false).build());
+                .add(new Message.Builder().channel(this).type(Message.Type.USER).sender(sender).recipient(recipient)
+                        .content(message).whisper(false).build());
     }
 }

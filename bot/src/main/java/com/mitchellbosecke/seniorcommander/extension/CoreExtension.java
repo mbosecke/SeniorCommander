@@ -1,6 +1,7 @@
 package com.mitchellbosecke.seniorcommander.extension;
 
 import com.mitchellbosecke.seniorcommander.channel.Channel;
+import com.mitchellbosecke.seniorcommander.handler.ConversationalHandler;
 import com.mitchellbosecke.seniorcommander.message.MessageHandler;
 import com.mitchellbosecke.seniorcommander.channel.IrcChannel;
 import com.mitchellbosecke.seniorcommander.handler.DiceHandler;
@@ -23,6 +24,7 @@ public class CoreExtension implements Extension {
         messageHandlers.add(new LoggingHandler());
         messageHandlers.add(new DiceHandler());
         messageHandlers.add(new OutputHandler());
+        messageHandlers.add(new ConversationalHandler());
         return messageHandlers;
     }
 

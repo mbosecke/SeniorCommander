@@ -24,7 +24,7 @@ public class OutputHandler implements MessageHandler {
             }
 
             for (Channel channel : outputChannels) {
-                emit(context, channel, message.getUser(), message.getContent(), message.isWhisper());
+                emit(context, channel, message.getRecipient(), message.getContent(), message.isWhisper());
             }
         }
     }

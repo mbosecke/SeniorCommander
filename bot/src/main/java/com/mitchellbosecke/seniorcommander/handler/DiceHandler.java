@@ -25,7 +25,7 @@ public class DiceHandler implements MessageHandler {
         Matcher matcher = pattern.matcher(message.getContent());
         if (matcher.matches()) {
 
-            String user = message.getUser();
+            String user = message.getSender();
 
             if (cooldown.isReady(user)) {
                 Integer num = Integer.valueOf(matcher.group(1));
@@ -40,4 +40,6 @@ public class DiceHandler implements MessageHandler {
             }
         }
     }
+
+
 }
