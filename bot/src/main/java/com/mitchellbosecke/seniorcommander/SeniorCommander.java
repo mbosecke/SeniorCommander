@@ -12,9 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -32,6 +30,8 @@ public class SeniorCommander {
 
     private volatile boolean running = true;
 
+    private List<MessageHandler> newlyRegisteredHandlers = new LinkedList<>();
+
     public SeniorCommander(Configuration configuration, List<Extension> extensions) {
 
         List<Extension> allExtensions = new ArrayList<>();
@@ -44,7 +44,12 @@ public class SeniorCommander {
 
     }
 
+    /**
+     * Runs each channel on a child thread and then blocks while waiting for new messages on the queue.
+     * Can be interrupted with {@link #shutdown()}.
+     */
     public void run() {
+        // run each channel on it's own thread
         for (Channel channel : context.getChannels()) {
             executorService.submit(() -> {
                 try {
@@ -60,17 +65,19 @@ public class SeniorCommander {
 
         while (true) {
             Message message = context.getMessageQueue().readMessage();
-            if(message != null) {
-                for (MessageHandler handler : context.getMessageHandlers()) {
+            if (message != null) {
+
+                context.getMessageHandlers().forEach(messageHandler -> {
                     try {
-                        handler.handle(context, message);
+                        messageHandler.handle(context, message);
                     } catch (Exception ex) {
                         // we don't want to die! Just log the error.
                         logger.error("Error when handling message", ex);
                     }
-                }
+                });
             }
-            if(!running){
+            acknowledgeNewHandlers();
+            if (!running) {
                 break;
             }
         }
@@ -81,6 +88,15 @@ public class SeniorCommander {
         running = false;
         context.getChannels().forEach(Channel::shutdown);
         ExecutorUtils.shutdown(executorService, 10, TimeUnit.SECONDS);
+    }
+
+    public void registerHandler(MessageHandler messageHandler) {
+        newlyRegisteredHandlers.add(messageHandler);
+    }
+
+    private void acknowledgeNewHandlers() {
+        context.getMessageHandlers().addAll(newlyRegisteredHandlers);
+        newlyRegisteredHandlers.clear();
     }
 
     /**
@@ -94,14 +110,14 @@ public class SeniorCommander {
 
     private Context buildContext(Configuration configuration, List<Extension> extensions) {
         List<Channel> channels = new ArrayList<>();
-        List<MessageHandler> handlers = new ArrayList<>();
+        List<MessageHandler> handlers = new LinkedList<>();
         List<Timer> timers = new ArrayList<>();
         for (Extension extension : extensions) {
             channels.addAll(extension.getChannels());
             handlers.addAll(extension.getMessageHandlers());
             timers.addAll(extension.getScheduledTasks());
         }
-        return new Context(configuration, new MessageQueue(), channels, handlers, timers, Executors
+        return new Context(this, configuration, new MessageQueue(), channels, handlers, timers, Executors
                 .newScheduledThreadPool(10));
     }
 

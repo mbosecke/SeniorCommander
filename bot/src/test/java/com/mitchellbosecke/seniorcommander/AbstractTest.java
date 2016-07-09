@@ -52,7 +52,7 @@ public class AbstractTest {
             try {
                 logger.debug(retryCounter + ": Attempting to connect to socket channel.");
                 socket = new Socket("localhost", Integer.valueOf(config.getProperty(SocketChannel.CONFIG_SOCKET_PORT)));
-                socket.setSoTimeout(1000);
+                socket.setSoTimeout(5 * 60 * 1000);
                 break;
             } catch (IOException ex) {
                 logger.debug("Socket attempt failed");
@@ -88,7 +88,6 @@ public class AbstractTest {
         output.println(command);
         try {
             String reply = removeRecipient(input.readLine());
-            logger.debug("Reply: " + reply);
             return expectedResult.equalsIgnoreCase(reply);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -99,7 +98,6 @@ public class AbstractTest {
         output.println(command);
         try {
             String reply = removeRecipient(input.readLine());
-            logger.debug("Reply: " + reply);
             Matcher matcher = expectedResult.matcher(reply);
             return matcher.matches();
         } catch (IOException e) {

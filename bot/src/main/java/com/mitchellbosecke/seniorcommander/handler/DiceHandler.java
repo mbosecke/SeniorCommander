@@ -3,6 +3,8 @@ package com.mitchellbosecke.seniorcommander.handler;
 import com.mitchellbosecke.seniorcommander.Context;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -13,6 +15,8 @@ import java.util.regex.Pattern;
  * Created by mitch_000 on 2016-07-04.
  */
 public class DiceHandler implements MessageHandler {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final Pattern pattern = Pattern.compile("!d(\\d+)");
 

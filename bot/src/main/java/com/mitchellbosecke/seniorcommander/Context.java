@@ -13,6 +13,8 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public class Context {
 
+    private final SeniorCommander seniorCommander;
+
     private final Configuration configuration;
 
     private final MessageQueue messageQueue;
@@ -25,15 +27,20 @@ public class Context {
 
     private final ScheduledExecutorService scheduledExecutorService;
 
-    public Context(Configuration configuration, MessageQueue messageQueue, List<Channel> channels,
-                   List<MessageHandler> handlers, List<Timer> timers,
+    public Context(SeniorCommander seniorCommander, Configuration configuration, MessageQueue messageQueue,
+                   List<Channel> channels, List<MessageHandler> handlers, List<Timer> timers,
                    ScheduledExecutorService scheduledExecutorService) {
+        this.seniorCommander = seniorCommander;
         this.configuration = configuration;
         this.messageQueue = messageQueue;
         this.channels = channels;
         this.handlers = handlers;
         this.timers = timers;
         this.scheduledExecutorService = scheduledExecutorService;
+    }
+
+    public SeniorCommander getSeniorCommander() {
+        return seniorCommander;
     }
 
     public Configuration getConfiguration() {

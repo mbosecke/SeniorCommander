@@ -1,5 +1,8 @@
 package com.mitchellbosecke.seniorcommander.message;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
@@ -9,7 +12,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class MessageQueue {
 
-    BlockingQueue<Message> queue = new LinkedBlockingDeque<>();
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    private final BlockingQueue<Message> queue = new LinkedBlockingDeque<>();
 
     /**
      * Does not block

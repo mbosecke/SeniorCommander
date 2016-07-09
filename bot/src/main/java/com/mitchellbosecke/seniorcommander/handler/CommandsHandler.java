@@ -30,8 +30,9 @@ public class CommandsHandler implements MessageHandler {
             String commandName = tokenizer.nextToken();
 
             if ("add".equalsIgnoreCase(subCommand)) {
-                //context.getHandlers().add(new SimpleCommandHandler(commandName, tokenizer.nextToken()));
+                logger.debug("Command has been added: " + commandName);
                 context.getMessageQueue().add(Message.response(message, "The command has been added."));
+                context.getSeniorCommander().registerHandler(new SimpleCommandHandler(commandName, tokenizer.nextToken()));
             } else {
                 logger.debug("Unknown command");
                 // TODO: confusion emotion

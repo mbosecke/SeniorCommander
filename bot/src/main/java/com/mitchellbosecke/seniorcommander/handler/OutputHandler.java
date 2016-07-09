@@ -4,6 +4,8 @@ import com.mitchellbosecke.seniorcommander.Context;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +14,8 @@ import java.util.List;
  * Created by mitch_000 on 2016-07-05.
  */
 public class OutputHandler implements MessageHandler {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
     public void handle(Context context, Message message) {
