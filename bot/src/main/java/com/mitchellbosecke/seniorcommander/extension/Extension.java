@@ -2,7 +2,7 @@ package com.mitchellbosecke.seniorcommander.extension;
 
 import com.mitchellbosecke.seniorcommander.message.MessageHandler;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
-import com.mitchellbosecke.seniorcommander.scheduled.Timer;
+import com.mitchellbosecke.seniorcommander.timer.Timer;
 
 import java.util.List;
 
@@ -15,5 +15,5 @@ public interface Extension {
 
     List<Channel> getChannels();
 
-    List<Timer> getScheduledTasks();
+    List<Timer> getTimers();
 }

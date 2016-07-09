@@ -6,7 +6,7 @@ import com.mitchellbosecke.seniorcommander.extension.Extension;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageHandler;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
-import com.mitchellbosecke.seniorcommander.scheduled.Timer;
+import com.mitchellbosecke.seniorcommander.timer.Timer;
 import org.jibble.pircbot.IrcException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +60,7 @@ public class SeniorCommander {
             });
         }
 
-        // run the scheduled tasks
+        // run the timer tasks
         context.getTimers().forEach(timer -> timer.run(context));
 
         while (true) {
@@ -115,7 +115,7 @@ public class SeniorCommander {
         for (Extension extension : extensions) {
             channels.addAll(extension.getChannels());
             handlers.addAll(extension.getMessageHandlers());
-            timers.addAll(extension.getScheduledTasks());
+            timers.addAll(extension.getTimers());
         }
         return new Context(this, configuration, new MessageQueue(), channels, handlers, timers, Executors
                 .newScheduledThreadPool(10));

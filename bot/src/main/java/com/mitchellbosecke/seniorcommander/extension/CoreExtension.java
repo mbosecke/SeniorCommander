@@ -5,8 +5,8 @@ import com.mitchellbosecke.seniorcommander.channel.IrcChannel;
 import com.mitchellbosecke.seniorcommander.channel.SocketChannel;
 import com.mitchellbosecke.seniorcommander.handler.*;
 import com.mitchellbosecke.seniorcommander.message.MessageHandler;
-import com.mitchellbosecke.seniorcommander.scheduled.Timer;
-import com.mitchellbosecke.seniorcommander.scheduled.TimedShout;
+import com.mitchellbosecke.seniorcommander.timer.Timer;
+import com.mitchellbosecke.seniorcommander.timer.TimedShout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +36,7 @@ public class CoreExtension implements Extension {
     }
 
     @Override
-    public List<Timer> getScheduledTasks() {
+    public List<Timer> getTimers() {
         List<Timer> timer = new ArrayList<>();
         timer.add(new TimedShout("To be a good commander, you must be willing to order the death of the thing" +
                 " you love", 60));

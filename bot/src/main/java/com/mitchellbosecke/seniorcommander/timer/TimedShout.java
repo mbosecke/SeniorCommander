@@ -1,4 +1,4 @@
-package com.mitchellbosecke.seniorcommander.scheduled;
+package com.mitchellbosecke.seniorcommander.timer;
 
 import com.mitchellbosecke.seniorcommander.Context;
 import com.mitchellbosecke.seniorcommander.message.Message;

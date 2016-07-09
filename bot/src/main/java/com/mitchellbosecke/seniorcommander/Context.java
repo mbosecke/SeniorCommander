@@ -3,7 +3,7 @@ package com.mitchellbosecke.seniorcommander;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.message.MessageHandler;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
-import com.mitchellbosecke.seniorcommander.scheduled.Timer;
+import com.mitchellbosecke.seniorcommander.timer.Timer;
 
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
