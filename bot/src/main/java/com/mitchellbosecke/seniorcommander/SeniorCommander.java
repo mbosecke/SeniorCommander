@@ -7,12 +7,16 @@ import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageHandler;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.timer.Timer;
+import org.hibernate.SessionFactory;
 import org.jibble.pircbot.IrcException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -32,12 +36,19 @@ public class SeniorCommander {
 
     private List<MessageHandler> newlyRegisteredHandlers = new LinkedList<>();
 
+    private SessionFactory sessionFactory;
+
     public SeniorCommander(Configuration configuration, List<Extension> extensions) {
 
         List<Extension> allExtensions = new ArrayList<>();
         allExtensions.add(new CoreExtension()); // core extension is mandatory
         allExtensions.addAll(extensions);
         context = buildContext(configuration, allExtensions);
+
+        // initiate database
+        DatabaseManager databaseManager = new DatabaseManager(configuration);
+        databaseManager.migrate();
+        sessionFactory = databaseManager.getSessionFactory();
 
         // each channel runs on it's own thread
         executorService = Executors.newFixedThreadPool(context.getChannels().size());

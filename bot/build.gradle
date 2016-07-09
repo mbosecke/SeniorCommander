@@ -10,8 +10,20 @@ repositories {
 }
 
 dependencies {
+
+    // database
+    compile group: 'org.postgresql', name: 'postgresql', version: '9.4.1208'
+    compile group: 'org.hibernate', name: 'hibernate-core', version: '5.2.1.Final'
+    compile group: 'org.flywaydb', name: 'flyway-core', version: '4.0.3'
+
+
+    // irc
     compile group: 'pircbot', name: 'pircbot', version: '1.5.0'
+
+    // logging
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
     compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.21'
+
+    // testing
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }
