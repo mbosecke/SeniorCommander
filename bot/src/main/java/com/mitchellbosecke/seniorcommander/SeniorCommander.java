@@ -27,7 +27,10 @@ public class SeniorCommander {
 
     public SeniorCommander(Configuration configuration, List<Extension> extensions) {
 
-        Context context = buildContext(configuration, extensions);
+        List<Extension> allExtensions = new ArrayList<>();
+        allExtensions.add(new CoreExtension()); // core extension is mandatory
+        allExtensions.addAll(extensions);
+        Context context = buildContext(configuration, allExtensions);
 
         // each channel runs on it's own thread
         ExecutorService executor = Executors.newFixedThreadPool(context.getChannels().size());
@@ -64,6 +67,15 @@ public class SeniorCommander {
         executor.shutdown();
     }
 
+    /**
+     * Name used to populate the "sender" and "recipient" fields on a message.
+     *
+     * @return
+     */
+    public static String getName() {
+        return SeniorCommander.class.getName();
+    }
+
     private Context buildContext(Configuration configuration, List<Extension> extensions) {
         List<Channel> channels = new ArrayList<>();
         List<MessageHandler> handlers = new ArrayList<>();
@@ -79,7 +91,6 @@ public class SeniorCommander {
 
     public static void main(String[] args) throws IOException, IrcException {
         Configuration config = new Configuration("config.properties");
-        Extension extension = new CoreExtension();
-        new SeniorCommander(config, Collections.singletonList(extension));
+        new SeniorCommander(config, Collections.emptyList());
     }
 }

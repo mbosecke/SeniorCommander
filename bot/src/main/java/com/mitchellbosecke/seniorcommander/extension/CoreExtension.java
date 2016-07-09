@@ -1,12 +1,13 @@
 package com.mitchellbosecke.seniorcommander.extension;
 
 import com.mitchellbosecke.seniorcommander.channel.Channel;
-import com.mitchellbosecke.seniorcommander.handler.ConversationalHandler;
-import com.mitchellbosecke.seniorcommander.message.MessageHandler;
 import com.mitchellbosecke.seniorcommander.channel.IrcChannel;
+import com.mitchellbosecke.seniorcommander.channel.SocketChannel;
+import com.mitchellbosecke.seniorcommander.handler.ConversationalHandler;
 import com.mitchellbosecke.seniorcommander.handler.DiceHandler;
 import com.mitchellbosecke.seniorcommander.handler.LoggingHandler;
 import com.mitchellbosecke.seniorcommander.handler.OutputHandler;
+import com.mitchellbosecke.seniorcommander.message.MessageHandler;
 import com.mitchellbosecke.seniorcommander.scheduled.ScheduledTask;
 import com.mitchellbosecke.seniorcommander.scheduled.TimedShout;
 
@@ -32,6 +33,7 @@ public class CoreExtension implements Extension {
     public List<Channel> getChannels() {
         List<Channel> channels = new ArrayList<>();
         channels.add(new IrcChannel());
+        channels.add(new SocketChannel());
         return channels;
     }
 
