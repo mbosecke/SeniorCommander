@@ -1,4 +1,5 @@
-import com.mitchellbosecke.seniorcommander.AbstractTest;
+package com.mitchellbosecke.seniorcommander;
+
 import org.junit.Test;
 
 import java.util.regex.Pattern;
@@ -13,6 +14,6 @@ public class DiceTest extends AbstractTest {
 
     @Test
     public void rollD100 (){
-        assertTrue(testCommandAndResult("!d100", Pattern.compile("@user, You rolled a \\d{1,2}\\.")));
+        assertTrue(testCommandAndResult("!d100", Pattern.compile("You rolled a \\d{1,2}\\.")));
     }
 }

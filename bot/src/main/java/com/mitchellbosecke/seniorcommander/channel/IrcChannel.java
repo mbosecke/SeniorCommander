@@ -4,6 +4,7 @@ import com.mitchellbosecke.seniorcommander.Configuration;
 import com.mitchellbosecke.seniorcommander.Context;
 import com.mitchellbosecke.seniorcommander.SeniorCommander;
 import com.mitchellbosecke.seniorcommander.message.Message;
+import com.mitchellbosecke.seniorcommander.message.MessageUtils;
 import org.jibble.pircbot.IrcException;
 import org.jibble.pircbot.PircBot;
 import org.slf4j.Logger;
@@ -109,13 +110,12 @@ public class IrcChannel extends PircBot implements Channel {
     @Override
     public void shutdown() {
         synchronized (startupLock) {
-            logger.debug("IRC Channel shutting down");
+            running = false;
             if (this.isConnected()) {
+                logger.debug("IRC Channel shutting down");
                 this.disconnect();
                 this.quitServer();
                 this.dispose();
-            } else {
-                this.running = false;
             }
         }
     }
@@ -138,7 +138,7 @@ public class IrcChannel extends PircBot implements Channel {
         }
         logger.trace("Received message on IRC Channel: " + message);
 
-        String[] split = ChannelUtils.splitRecipient(message);
+        String[] split = MessageUtils.splitRecipient(message);
         String recipient = split[0];
         message = split[1];
 

@@ -2,6 +2,7 @@ package com.mitchellbosecke.seniorcommander.channel;
 
 import com.mitchellbosecke.seniorcommander.Context;
 import com.mitchellbosecke.seniorcommander.message.Message;
+import com.mitchellbosecke.seniorcommander.message.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,25 +35,38 @@ public class SocketChannel implements Channel {
 
     @Override
     public void listen(Context context) throws IOException {
+        BufferedReader input = null;
+
         synchronized (startupLock) {
-            if(running) {
+            if (running) {
                 String portConfig = context.getConfiguration().getProperty(CONFIG_SOCKET_PORT);
                 if (portConfig != null) {
                     serverSocket = new ServerSocket(Integer.valueOf(portConfig));
 
                     // block until a client connects
                     Socket clientSocket = serverSocket.accept();
-                    output = new PrintWriter(clientSocket.getOutputStream(), true);
+                    clientSocket.setSoTimeout(100);
 
-                    BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                    String inputLine;
+                    output = new PrintWriter(clientSocket.getOutputStream(), true);
+                    input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                     logger.debug("Socket channel started");
-                    while ((inputLine = input.readLine()) != null) {
-                        String[] split = ChannelUtils.splitRecipient(inputLine);
-                        String recipient = split[0];
-                        String message = split[1];
-                        context.getMessageQueue().add(Message.userInput(this, "user", recipient, message, false));
-                    }
+                }
+            }
+        }
+
+        String inputLine;
+        if (input != null) {
+
+            while (true) {
+                inputLine = input.readLine();
+                if (inputLine != null) {
+                    String[] split = MessageUtils.splitRecipient(inputLine);
+                    String recipient = split[0];
+                    String message = split[1];
+                    context.getMessageQueue().add(Message.userInput(this, "user", recipient, message, false));
+                }
+                if (!running) {
+                    break;
                 }
             }
         }
@@ -84,13 +98,14 @@ public class SocketChannel implements Channel {
     @Override
     public void shutdown() {
         synchronized (startupLock) {
+            running = false;
             if (serverSocket != null) {
+                logger.debug("Shutting down socket channel.");
                 try {
                     serverSocket.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                running = false;
             }
         }
     }

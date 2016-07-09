@@ -2,6 +2,7 @@ package com.mitchellbosecke.seniorcommander.message;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by mitch_000 on 2016-07-03.
@@ -19,12 +20,12 @@ public class MessageQueue {
     }
 
     /**
-     * Blocks until a message is ready
+     * Blocks for a small period of time until a message is ready
      * @return
      */
     public Message readMessage(){
         try {
-            return queue.take();
+            return queue.poll(1, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

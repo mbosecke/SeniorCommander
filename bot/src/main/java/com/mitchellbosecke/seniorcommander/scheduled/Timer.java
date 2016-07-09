@@ -5,7 +5,7 @@ import com.mitchellbosecke.seniorcommander.Context;
 /**
  * Created by mitch_000 on 2016-07-06.
  */
-public interface ScheduledTask {
+public interface Timer {
 
-    void initiate(Context context);
+    void run(Context context);
 }

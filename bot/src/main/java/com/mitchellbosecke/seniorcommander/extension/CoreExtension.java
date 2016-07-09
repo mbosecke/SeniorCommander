@@ -3,12 +3,9 @@ package com.mitchellbosecke.seniorcommander.extension;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.channel.IrcChannel;
 import com.mitchellbosecke.seniorcommander.channel.SocketChannel;
-import com.mitchellbosecke.seniorcommander.handler.ConversationalHandler;
-import com.mitchellbosecke.seniorcommander.handler.DiceHandler;
-import com.mitchellbosecke.seniorcommander.handler.LoggingHandler;
-import com.mitchellbosecke.seniorcommander.handler.OutputHandler;
+import com.mitchellbosecke.seniorcommander.handler.*;
 import com.mitchellbosecke.seniorcommander.message.MessageHandler;
-import com.mitchellbosecke.seniorcommander.scheduled.ScheduledTask;
+import com.mitchellbosecke.seniorcommander.scheduled.Timer;
 import com.mitchellbosecke.seniorcommander.scheduled.TimedShout;
 
 import java.util.ArrayList;
@@ -25,6 +22,7 @@ public class CoreExtension implements Extension {
         messageHandlers.add(new LoggingHandler());
         messageHandlers.add(new DiceHandler());
         messageHandlers.add(new OutputHandler());
+        messageHandlers.add(new CommandsHandler());
         messageHandlers.add(new ConversationalHandler());
         return messageHandlers;
     }
@@ -38,10 +36,10 @@ public class CoreExtension implements Extension {
     }
 
     @Override
-    public List<ScheduledTask> getScheduledTasks() {
-        List<ScheduledTask> scheduledTask = new ArrayList<>();
-        scheduledTask.add(new TimedShout("To be a good commander, you must be willing to order the death of the thing" +
+    public List<Timer> getScheduledTasks() {
+        List<Timer> timer = new ArrayList<>();
+        timer.add(new TimedShout("To be a good commander, you must be willing to order the death of the thing" +
                 " you love", 60));
-        return scheduledTask;
+        return timer;
     }
 }

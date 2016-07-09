@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by mitch_000 on 2016-07-06.
  */
-public class TimedShout implements ScheduledTask {
+public class TimedShout implements Timer {
 
     private final String content;
 
@@ -20,7 +20,7 @@ public class TimedShout implements ScheduledTask {
     }
 
     @Override
-    public void initiate(Context context) {
+    public void run(Context context) {
         context.getScheduledExecutorService().scheduleAtFixedRate(() -> {
             context.getMessageQueue().add(Message.shout(content));
         }, minutes, minutes, TimeUnit.MINUTES);

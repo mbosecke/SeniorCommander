@@ -1,5 +1,8 @@
 package com.mitchellbosecke.seniorcommander;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +13,7 @@ import java.util.Properties;
  */
 public class Configuration {
 
+    private Logger logger = LoggerFactory.getLogger(Configuration.class);
 
     private final Properties properties = new Properties();
 
@@ -27,7 +31,7 @@ public class Configuration {
                 throw new FileNotFoundException("property file '" + source + "' not found in the classpath");
             }
         } catch (Exception e) {
-            System.out.println("Exception: " + e);
+            logger.error("Exception: " + e);
         } finally {
             try {
                 inputStream.close();

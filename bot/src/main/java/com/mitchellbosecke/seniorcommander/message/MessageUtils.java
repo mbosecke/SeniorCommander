@@ -1,4 +1,4 @@
-package com.mitchellbosecke.seniorcommander.channel;
+package com.mitchellbosecke.seniorcommander.message;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -6,8 +6,7 @@ import java.util.regex.Pattern;
 /**
  * Created by mitch_000 on 2016-07-08.
  */
-public class ChannelUtils {
-
+public class MessageUtils {
 
     private static Pattern targetedMessage = Pattern.compile("@(\\w+),?\\s+?(.*)");
 

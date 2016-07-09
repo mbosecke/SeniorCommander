@@ -3,7 +3,7 @@ package com.mitchellbosecke.seniorcommander;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.message.MessageHandler;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
-import com.mitchellbosecke.seniorcommander.scheduled.ScheduledTask;
+import com.mitchellbosecke.seniorcommander.scheduled.Timer;
 
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
@@ -21,18 +21,18 @@ public class Context {
 
     private final List<MessageHandler> handlers;
 
-    private final List<ScheduledTask> scheduledTasks;
+    private final List<Timer> timers;
 
     private final ScheduledExecutorService scheduledExecutorService;
 
     public Context(Configuration configuration, MessageQueue messageQueue, List<Channel> channels,
-                   List<MessageHandler> handlers, List<ScheduledTask> scheduledTasks,
+                   List<MessageHandler> handlers, List<Timer> timers,
                    ScheduledExecutorService scheduledExecutorService) {
         this.configuration = configuration;
         this.messageQueue = messageQueue;
         this.channels = channels;
         this.handlers = handlers;
-        this.scheduledTasks = scheduledTasks;
+        this.timers = timers;
         this.scheduledExecutorService = scheduledExecutorService;
     }
 
@@ -60,7 +60,7 @@ public class Context {
         return handlers;
     }
 
-    public List<ScheduledTask> getScheduledTasks() {
-        return scheduledTasks;
+    public List<Timer> getTimers() {
+        return timers;
     }
 }
