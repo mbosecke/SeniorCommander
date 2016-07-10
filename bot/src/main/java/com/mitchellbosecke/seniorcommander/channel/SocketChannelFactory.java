@@ -18,15 +18,14 @@ public class SocketChannelFactory implements ChannelFactory {
         List<Channel> socketChannels = new ArrayList<>();
 
         List<ChannelConfiguration> channelConfigurations = session
-                .createQuery("SELECT cc FROM ChannelConfiguration cc WHERE cc.type = 'socket'", ChannelConfiguration
-                        .class)
+                .createQuery("SELECT cc FROM ChannelConfiguration cc WHERE cc.type = 'socket'", ChannelConfiguration.class)
                 .getResultList();
 
-        for(ChannelConfiguration configuration : channelConfigurations){
+        for (ChannelConfiguration configuration : channelConfigurations) {
 
             Integer port = Integer.valueOf(configuration.getSetting(CONFIG_PORT));
 
-            socketChannels.add(new SocketChannel(port));
+            socketChannels.add(new SocketChannel(configuration.getId(), port));
         }
 
         return socketChannels;

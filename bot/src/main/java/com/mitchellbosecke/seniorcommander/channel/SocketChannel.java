@@ -31,9 +31,12 @@ public class SocketChannel implements Channel {
 
     private volatile boolean running = true;
 
+    private final long id;
+
     private final Integer port;
 
-    public SocketChannel(Integer port) {
+    public SocketChannel(long id, Integer port) {
+        this.id = id;
         this.port = port;
     }
 
@@ -43,15 +46,15 @@ public class SocketChannel implements Channel {
 
         synchronized (startupLock) {
             if (running) {
-                    serverSocket = new ServerSocket(port);
+                serverSocket = new ServerSocket(port);
 
-                    // block until a client connects
-                    Socket clientSocket = serverSocket.accept();
-                    clientSocket.setSoTimeout(100);
+                // block until a client connects
+                Socket clientSocket = serverSocket.accept();
+                clientSocket.setSoTimeout(100);
 
-                    output = new PrintWriter(clientSocket.getOutputStream(), true);
-                    input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                    logger.debug("Socket channel started");
+                output = new PrintWriter(clientSocket.getOutputStream(), true);
+                input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                logger.debug("Socket channel started");
             }
         }
 
@@ -115,4 +118,10 @@ public class SocketChannel implements Channel {
             }
         }
     }
+
+    @Override
+    public long getId() {
+        return id;
+    }
 }
+

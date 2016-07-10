@@ -1,6 +1,7 @@
 package com.mitchellbosecke.seniorcommander.domain;
 
 import javax.persistence.*;
+import java.util.Set;
 
 /**
  * Created by mitch_000 on 2016-07-09.
@@ -17,6 +18,9 @@ public class Community {
     @Column
     private String name;
 
+    @OneToMany(mappedBy="community")
+    private Set<ChannelConfiguration> channelConfigurations;
+
     public long getId() {
         return id;
     }
@@ -31,5 +35,13 @@ public class Community {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Set<ChannelConfiguration> getChannelConfigurations() {
+        return channelConfigurations;
+    }
+
+    public void setChannelConfigurations(Set<ChannelConfiguration> channelConfigurations) {
+        this.channelConfigurations = channelConfigurations;
     }
 }

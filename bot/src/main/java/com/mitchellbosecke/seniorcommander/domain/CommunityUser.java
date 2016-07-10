@@ -1,6 +1,7 @@
 package com.mitchellbosecke.seniorcommander.domain;
 
 import javax.persistence.*;
+import java.util.Date;
 
 /**
  * Created by mitch_000 on 2016-07-10.
@@ -26,6 +27,14 @@ public class CommunityUser {
 
     @Column(name = "access_level")
     private String accessLevel;
+
+    @Column(name = "first_seen")
+    @Temporal(value = TemporalType.TIMESTAMP)
+    private Date firstSeen;
+
+    @Column(name = "last_chatted")
+    @Temporal(value = TemporalType.TIMESTAMP)
+    private Date lastChatted;
 
     public String getAccessLevel() {
         return accessLevel;
@@ -65,5 +74,21 @@ public class CommunityUser {
 
     public void setPoints(int points) {
         this.points = points;
+    }
+
+    public Date getFirstSeen() {
+        return firstSeen;
+    }
+
+    public void setFirstSeen(Date firstSeen) {
+        this.firstSeen = firstSeen;
+    }
+
+    public Date getLastChatted() {
+        return lastChatted;
+    }
+
+    public void setLastChatted(Date lastChatted) {
+        this.lastChatted = lastChatted;
     }
 }

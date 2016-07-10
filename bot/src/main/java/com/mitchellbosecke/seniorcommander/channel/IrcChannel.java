@@ -29,7 +29,7 @@ public class IrcChannel extends ListenerAdapter implements Channel {
 
     private volatile boolean running = true;
 
-
+    private final long id;
 
     private final String server;
 
@@ -41,12 +41,12 @@ public class IrcChannel extends ListenerAdapter implements Channel {
 
     private final String password;
 
-
     private MessageQueue messageQueue;
 
     private PircBotX ircClient;
 
-    public IrcChannel(String server, Integer port, String username, String password, String channel) {
+    public IrcChannel(long id, String server, Integer port, String username, String password, String channel) {
+        this.id = id;
         this.server = server;
         this.port = port;
         this.username = username;
@@ -60,17 +60,12 @@ public class IrcChannel extends ListenerAdapter implements Channel {
             if (running) {
                 this.messageQueue = messageQueue;
 
-                org.pircbotx.Configuration configuration = new org.pircbotx.Configuration.Builder()
-                        .setName(username)
-                        .setServerPassword(password)
-                        .addServer(server, port)
-                        .addListener(this)
-                        .addAutoJoinChannel(channel)
-                        .addCapHandler(new EnableCapHandler("twitch.tv/commands"))
+                org.pircbotx.Configuration configuration = new org.pircbotx.Configuration.Builder().setName(username)
+                        .setServerPassword(password).addServer(server, port).addListener(this)
+                        .addAutoJoinChannel(channel).addCapHandler(new EnableCapHandler("twitch.tv/commands"))
                         .buildConfiguration();
 
                 ircClient = new PircBotX(configuration);
-
 
                 logger.debug("IRC channel listening");
                 running = true;
@@ -122,9 +117,9 @@ public class IrcChannel extends ListenerAdapter implements Channel {
                 return;
             }
             logger.trace("Received whisper on IRC Channel: " + ircProtocolMessage.getLastParam());
-            messageQueue.add(Message.userInput(this, ircProtocolMessage.getNick(), SeniorCommander.getName(),
-                    ircProtocolMessage.getLastParam(),
-                    true));
+            messageQueue.add(Message
+                    .userInput(this, ircProtocolMessage.getNick(), SeniorCommander.getName(), ircProtocolMessage
+                            .getLastParam(), true));
         } else {
             logger.debug("Received unknown command: " + ircProtocolMessage.getCommand());
         }
@@ -155,8 +150,8 @@ public class IrcChannel extends ListenerAdapter implements Channel {
     }
 
     @Override
-    public void timeout(String user, long duration){
-        if(running){
+    public void timeout(String user, long duration) {
+        if (running) {
             //ircClient.sendRaw().rawLine("");
             ircClient.sendIRC().message(channel, String.format(".timeout %s %d", user, duration));
         }
@@ -173,6 +168,8 @@ public class IrcChannel extends ListenerAdapter implements Channel {
         }
     }
 
-
-
+    @Override
+    public long getId() {
+        return id;
+    }
 }

@@ -34,7 +34,7 @@ public class IrcChannelFactory implements ChannelFactory {
             String password = configuration.getSetting(CONFIG_PASSWORD);
             String channel = configuration.getSetting(CONFIG_CHANNEL);
 
-            ircChannels.add(new IrcChannel(server, port, username, password, channel));
+            ircChannels.add(new IrcChannel(configuration.getId(), server, port, username, password, channel));
         }
 
         return ircChannels;
