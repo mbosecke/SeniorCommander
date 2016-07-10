@@ -155,16 +155,20 @@ public class IrcChannel extends ListenerAdapter implements Channel {
     }
 
     @Override
+    public void timeout(String user, long duration){
+        if(running){
+            //ircClient.sendRaw().rawLine("");
+            ircClient.sendIRC().message(channel, String.format(".timeout %s %d", user, duration));
+        }
+    }
+
+    @Override
     public void shutdown() {
         synchronized (startupLock) {
             if (running) {
                 running = false;
                 logger.debug("IRC Channel shutting down");
                 ircClient.sendIRC().quitServer();
-                //ircClient.close();
-                //this.disconnect();
-                //this.quitServer();
-                //this.dispose();
             }
         }
     }

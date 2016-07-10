@@ -17,6 +17,8 @@ public interface Channel {
 
     void sendWhisper(String recipient, String content);
 
+    void timeout(String user, long duration);
+
     void shutdown();
 
 }

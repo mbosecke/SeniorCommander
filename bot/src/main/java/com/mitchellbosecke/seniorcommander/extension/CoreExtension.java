@@ -5,7 +5,6 @@ import com.mitchellbosecke.seniorcommander.channel.IrcChannelFactory;
 import com.mitchellbosecke.seniorcommander.channel.SocketChannelFactory;
 import com.mitchellbosecke.seniorcommander.handler.*;
 import com.mitchellbosecke.seniorcommander.message.MessageHandler;
-import com.mitchellbosecke.seniorcommander.timer.TimedShout;
 import com.mitchellbosecke.seniorcommander.timer.Timer;
 
 import java.util.ArrayList;
@@ -25,6 +24,8 @@ public class CoreExtension implements Extension {
         messageHandlers.add(new CommandsHandler());
         messageHandlers.add(new ConversationalHandler());
         messageHandlers.add(new UserAddHandler());
+        messageHandlers.add(new RouletteHandler());
+        messageHandlers.add(new AdviceHandler());
         return messageHandlers;
     }
 
@@ -39,8 +40,6 @@ public class CoreExtension implements Extension {
     @Override
     public List<Timer> getTimers() {
         List<Timer> timer = new ArrayList<>();
-        timer.add(new TimedShout("To be a good commander, you must be willing to order the death of the thing" +
-                " you love", 60));
         return timer;
     }
 }

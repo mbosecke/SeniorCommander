@@ -97,6 +97,11 @@ public class SocketChannel implements Channel {
     }
 
     @Override
+    public void timeout(String user, long duration) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void shutdown() {
         synchronized (startupLock) {
             running = false;
