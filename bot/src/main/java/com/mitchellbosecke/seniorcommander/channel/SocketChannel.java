@@ -1,7 +1,7 @@
 package com.mitchellbosecke.seniorcommander.channel;
 
-import com.mitchellbosecke.seniorcommander.Context;
 import com.mitchellbosecke.seniorcommander.message.Message;
+import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.message.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,8 +18,6 @@ import java.net.Socket;
  */
 public class SocketChannel implements Channel {
 
-    public static final String CONFIG_SOCKET_PORT = "socket.port";
-
     Logger logger = LoggerFactory.getLogger(getClass());
 
     private ServerSocket serverSocket;
@@ -33,15 +31,19 @@ public class SocketChannel implements Channel {
 
     private volatile boolean running = true;
 
+    private final Integer port;
+
+    public SocketChannel(Integer port) {
+        this.port = port;
+    }
+
     @Override
-    public void listen(Context context) throws IOException {
+    public void listen(MessageQueue messageQueue) throws IOException {
         BufferedReader input = null;
 
         synchronized (startupLock) {
             if (running) {
-                String portConfig = context.getConfiguration().getProperty(CONFIG_SOCKET_PORT);
-                if (portConfig != null) {
-                    serverSocket = new ServerSocket(Integer.valueOf(portConfig));
+                    serverSocket = new ServerSocket(port);
 
                     // block until a client connects
                     Socket clientSocket = serverSocket.accept();
@@ -50,7 +52,6 @@ public class SocketChannel implements Channel {
                     output = new PrintWriter(clientSocket.getOutputStream(), true);
                     input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                     logger.debug("Socket channel started");
-                }
             }
         }
 
@@ -63,7 +64,7 @@ public class SocketChannel implements Channel {
                     String[] split = MessageUtils.splitRecipient(inputLine);
                     String recipient = split[0];
                     String message = split[1];
-                    context.getMessageQueue().add(Message.userInput(this, "user", recipient, message, false));
+                    messageQueue.add(Message.userInput(this, "user", recipient, message, false));
                 }
                 if (!running) {
                     break;
@@ -73,14 +74,14 @@ public class SocketChannel implements Channel {
     }
 
     @Override
-    public void sendMessage(Context context, String content) {
+    public void sendMessage(String content) {
         if (running) {
             output.println(content);
         }
     }
 
     @Override
-    public void sendMessage(Context context, String recipient, String content) {
+    public void sendMessage(String recipient, String content) {
         if (running) {
             content = String.format("@%s, %s", recipient, content);
             output.println(content);
@@ -88,7 +89,7 @@ public class SocketChannel implements Channel {
     }
 
     @Override
-    public void sendWhisper(Context context, String recipient, String content) {
+    public void sendWhisper(String recipient, String content) {
         if (running) {
             content = String.format("/w @%s, %s", recipient, content);
             output.println(content);

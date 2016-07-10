@@ -1,9 +1,6 @@
 package com.mitchellbosecke.seniorcommander.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * Created by mitch_000 on 2016-07-09.
@@ -13,6 +10,7 @@ import javax.persistence.Table;
 public class Community {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private long id;
 

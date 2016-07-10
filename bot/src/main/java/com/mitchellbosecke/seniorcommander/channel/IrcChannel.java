@@ -1,12 +1,15 @@
 package com.mitchellbosecke.seniorcommander.channel;
 
-import com.mitchellbosecke.seniorcommander.Configuration;
-import com.mitchellbosecke.seniorcommander.Context;
 import com.mitchellbosecke.seniorcommander.SeniorCommander;
 import com.mitchellbosecke.seniorcommander.message.Message;
+import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.message.MessageUtils;
-import org.jibble.pircbot.IrcException;
-import org.jibble.pircbot.PircBot;
+import org.pircbotx.PircBotX;
+import org.pircbotx.cap.EnableCapHandler;
+import org.pircbotx.exception.IrcException;
+import org.pircbotx.hooks.ListenerAdapter;
+import org.pircbotx.hooks.events.UnknownEvent;
+import org.pircbotx.hooks.types.GenericMessageEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,15 +18,9 @@ import java.io.IOException;
 /**
  * Created by mitch_000 on 2016-07-03.
  */
-public class IrcChannel extends PircBot implements Channel {
+public class IrcChannel extends ListenerAdapter implements Channel {
 
     Logger logger = LoggerFactory.getLogger(getClass());
-
-    private static final String CONFIG_IRC_USERNAME = "irc.username";
-    private static final String CONFIG_IRC_SERVER = "irc.server";
-    private static final String CONFIG_IRC_PORT = "irc.port";
-    private static final String CONFIG_IRC_OAUTH_KEY = "irc.oauthkey";
-    private static final String CONFIG_IRC_CHANNEL = "irc.channel";
 
     /**
      * Ensure that either startup or shutdown are performed exclusively.
@@ -32,120 +29,146 @@ public class IrcChannel extends PircBot implements Channel {
 
     private volatile boolean running = true;
 
-    private Context context;
+
+
+    private final String server;
+
+    private final String username;
+
+    private final String channel;
+
+    private final Integer port;
+
+    private final String password;
+
+
+    private MessageQueue messageQueue;
+
+    private PircBotX ircClient;
+
+    public IrcChannel(String server, Integer port, String username, String password, String channel) {
+        this.server = server;
+        this.port = port;
+        this.username = username;
+        this.password = password;
+        this.channel = channel;
+    }
 
     @Override
-    public void listen(Context context) throws IOException {
+    public void listen(MessageQueue messageQueue) throws IOException {
         synchronized (startupLock) {
             if (running) {
-                this.context = context;
-                Configuration configuration = context.getConfiguration();
+                this.messageQueue = messageQueue;
 
-                if(configuration.getProperty(CONFIG_IRC_SERVER) != null) {
-                    this.setName(configuration.getProperty(CONFIG_IRC_USERNAME));
-                    try {
-                        connect(configuration.getProperty(CONFIG_IRC_SERVER), Integer.valueOf(configuration.getProperty(CONFIG_IRC_PORT)), configuration
-                                .getProperty(CONFIG_IRC_OAUTH_KEY));
-                        logger.debug("IRC server connected");
-                    } catch (IrcException e) {
-                        throw new RuntimeException(e);
-                    }
-                    this.joinChannel(configuration.getProperty(CONFIG_IRC_CHANNEL));
-                    logger.debug("IRC channel listening");
-                    running = true;
+                org.pircbotx.Configuration configuration = new org.pircbotx.Configuration.Builder()
+                        .setName(username)
+                        .setServerPassword(password)
+                        .addServer(server, port)
+                        .addListener(this)
+                        .addAutoJoinChannel(channel)
+                        .addCapHandler(new EnableCapHandler("twitch.tv/commands"))
+                        .buildConfiguration();
+
+                ircClient = new PircBotX(configuration);
+
+
+                logger.debug("IRC channel listening");
+                running = true;
+                try {
+                    ircClient.startBot();
+                } catch (IrcException e) {
+                    throw new RuntimeException(e);
                 }
             }
         }
     }
 
+    /**
+     * Public chat message
+     *
+     * @param event
+     * @throws Exception
+     */
     @Override
-    protected void onServerResponse(int code, String response) {
-        logger.debug(String.format("[%d] %s", code, response));
+    public void onGenericMessage(GenericMessageEvent event) throws Exception {
+        if (username.equalsIgnoreCase(event.getUser().getNick())) { // ignore messages from this bot
+            return;
+        }
+        logger.trace("Received message on IRC Channel: " + event.getMessage());
+
+        String[] split = MessageUtils.splitRecipient(event.getMessage());
+        String recipient = split[0];
+        String message = split[1];
+
+        if (username.equalsIgnoreCase(recipient)) {
+            recipient = SeniorCommander.class.getName();
+        }
+
+        messageQueue.add(Message.userInput(this, event.getUser().getNick(), recipient, message, false));
     }
 
+    /**
+     * Whisper
+     *
+     * @param event
+     * @throws Exception
+     */
     @Override
-    protected void onConnect() {
-        // required to receive whispers
-        sendRawLine("CAP REQ :twitch.tv/commands");
-
-        //sendRawLine("CAP REQ :twitch.tv/membership");
-    }
-
-    @Override
-    protected void onUnknown(String line) {
-        IrcProtocolMessage ircProtocolMessage = new IrcProtocolMessage(line);
-
+    public void onUnknown(UnknownEvent event) throws Exception {
+        IrcProtocolMessage ircProtocolMessage = new IrcProtocolMessage(event.getLine());
         if ("WHISPER".equals(ircProtocolMessage.getCommand())) {
-            this.onPrivateMessage(ircProtocolMessage.getNick(), ircProtocolMessage.getLogin(), ircProtocolMessage
-                    .getHostname(), ircProtocolMessage.getLastParam());
+
+            if (username.equalsIgnoreCase(ircProtocolMessage.getNick())) {
+                return;
+            }
+            logger.trace("Received whisper on IRC Channel: " + ircProtocolMessage.getLastParam());
+            messageQueue.add(Message.userInput(this, ircProtocolMessage.getNick(), SeniorCommander.getName(),
+                    ircProtocolMessage.getLastParam(),
+                    true));
         } else {
-            logger.debug("Received unknown command: " + line);
+            logger.debug("Received unknown command: " + ircProtocolMessage.getCommand());
         }
     }
 
     @Override
-    public void sendMessage(Context context, String content) {
-        if(running) {
-            String channel = context.getConfiguration().getProperty(CONFIG_IRC_CHANNEL);
-            this.sendMessage(channel, content);
+    public void sendMessage(String content) {
+        if (running) {
+            //this.sendMessage(content);
+            //ircClient.sendMessage("");
+            ircClient.sendIRC().message(channel, content);
         }
     }
 
     @Override
-    public void sendMessage(Context context, String recipient, String content) {
-        if(running) {
-            String channel = context.getConfiguration().getProperty(CONFIG_IRC_CHANNEL);
-            this.sendMessage(channel, "@" + recipient + " " + content);
+    public void sendMessage(String recipient, String content) {
+        if (running) {
+            //this.sendMessage("@" + recipient + " " + content);
+            ircClient.sendIRC().message(channel, "@" + recipient + ", " + content);
         }
     }
 
     @Override
-    public void sendWhisper(Context context, String recipient, String content) {
-        if(running) {
-            String channel = context.getConfiguration().getProperty(CONFIG_IRC_CHANNEL);
-            sendRawLineViaQueue(String.format("PRIVMSG %s :/w %s %s", channel, recipient, content));
+    public void sendWhisper(String recipient, String content) {
+        if (running) {
+            ircClient.sendRaw().rawLine(String.format("PRIVMSG %s :/w %s %s", channel, recipient, content));
         }
     }
 
     @Override
     public void shutdown() {
         synchronized (startupLock) {
-            running = false;
-            if (this.isConnected()) {
+            if (running) {
+                running = false;
                 logger.debug("IRC Channel shutting down");
-                this.disconnect();
-                this.quitServer();
-                this.dispose();
+                ircClient.sendIRC().quitServer();
+                //ircClient.close();
+                //this.disconnect();
+                //this.quitServer();
+                //this.dispose();
             }
         }
     }
 
-    @Override
-    protected void onPrivateMessage(String sender, String login, String hostname, String message) {
-        String botUsername = context.getConfiguration().getProperty(CONFIG_IRC_USERNAME);
-        if (botUsername.equalsIgnoreCase(sender)) {
-            return;
-        }
-        logger.trace("Received whisper on IRC Channel: " + message);
-        context.getMessageQueue().add(Message.userInput(this, sender, SeniorCommander.getName(), message, true));
-    }
 
-    @Override
-    protected void onMessage(String channel, String sender, String login, String hostname, String message) {
-        String botUsername = context.getConfiguration().getProperty(CONFIG_IRC_USERNAME);
-        if (botUsername.equalsIgnoreCase(sender)) {
-            return;
-        }
-        logger.trace("Received message on IRC Channel: " + message);
 
-        String[] split = MessageUtils.splitRecipient(message);
-        String recipient = split[0];
-        message = split[1];
-
-        if (botUsername.equalsIgnoreCase(recipient)) {
-            recipient = SeniorCommander.class.getName();
-        }
-
-        context.getMessageQueue().add(Message.userInput(this, sender, recipient, message, false));
-    }
 }

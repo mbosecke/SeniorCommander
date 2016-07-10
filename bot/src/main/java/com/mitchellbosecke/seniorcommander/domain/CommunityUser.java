@@ -10,6 +10,7 @@ import javax.persistence.*;
 public class CommunityUser {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private long id;
 

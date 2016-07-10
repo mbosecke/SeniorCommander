@@ -28,20 +28,20 @@ public class OutputHandler implements MessageHandler {
             }
 
             for (Channel channel : outputChannels) {
-                emit(context, channel, message.getRecipient(), message.getContent(), message.isWhisper());
+                emit(channel, message.getRecipient(), message.getContent(), message.isWhisper());
             }
         }
     }
 
-    private void emit(Context context, Channel channel, String recipient, String content, boolean whisper) {
+    private void emit(Channel channel, String recipient, String content, boolean whisper) {
         if (recipient != null) {
             if (whisper) {
-                channel.sendWhisper(context, recipient, content);
+                channel.sendWhisper(recipient, content);
             } else {
-                channel.sendMessage(context, recipient, content);
+                channel.sendMessage(recipient, content);
             }
         } else {
-            channel.sendMessage(context, content);
+            channel.sendMessage(content);
         }
     }
 }

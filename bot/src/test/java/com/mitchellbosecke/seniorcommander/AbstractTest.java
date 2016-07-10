@@ -1,6 +1,5 @@
 package com.mitchellbosecke.seniorcommander;
 
-import com.mitchellbosecke.seniorcommander.channel.SocketChannel;
 import com.mitchellbosecke.seniorcommander.message.MessageUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -51,7 +50,7 @@ public class AbstractTest {
             retryCounter++;
             try {
                 logger.debug(retryCounter + ": Attempting to connect to socket channel.");
-                socket = new Socket("localhost", Integer.valueOf(config.getProperty(SocketChannel.CONFIG_SOCKET_PORT)));
+                socket = new Socket("localhost", Integer.valueOf(config.getProperty("socket.port")));
                 socket.setSoTimeout(5 * 60 * 1000);
                 break;
             } catch (IOException ex) {

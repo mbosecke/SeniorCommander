@@ -1,12 +1,12 @@
 package com.mitchellbosecke.seniorcommander.extension;
 
-import com.mitchellbosecke.seniorcommander.channel.Channel;
-import com.mitchellbosecke.seniorcommander.channel.IrcChannel;
-import com.mitchellbosecke.seniorcommander.channel.SocketChannel;
+import com.mitchellbosecke.seniorcommander.channel.ChannelFactory;
+import com.mitchellbosecke.seniorcommander.channel.IrcChannelFactory;
+import com.mitchellbosecke.seniorcommander.channel.SocketChannelFactory;
 import com.mitchellbosecke.seniorcommander.handler.*;
 import com.mitchellbosecke.seniorcommander.message.MessageHandler;
-import com.mitchellbosecke.seniorcommander.timer.Timer;
 import com.mitchellbosecke.seniorcommander.timer.TimedShout;
+import com.mitchellbosecke.seniorcommander.timer.Timer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,11 +29,11 @@ public class CoreExtension implements Extension {
     }
 
     @Override
-    public List<Channel> getChannels() {
-        List<Channel> channels = new ArrayList<>();
-        channels.add(new IrcChannel());
-        channels.add(new SocketChannel());
-        return channels;
+    public List<ChannelFactory> getChannelFactories() {
+        List<ChannelFactory> factories = new ArrayList<>();
+        factories.add(new IrcChannelFactory());
+        factories.add(new SocketChannelFactory());
+        return factories;
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.mitchellbosecke.seniorcommander.channel;
 
-import com.mitchellbosecke.seniorcommander.Context;
+import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 
 import java.io.IOException;
 
@@ -9,13 +9,13 @@ import java.io.IOException;
  */
 public interface Channel {
 
-    void listen(Context context) throws IOException;
+    void listen(MessageQueue messageQueue) throws IOException;
 
-    void sendMessage(Context context, String content);
+    void sendMessage(String content);
 
-    void sendMessage(Context context, String recipient, String content);
+    void sendMessage(String recipient, String content);
 
-    void sendWhisper(Context context, String recipient, String content);
+    void sendWhisper(String recipient, String content);
 
     void shutdown();
 

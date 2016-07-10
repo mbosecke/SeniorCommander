@@ -1,5 +1,7 @@
 package com.mitchellbosecke.seniorcommander;
 
+import com.mitchellbosecke.seniorcommander.domain.ChannelConfiguration;
+import com.mitchellbosecke.seniorcommander.domain.ChannelConfigurationSetting;
 import com.mitchellbosecke.seniorcommander.domain.Community;
 import com.mitchellbosecke.seniorcommander.domain.CommunityUser;
 import org.flywaydb.core.Flyway;
@@ -40,14 +42,20 @@ public class DatabaseManager {
         StandardServiceRegistry registry = new StandardServiceRegistryBuilder().applySettings(config).build();
         try {
             MetadataSources sources = new MetadataSources(registry);
+
+            // register all persistent entities
             sources.addAnnotatedClass(Community.class);
             sources.addAnnotatedClass(CommunityUser.class);
+            sources.addAnnotatedClass(ChannelConfiguration.class);
+            sources.addAnnotatedClass(ChannelConfigurationSetting.class);
+
             MetadataBuilder metadataBuilder = sources.getMetadataBuilder();
-            metadataBuilder.applyImplicitSchemaName("core");
+            metadataBuilder.applyImplicitSchemaName(configuration.getProperty(CONFIG_SCHEMA));
 
             sessionFactory = metadataBuilder.build().buildSessionFactory();
         } catch (Exception e) {
             StandardServiceRegistryBuilder.destroy(registry);
+            throw new RuntimeException(e);
         }
         return sessionFactory;
     }

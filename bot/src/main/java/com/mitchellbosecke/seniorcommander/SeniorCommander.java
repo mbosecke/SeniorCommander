@@ -1,6 +1,7 @@
 package com.mitchellbosecke.seniorcommander;
 
 import com.mitchellbosecke.seniorcommander.channel.Channel;
+import com.mitchellbosecke.seniorcommander.channel.ChannelFactory;
 import com.mitchellbosecke.seniorcommander.extension.CoreExtension;
 import com.mitchellbosecke.seniorcommander.extension.Extension;
 import com.mitchellbosecke.seniorcommander.message.Message;
@@ -9,7 +10,6 @@ import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.timer.Timer;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.jibble.pircbot.IrcException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,19 +37,20 @@ public class SeniorCommander {
 
     private List<MessageHandler> newlyRegisteredHandlers = new LinkedList<>();
 
-    private SessionFactory sessionFactory;
+    private final SessionFactory sessionFactory;
 
     public SeniorCommander(Configuration configuration, List<Extension> extensions) {
-
-        List<Extension> allExtensions = new ArrayList<>();
-        allExtensions.add(new CoreExtension()); // core extension is mandatory
-        allExtensions.addAll(extensions);
-        context = buildContext(configuration, allExtensions);
 
         // initiate database
         DatabaseManager databaseManager = new DatabaseManager(configuration);
         databaseManager.migrate();
         sessionFactory = databaseManager.getSessionFactory();
+
+        // handle extensions which build channels/commands
+        List<Extension> allExtensions = new ArrayList<>();
+        allExtensions.add(new CoreExtension()); // core extension is mandatory
+        allExtensions.addAll(extensions);
+        context = buildContext(configuration, allExtensions);
 
         // each channel runs on it's own thread
         executorService = Executors.newFixedThreadPool(context.getChannels().size());
@@ -65,7 +66,7 @@ public class SeniorCommander {
         for (Channel channel : context.getChannels()) {
             executorService.submit(() -> {
                 try {
-                    channel.listen(context);
+                    channel.listen(context.getMessageQueue());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -80,6 +81,8 @@ public class SeniorCommander {
             if (message != null) {
 
                 Session session = sessionFactory.openSession();
+                session.beginTransaction();
+
                 context.setSession(session);
                 context.getMessageHandlers().forEach(messageHandler -> {
                     try {
@@ -89,7 +92,7 @@ public class SeniorCommander {
                         logger.error("Error when handling message", ex);
                     }
                 });
-                session.beginTransaction();
+
                 session.getTransaction().commit();
                 session.close();
             }
@@ -129,16 +132,31 @@ public class SeniorCommander {
         List<Channel> channels = new ArrayList<>();
         List<MessageHandler> handlers = new LinkedList<>();
         List<Timer> timers = new ArrayList<>();
+
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
         for (Extension extension : extensions) {
-            channels.addAll(extension.getChannels());
+
+            List<ChannelFactory> channelFactories = extension.getChannelFactories();
+            if(channelFactories != null){
+                channelFactories.forEach(channelFactory -> {
+                    channels.addAll(channelFactory.build(session));
+                });
+            }
+
             handlers.addAll(extension.getMessageHandlers());
             timers.addAll(extension.getTimers());
         }
+
+        session.getTransaction().commit();
+        session.close();
+
         return new Context(this, configuration, new MessageQueue(), channels, handlers, timers, Executors
                 .newScheduledThreadPool(10));
     }
 
-    public static void main(String[] args) throws IOException, IrcException {
+    public static void main(String[] args) throws IOException {
         Configuration config = new Configuration("config.properties");
         SeniorCommander commander = new SeniorCommander(config, Collections.emptyList());
         commander.run();
