@@ -7,6 +7,7 @@ import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageHandler;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.timer.Timer;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.jibble.pircbot.IrcException;
 import org.slf4j.Logger;
@@ -71,13 +72,14 @@ public class SeniorCommander {
             });
         }
 
-        // run the timer tasks
+        // run the timers
         context.getTimers().forEach(timer -> timer.run(context));
 
         while (true) {
             Message message = context.getMessageQueue().readMessage();
             if (message != null) {
 
+                Session session = sessionFactory.openSession();
                 context.getMessageHandlers().forEach(messageHandler -> {
                     try {
                         messageHandler.handle(context, message);
@@ -86,6 +88,9 @@ public class SeniorCommander {
                         logger.error("Error when handling message", ex);
                     }
                 });
+                session.beginTransaction();
+                session.getTransaction().commit();
+                session.close();
             }
             acknowledgeNewHandlers();
             if (!running) {

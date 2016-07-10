@@ -1,7 +1,9 @@
 package com.mitchellbosecke.seniorcommander;
 
+import com.mitchellbosecke.seniorcommander.domain.Community;
 import org.flywaydb.core.Flyway;
 import org.hibernate.SessionFactory;
+import org.hibernate.boot.MetadataBuilder;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -34,10 +36,14 @@ public class DatabaseManager {
         config.setProperty("hibernate.connection.username", configuration.getProperty(CONFIG_USERNAME));
         config.setProperty("hibernate.connection.password", configuration.getProperty(CONFIG_PASSWORD));
 
-        StandardServiceRegistry registry = new StandardServiceRegistryBuilder().applySettings(config)
-                .build();
+        StandardServiceRegistry registry = new StandardServiceRegistryBuilder().applySettings(config).build();
         try {
-            sessionFactory = new MetadataSources(registry).buildMetadata().buildSessionFactory();
+            MetadataSources sources = new MetadataSources(registry);
+            sources.addAnnotatedClass(Community.class);
+            MetadataBuilder metadataBuilder = sources.getMetadataBuilder();
+            metadataBuilder.applyImplicitSchemaName("core");
+
+            sessionFactory = metadataBuilder.build().buildSessionFactory();
         } catch (Exception e) {
             StandardServiceRegistryBuilder.destroy(registry);
         }
