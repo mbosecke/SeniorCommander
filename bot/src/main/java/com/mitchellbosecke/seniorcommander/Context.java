@@ -4,6 +4,7 @@ import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.message.MessageHandler;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.timer.Timer;
+import org.hibernate.Session;
 
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
@@ -26,6 +27,8 @@ public class Context {
     private final List<Timer> timers;
 
     private final ScheduledExecutorService scheduledExecutorService;
+
+    private Session session;
 
     public Context(SeniorCommander seniorCommander, Configuration configuration, MessageQueue messageQueue,
                    List<Channel> channels, List<MessageHandler> handlers, List<Timer> timers,
@@ -69,5 +72,13 @@ public class Context {
 
     public List<Timer> getTimers() {
         return timers;
+    }
+
+    public void setSession(Session session) {
+        this.session = session;
+    }
+
+    public Session getSession() {
+        return session;
     }
 }

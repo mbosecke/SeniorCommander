@@ -80,6 +80,7 @@ public class SeniorCommander {
             if (message != null) {
 
                 Session session = sessionFactory.openSession();
+                context.setSession(session);
                 context.getMessageHandlers().forEach(messageHandler -> {
                     try {
                         messageHandler.handle(context, message);

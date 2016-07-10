@@ -1,6 +1,7 @@
 package com.mitchellbosecke.seniorcommander;
 
 import com.mitchellbosecke.seniorcommander.domain.Community;
+import com.mitchellbosecke.seniorcommander.domain.CommunityUser;
 import org.flywaydb.core.Flyway;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataBuilder;
@@ -40,6 +41,7 @@ public class DatabaseManager {
         try {
             MetadataSources sources = new MetadataSources(registry);
             sources.addAnnotatedClass(Community.class);
+            sources.addAnnotatedClass(CommunityUser.class);
             MetadataBuilder metadataBuilder = sources.getMetadataBuilder();
             metadataBuilder.applyImplicitSchemaName("core");
 

@@ -24,6 +24,7 @@ public class CoreExtension implements Extension {
         messageHandlers.add(new OutputHandler());
         messageHandlers.add(new CommandsHandler());
         messageHandlers.add(new ConversationalHandler());
+        messageHandlers.add(new UserAddHandler());
         return messageHandlers;
     }
 
