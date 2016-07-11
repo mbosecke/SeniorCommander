@@ -37,7 +37,7 @@ public class UserStatsHandler implements MessageHandler {
                 user.setName(message.getSender().toLowerCase());
                 user.setFirstSeen(new Date());
                 user.setLastChatted(new Date());
-                user.setAccessLevel("user");
+                user.setAccessLevel(CommunityUser.AccessLevel.USER.name());
 
                 repository.persist(user);
             } else {

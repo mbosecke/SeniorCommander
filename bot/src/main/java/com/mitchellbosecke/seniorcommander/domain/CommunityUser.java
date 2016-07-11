@@ -10,6 +10,10 @@ import java.util.Date;
 @Table(name = "community_user")
 public class CommunityUser {
 
+    public enum AccessLevel {
+        USER, MODERATOR, ADMIN
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column

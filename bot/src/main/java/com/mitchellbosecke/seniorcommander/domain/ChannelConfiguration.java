@@ -25,6 +25,10 @@ public class ChannelConfiguration {
     @OneToMany(mappedBy = "channelConfiguration")
     private Set<ChannelConfigurationSetting> settings;
 
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "online_channel_user", joinColumns = @JoinColumn(name = "channel_id"), inverseJoinColumns = @JoinColumn(name = "community_user_id"))
+    private Set<CommunityUser> onlineUsers;
+
     public Community getCommunity() {
         return community;
     }
@@ -55,6 +59,10 @@ public class ChannelConfiguration {
 
     public void setSettings(Set<ChannelConfigurationSetting> settings) {
         this.settings = settings;
+    }
+
+    public Set<CommunityUser> getOnlineUsers() {
+        return onlineUsers;
     }
 
     @Transient

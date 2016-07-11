@@ -78,14 +78,14 @@ public class SocketChannel implements Channel {
 
     @Override
     public void sendMessage(String content) {
-        if (running) {
+        if (running && output != null) {
             output.println(content);
         }
     }
 
     @Override
     public void sendMessage(String recipient, String content) {
-        if (running) {
+        if (running && output != null) {
             content = String.format("@%s, %s", recipient, content);
             output.println(content);
         }
@@ -93,7 +93,7 @@ public class SocketChannel implements Channel {
 
     @Override
     public void sendWhisper(String recipient, String content) {
-        if (running) {
+        if (running && output != null) {
             content = String.format("/w @%s, %s", recipient, content);
             output.println(content);
         }

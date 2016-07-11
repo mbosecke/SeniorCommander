@@ -32,6 +32,7 @@ public class CoreMessageHandlerFactory implements MessageHandlerFactory {
         messageHandlers.add(new UserStatsHandler(repository));
         messageHandlers.add(new RouletteHandler(messageQueue));
         messageHandlers.add(new AdviceHandler(messageQueue));
+        messageHandlers.add(new JoinPartHandler(repository));
         return messageHandlers;
     }
 
