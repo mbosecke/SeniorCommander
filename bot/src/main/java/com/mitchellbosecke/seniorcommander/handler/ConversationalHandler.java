@@ -21,8 +21,10 @@ public class ConversationalHandler implements MessageHandler {
 
     @Override
     public void handle(Message message) {
-        if (SeniorCommander.getName().equals(message.getRecipient()) && !message.getContent().startsWith("!")) {
-            messageQueue.add(Message.response(message, "Hello friend!"));
+        if(Message.Type.USER.equals(message.getType())) {
+            if (SeniorCommander.getName().equalsIgnoreCase(message.getRecipient()) && !message.getContent().startsWith("!")) {
+                messageQueue.add(Message.response(message, "Hello friend!"));
+            }
         }
     }
 }

@@ -1,7 +1,6 @@
 package com.mitchellbosecke.seniorcommander.channel;
 
 import com.mitchellbosecke.seniorcommander.SeniorCommander;
-import com.mitchellbosecke.seniorcommander.SeniorCommanderImpl;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.message.MessageUtils;
@@ -67,13 +66,10 @@ public class IrcChannel extends ListenerAdapter implements Channel {
                 this.messageQueue = messageQueue;
 
                 org.pircbotx.Configuration configuration = new org.pircbotx.Configuration.Builder().setName(username)
-                        .setServerPassword(password).addServer(server, port).addListener(this)
-                        .setAutoNickChange(false)
-                        .setOnJoinWhoEnabled(false)
-                        .setCapEnabled(true)
+                        .setServerPassword(password).addServer(server, port).addListener(this).setAutoNickChange(false)
+                        .setOnJoinWhoEnabled(false).setCapEnabled(true)
                         .addCapHandler(new EnableCapHandler("twitch.tv/commands"))
-                        .addCapHandler(new EnableCapHandler("twitch.tv/membership"))
-                        .addAutoJoinChannel(channel)
+                        .addCapHandler(new EnableCapHandler("twitch.tv/membership")).addAutoJoinChannel(channel)
                         .buildConfiguration();
 
                 ircClient = new PircBotX(configuration);
@@ -107,7 +103,7 @@ public class IrcChannel extends ListenerAdapter implements Channel {
         String message = split[1];
 
         if (username.equalsIgnoreCase(recipient)) {
-            recipient = SeniorCommanderImpl.class.getName();
+            recipient = SeniorCommander.getName();
         }
 
         messageQueue.add(Message.userInput(this, event.getUser().getNick(), recipient, message, false));
@@ -152,7 +148,7 @@ public class IrcChannel extends ListenerAdapter implements Channel {
     public void onUserList(UserListEvent event) throws Exception {
         Set<User> users = event.getUsers();
         StringBuilder names = new StringBuilder();
-        for(User user : users){
+        for (User user : users) {
             names.append(user.getNick()).append(", ");
         }
         logger.debug("User list: " + names.toString());
