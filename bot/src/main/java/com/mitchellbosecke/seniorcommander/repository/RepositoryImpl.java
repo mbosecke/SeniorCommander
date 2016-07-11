@@ -49,7 +49,7 @@ public class RepositoryImpl implements Repository {
                     "JOIN c.channelConfigurations ccs " +
                     "WHERE cu.name = :name " +
                     "AND ccs.id = :channelId", CommunityUser.class)
-                    .setParameter("name", message.getSender())
+                    .setParameter("name", message.getSender().toLowerCase())
                     .setParameter("channelId", message.getChannel().getId())
                     .getSingleResult();
             //@formatter:on
@@ -64,7 +64,7 @@ public class RepositoryImpl implements Repository {
         try {
             return sessionFactory.getCurrentSession()
                     .createQuery("SELECT cu FROM CommunityUser cu WHERE cu.community = :community AND cu.name = " + ":name", CommunityUser.class)
-                    .setParameter("community", community).setParameter("name", name).getSingleResult();
+                    .setParameter("community", community).setParameter("name", name.toLowerCase()).getSingleResult();
         } catch (NoResultException ex) {
             return null;
         }

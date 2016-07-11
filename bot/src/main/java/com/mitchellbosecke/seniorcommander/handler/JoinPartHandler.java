@@ -40,7 +40,9 @@ public class JoinPartHandler implements MessageHandler {
         if (user == null) {
             user = addUser(message);
         }
-        channel.getOnlineUsers().add(user);
+        if(!channel.getOnlineUsers().contains(user)) {
+            channel.getOnlineUsers().add(user);
+        }
     }
 
     private void part(Message message) {
@@ -49,7 +51,9 @@ public class JoinPartHandler implements MessageHandler {
         if (user == null) {
             user = addUser(message);
         }
-        channel.getOnlineUsers().remove(user);
+        if(channel.getOnlineUsers().contains(user)) {
+            channel.getOnlineUsers().remove(user);
+        }
     }
 
     private CommunityUser addUser(Message message) {
