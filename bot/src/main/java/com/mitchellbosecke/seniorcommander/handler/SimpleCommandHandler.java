@@ -1,8 +1,7 @@
 package com.mitchellbosecke.seniorcommander.handler;
 
-import com.mitchellbosecke.seniorcommander.Context;
 import com.mitchellbosecke.seniorcommander.message.Message;
-import com.mitchellbosecke.seniorcommander.message.MessageHandler;
+import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,17 +16,20 @@ public class SimpleCommandHandler implements MessageHandler {
 
     private final String reply;
 
-    public SimpleCommandHandler(String command, String reply){
+    private final MessageQueue messageQueue;
+
+    public SimpleCommandHandler(MessageQueue messageQueue, String command, String reply) {
         logger.debug("Simple command handler created for: " + command);
+        this.messageQueue = messageQueue;
         this.command = command;
         this.reply = reply;
     }
 
     @Override
-    public void handle(Context context, Message message) {
+    public void handle(Message message) {
         logger.debug("Handling");
-        if(message.getContent().startsWith(command)){
-            context.getMessageQueue().add(Message.response(message, reply));
+        if (message.getContent().startsWith(command)) {
+            messageQueue.add(Message.response(message, reply));
         }
     }
 }

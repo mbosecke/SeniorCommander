@@ -1,9 +1,8 @@
 package com.mitchellbosecke.seniorcommander.handler;
 
-import com.mitchellbosecke.seniorcommander.Context;
 import com.mitchellbosecke.seniorcommander.SeniorCommander;
 import com.mitchellbosecke.seniorcommander.message.Message;
-import com.mitchellbosecke.seniorcommander.message.MessageHandler;
+import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,10 +13,16 @@ public class ConversationalHandler implements MessageHandler {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
+    private final MessageQueue messageQueue;
+
+    public ConversationalHandler(MessageQueue messageQueue) {
+        this.messageQueue = messageQueue;
+    }
+
     @Override
-    public void handle(Context context, Message message) {
+    public void handle(Message message) {
         if (SeniorCommander.getName().equals(message.getRecipient()) && !message.getContent().startsWith("!")) {
-            context.getMessageQueue().add(Message.response(message, "Hello friend!"));
+            messageQueue.add(Message.response(message, "Hello friend!"));
         }
     }
 }

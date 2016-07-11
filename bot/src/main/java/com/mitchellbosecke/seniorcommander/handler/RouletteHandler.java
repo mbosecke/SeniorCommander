@@ -1,9 +1,8 @@
 package com.mitchellbosecke.seniorcommander.handler;
 
-import com.mitchellbosecke.seniorcommander.Context;
 import com.mitchellbosecke.seniorcommander.PhraseProvider;
 import com.mitchellbosecke.seniorcommander.message.Message;
-import com.mitchellbosecke.seniorcommander.message.MessageHandler;
+import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,21 +13,29 @@ public class RouletteHandler implements MessageHandler {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
+    private final MessageQueue messageQueue;
+
+    public RouletteHandler(MessageQueue messageQueue) {
+        this.messageQueue = messageQueue;
+    }
+
     @Override
-    public void handle(Context context, Message message) {
-        if (message.getContent().equalsIgnoreCase("!roulette")) {
+    public void handle(Message message) {
+        if (Message.Type.USER.equals(message.getType())) {
+            if (message.getContent().equalsIgnoreCase("!roulette")) {
 
-            String user = message.getSender();
+                String user = message.getSender();
 
-            boolean survives = Math.random() > 0.5;
+                boolean survives = Math.random() > 0.5;
 
-            if (survives) {
-                context.getMessageQueue()
-                        .add(Message.response(message, PhraseProvider.getPhrase(PhraseProvider.Category.CLOSE_CALL)));
-            } else {
-                context.getMessageQueue()
-                        .add(Message.response(message, PhraseProvider.getPhrase(PhraseProvider.Category.GRIEF)));
-                message.getChannel().timeout(user, 5 * 60l);
+                if (survives) {
+                    messageQueue.add(Message
+                            .response(message, PhraseProvider.getPhrase(PhraseProvider.Category.CLOSE_CALL)));
+                } else {
+                    messageQueue
+                            .add(Message.response(message, PhraseProvider.getPhrase(PhraseProvider.Category.GRIEF)));
+                    message.getChannel().timeout(user, 5 * 60l);
+                }
             }
         }
     }

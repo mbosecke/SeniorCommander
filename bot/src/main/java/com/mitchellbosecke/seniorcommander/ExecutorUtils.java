@@ -20,13 +20,13 @@ public class ExecutorUtils {
         try {
             if (!executorService.awaitTermination(timeout, timeUnit)) {
 
-                logger.debug("Executor service is not terminating by itself.");
+                logger.debug("Executor repository is not terminating by itself.");
 
                 // cancel currently executing tasks
                 executorService.shutdownNow();
 
                 if(!executorService.awaitTermination(timeout, timeUnit)){
-                    logger.debug("Could not shut down executor service");
+                    logger.debug("Could not shut down executor repository");
                 }
             }
         } catch (InterruptedException ex) {

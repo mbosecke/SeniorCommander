@@ -3,9 +3,8 @@ package com.mitchellbosecke.seniorcommander.extension;
 import com.mitchellbosecke.seniorcommander.channel.ChannelFactory;
 import com.mitchellbosecke.seniorcommander.channel.IrcChannelFactory;
 import com.mitchellbosecke.seniorcommander.channel.SocketChannelFactory;
-import com.mitchellbosecke.seniorcommander.handler.*;
-import com.mitchellbosecke.seniorcommander.message.MessageHandler;
-import com.mitchellbosecke.seniorcommander.timer.Timer;
+import com.mitchellbosecke.seniorcommander.handler.MessageHandlerFactory;
+import com.mitchellbosecke.seniorcommander.timer.TimerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,17 +15,8 @@ import java.util.List;
 public class CoreExtension implements Extension {
 
     @Override
-    public List<MessageHandler> getMessageHandlers() {
-        List<MessageHandler> messageHandlers = new ArrayList<>();
-        messageHandlers.add(new LoggingHandler());
-        messageHandlers.add(new DiceHandler());
-        messageHandlers.add(new OutputHandler());
-        messageHandlers.add(new CommandsHandler());
-        messageHandlers.add(new ConversationalHandler());
-        messageHandlers.add(new UserAddHandler());
-        messageHandlers.add(new RouletteHandler());
-        messageHandlers.add(new AdviceHandler());
-        return messageHandlers;
+    public MessageHandlerFactory getMessageHandlerFactory() {
+        return new CoreMessageHandlerFactory();
     }
 
     @Override
@@ -38,8 +28,7 @@ public class CoreExtension implements Extension {
     }
 
     @Override
-    public List<Timer> getTimers() {
-        List<Timer> timer = new ArrayList<>();
-        return timer;
+    public TimerFactory getTimerFactory() {
+        return new CoreTimerFactory();
     }
 }

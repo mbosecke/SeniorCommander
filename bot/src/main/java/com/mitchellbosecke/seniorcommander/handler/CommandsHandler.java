@@ -1,8 +1,8 @@
 package com.mitchellbosecke.seniorcommander.handler;
 
-import com.mitchellbosecke.seniorcommander.Context;
 import com.mitchellbosecke.seniorcommander.message.Message;
-import com.mitchellbosecke.seniorcommander.message.MessageHandler;
+import com.mitchellbosecke.seniorcommander.message.MessageQueue;
+import com.mitchellbosecke.seniorcommander.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,26 +19,38 @@ public class CommandsHandler implements MessageHandler {
 
     private final Pattern commandsPattern = Pattern.compile("!commands\\s+(.*)");
 
+    private final Repository repository;
+
+    private final MessageQueue messageQueue;
+
+    public CommandsHandler(Repository repository, MessageQueue messageQueue) {
+        this.repository = repository;
+        this.messageQueue = messageQueue;
+    }
+
     @Override
-    public void handle(Context context, Message message) {
-        Matcher matcher = commandsPattern.matcher(message.getContent());
-        if (matcher.matches()) {
+    public void handle(Message message) {
+        if (Message.Type.USER.equals(message.getType())) {
+            Matcher matcher = commandsPattern.matcher(message.getContent());
+            if (matcher.matches()) {
 
-            StringTokenizer tokenizer = new StringTokenizer(matcher.group(1));
+                StringTokenizer tokenizer = new StringTokenizer(matcher.group(1));
 
-            String subCommand = tokenizer.nextToken();
-            String commandName = tokenizer.nextToken();
+                String subCommand = tokenizer.nextToken();
+                String commandName = tokenizer.nextToken();
+                String output = tokenizer.nextToken();
 
-            if ("add".equalsIgnoreCase(subCommand)) {
-                logger.debug("Command has been added: " + commandName);
-                context.getMessageQueue().add(Message.response(message, "The command has been added."));
-                context.getSeniorCommander().registerHandler(new SimpleCommandHandler(commandName, tokenizer.nextToken()));
-            } else {
-                logger.debug("Unknown command");
-                // TODO: confusion emotion
+                if ("add".equalsIgnoreCase(subCommand)) {
+                    logger.debug("Command has been added: " + commandName);
+                    messageQueue.add(Message.response(message, "The command has been added."));
+                } else {
+                    logger.debug("Unknown command");
+                    // TODO: confusion emotion
+                }
+
             }
-
         }
+
     }
 
 }

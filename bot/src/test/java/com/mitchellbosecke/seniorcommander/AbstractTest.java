@@ -38,7 +38,7 @@ public class AbstractTest {
         executorService = Executors.newFixedThreadPool(1);
         Configuration config = new Configuration("config.properties");
 
-        commander = new SeniorCommander(config, Collections.emptyList());
+        commander = new SeniorCommanderImpl(config, Collections.emptyList());
         executorService.submit(() -> commander.run());
 
         // connect to socket channel
@@ -78,7 +78,7 @@ public class AbstractTest {
 
     @AfterClass
     public static void shutdown() {
-        logger.debug("Shutting down executor service");
+        logger.debug("Shutting down executor repository");
         commander.shutdown();
         ExecutorUtils.shutdown(executorService, 10, TimeUnit.SECONDS);
     }

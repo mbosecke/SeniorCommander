@@ -1,9 +1,8 @@
 package com.mitchellbosecke.seniorcommander.handler;
 
-import com.mitchellbosecke.seniorcommander.Context;
 import com.mitchellbosecke.seniorcommander.PhraseProvider;
 import com.mitchellbosecke.seniorcommander.message.Message;
-import com.mitchellbosecke.seniorcommander.message.MessageHandler;
+import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,13 +13,19 @@ public class AdviceHandler implements MessageHandler {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
+    private final MessageQueue messageQueue;
+
+    public AdviceHandler(MessageQueue messageQueue) {
+        this.messageQueue = messageQueue;
+    }
+
     @Override
-    public void handle(Context context, Message message) {
-        if (message.getContent().equalsIgnoreCase("!advice")) {
+    public void handle(Message message) {
 
-            context.getMessageQueue()
-                    .add(Message.response(message, PhraseProvider.getPhrase(PhraseProvider.Category.ADVICE)));
-
+        if (Message.Type.USER.equals(message.getType())) {
+            if (message.getContent().equalsIgnoreCase("!advice")) {
+                messageQueue.add(Message.response(message, PhraseProvider.getPhrase(PhraseProvider.Category.ADVICE)));
+            }
         }
     }
 

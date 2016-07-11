@@ -9,7 +9,7 @@ import com.mitchellbosecke.seniorcommander.channel.Channel;
 public class Message {
 
     public enum Type {
-        USER, OUTPUT
+        USER, OUTPUT, MEMBERSHIP_JOIN, MEMBERSHIP_PART
     }
 
     private final Type type;
@@ -91,6 +91,14 @@ public class Message {
      */
     public static Message userInput(Channel channel, String sender, String recipient, String content, boolean whisper) {
         return new Message(Type.USER, channel, sender, recipient, content, whisper);
+    }
+
+    public static Message join(Channel channel, String user){
+        return new Message(Type.MEMBERSHIP_JOIN, channel, user, null, null, false);
+    }
+
+    public static Message part(Channel channel, String user){
+        return new Message(Type.MEMBERSHIP_PART, channel, user, null, null, false);
     }
 
 }

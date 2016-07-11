@@ -1,8 +1,7 @@
 package com.mitchellbosecke.seniorcommander.handler;
 
-import com.mitchellbosecke.seniorcommander.Context;
 import com.mitchellbosecke.seniorcommander.message.Message;
-import com.mitchellbosecke.seniorcommander.message.MessageHandler;
+import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,26 +23,34 @@ public class DiceHandler implements MessageHandler {
 
     private final Cooldown cooldown = new Cooldown(cooldownMinutes, TimeUnit.MINUTES);
 
+    private final MessageQueue messageQueue;
+
+    public DiceHandler(MessageQueue messageQueue) {
+        this.messageQueue = messageQueue;
+    }
+
     @Override
-    public void handle(Context context, Message message) {
-        Matcher matcher = pattern.matcher(message.getContent());
-        if (matcher.matches()) {
+    public void handle(Message message) {
 
-            String user = message.getSender();
+        if (Message.Type.USER.equals(message.getType())) {
+            Matcher matcher = pattern.matcher(message.getContent());
+            if (matcher.matches()) {
 
-            if (cooldown.isReady(user)) {
-                Integer num = Integer.valueOf(matcher.group(1));
-                Random generator = new Random();
-                int result = generator.nextInt(num) + 1;
+                String user = message.getSender();
 
-                context.getMessageQueue().add(Message.response(message, String.format("You rolled a %d.", result)));
-                cooldown.reset(user);
-            } else {
-                context.getMessageQueue().add(Message.response(message, String
-                        .format("Son, you need to slow down. " + "That command can only be run once every %d minutes.", cooldownMinutes)));
+                if (cooldown.isReady(user)) {
+                    Integer num = Integer.valueOf(matcher.group(1));
+                    Random generator = new Random();
+                    int result = generator.nextInt(num) + 1;
+
+                    messageQueue.add(Message.response(message, String.format("You rolled a %d.", result)));
+                    cooldown.reset(user);
+                } else {
+                    messageQueue.add(Message.response(message, String
+                            .format("Son, you need to slow down. " + "That command can only be run once every %d minutes.", cooldownMinutes)));
+                }
             }
         }
     }
-
 
 }

@@ -1,8 +1,8 @@
 package com.mitchellbosecke.seniorcommander.extension;
 
 import com.mitchellbosecke.seniorcommander.channel.ChannelFactory;
-import com.mitchellbosecke.seniorcommander.message.MessageHandler;
-import com.mitchellbosecke.seniorcommander.timer.Timer;
+import com.mitchellbosecke.seniorcommander.handler.MessageHandlerFactory;
+import com.mitchellbosecke.seniorcommander.timer.TimerFactory;
 
 import java.util.List;
 
@@ -11,9 +11,9 @@ import java.util.List;
  */
 public interface Extension {
 
-    List<MessageHandler> getMessageHandlers();
+    MessageHandlerFactory getMessageHandlerFactory();
 
     List<ChannelFactory> getChannelFactories();
 
-    List<Timer> getTimers();
+    TimerFactory getTimerFactory();
 }
