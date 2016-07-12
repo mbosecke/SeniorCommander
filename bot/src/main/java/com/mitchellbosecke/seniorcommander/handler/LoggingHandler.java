@@ -13,6 +13,6 @@ public class LoggingHandler implements MessageHandler {
 
     @Override
     public void handle(Message message) {
-        logger.trace(message.getSender() + ": " + message.getContent());
+        logger.trace(String.format("[%s] %s: %s", message.getType(), message.getSender(), message.getContent()));
     }
 }
