@@ -4,8 +4,8 @@ import com.mitchellbosecke.seniorcommander.Configuration;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.handler.*;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
-import com.mitchellbosecke.seniorcommander.repository.Repository;
-import com.mitchellbosecke.seniorcommander.repository.RepositoryImpl;
+import com.mitchellbosecke.seniorcommander.repository.CommunityService;
+import com.mitchellbosecke.seniorcommander.repository.CommunityServiceImpl;
 import org.hibernate.SessionFactory;
 
 import java.util.ArrayList;
@@ -22,17 +22,18 @@ public class CoreMessageHandlerFactory implements MessageHandlerFactory {
 
         List<MessageHandler> messageHandlers = new ArrayList<>();
 
-        Repository repository = new RepositoryImpl(sessionFactory);
+        CommunityService communityService = new CommunityServiceImpl(sessionFactory);
 
         messageHandlers.add(new LoggingHandler());
         messageHandlers.add(new DiceHandler(messageQueue));
         messageHandlers.add(new OutputHandler(configuration, channels));
-        messageHandlers.add(new CommandsHandler(repository, messageQueue));
+        messageHandlers.add(new CommandsHandler(communityService, messageQueue));
         messageHandlers.add(new ConversationalHandler(messageQueue));
-        messageHandlers.add(new UserStatsHandler(repository));
+        messageHandlers.add(new UserChatHandler(communityService));
         messageHandlers.add(new RouletteHandler(messageQueue));
         messageHandlers.add(new AdviceHandler(messageQueue));
-        messageHandlers.add(new JoinPartHandler(repository));
+        messageHandlers.add(new JoinPartHandler(communityService));
+        messageHandlers.add(new NamesHandler(communityService));
         return messageHandlers;
     }
 

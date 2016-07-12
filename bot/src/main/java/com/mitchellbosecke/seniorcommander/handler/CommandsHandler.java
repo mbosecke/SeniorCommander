@@ -2,7 +2,7 @@ package com.mitchellbosecke.seniorcommander.handler;
 
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
-import com.mitchellbosecke.seniorcommander.repository.Repository;
+import com.mitchellbosecke.seniorcommander.repository.CommunityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,12 +19,12 @@ public class CommandsHandler implements MessageHandler {
 
     private final Pattern commandsPattern = Pattern.compile("!commands\\s+(.*)");
 
-    private final Repository repository;
+    private final CommunityService communityService;
 
     private final MessageQueue messageQueue;
 
-    public CommandsHandler(Repository repository, MessageQueue messageQueue) {
-        this.repository = repository;
+    public CommandsHandler(CommunityService communityService, MessageQueue messageQueue) {
+        this.communityService = communityService;
         this.messageQueue = messageQueue;
     }
 

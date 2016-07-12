@@ -149,8 +149,9 @@ public class IrcChannel extends ListenerAdapter implements Channel {
         Set<User> users = event.getUsers();
         StringBuilder names = new StringBuilder();
         for (User user : users) {
-            names.append(user.getNick()).append(", ");
+            names.append(user.getNick()).append(",");
         }
+        messageQueue.add(Message.names(this, names.substring(0, names.length()-1)));
         logger.debug("User list: " + names.toString());
     }
 

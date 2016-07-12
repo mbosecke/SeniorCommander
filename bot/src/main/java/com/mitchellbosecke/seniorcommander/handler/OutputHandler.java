@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class OutputHandler implements MessageHandler {
 
-    public static final String CONFIG_MUTE = "output.mute";
+    public static final String CONFIG_LURK = "seniorcommander.lurk";
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -47,8 +47,8 @@ public class OutputHandler implements MessageHandler {
     }
 
     private boolean isMute() {
-        String isMute = configuration.getProperty(CONFIG_MUTE);
-        return isMute == null || Boolean.valueOf(isMute);
+        String lurking = configuration.getProperty(CONFIG_LURK);
+        return lurking != null && Boolean.valueOf(lurking);
     }
 
     private void emit(Channel channel, String recipient, String content, boolean whisper) {
