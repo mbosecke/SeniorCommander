@@ -1,10 +1,7 @@
 package com.mitchellbosecke.seniorcommander.repository;
 
 import com.mitchellbosecke.seniorcommander.channel.Channel;
-import com.mitchellbosecke.seniorcommander.domain.ChannelConfiguration;
-import com.mitchellbosecke.seniorcommander.domain.Command;
-import com.mitchellbosecke.seniorcommander.domain.Community;
-import com.mitchellbosecke.seniorcommander.domain.CommunityUser;
+import com.mitchellbosecke.seniorcommander.domain.*;
 import org.hibernate.SessionFactory;
 
 import javax.persistence.NoResultException;
@@ -19,6 +16,25 @@ public class CommunityServiceImpl implements CommunityService {
 
     public CommunityServiceImpl(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
+    }
+
+    public CommandLog findMostRecentCommandLog(Command command, CommunityUser communityUser) {
+
+        CommandLog log = null;
+        try {
+            //@formatter:off
+            log = sessionFactory.getCurrentSession()
+                    .createQuery("SELECT cl " +
+                            "FROM CommandLog cl " +
+                            "WHERE cl.command = :command " +
+                            "AND cl.communityUser = :user " +
+                            "ORDER BY cl.logDate desc ", CommandLog.class)
+                    .setParameter("command", command).setParameter("user", communityUser).setMaxResults(1)
+                    .getSingleResult();
+            //@formatter:on
+        } catch (NoResultException ex) {
+        }
+        return log;
     }
 
     @Override

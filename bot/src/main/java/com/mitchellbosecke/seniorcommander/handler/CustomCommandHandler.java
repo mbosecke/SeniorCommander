@@ -2,6 +2,7 @@ package com.mitchellbosecke.seniorcommander.handler;
 
 import com.mitchellbosecke.seniorcommander.domain.Command;
 import com.mitchellbosecke.seniorcommander.domain.CommandLog;
+import com.mitchellbosecke.seniorcommander.domain.CommunityUser;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.repository.CommunityService;
@@ -34,17 +35,34 @@ public class CustomCommandHandler implements MessageHandler {
             Command command = communityService.findCommand(message.getChannel(), tokenizer.nextToken());
 
             if (command != null) {
-                messageQueue.add(Message.shout(command.getMessage()));
+                CommunityUser user = communityService.findUser(message.getChannel(), message.getSender());
+                if (command.getCooldown() > 0) {
 
-                // log this use
-                CommandLog log = new CommandLog();
-                log.setCommand(command);
-                log.setCommunityUser(communityService.findUser(message.getChannel(), message.getSender()));
-                log.setLogDate(new Date());
-                communityService.persist(log);
+                    CommandLog commandLog = communityService.findMostRecentCommandLog(command, user);
+                    if (commandLog == null) {
+                        executeCommand(message, command, user);
+                    } else {
+                        long cooldownMilliseconds = command.getCooldown() * 1000;
+                        if (commandLog.getLogDate().getTime() + cooldownMilliseconds <= new Date().getTime()) {
+                            executeCommand(message, command, user);
+                        }
+                    }
+                } else {
+                    executeCommand(message, command, user);
+                }
             }
         }
+    }
 
+    private void executeCommand(Message message, Command command, CommunityUser user) {
+        messageQueue.add(Message.shout(command.getMessage(), message.getChannel()));
+
+        // log this use
+        CommandLog log = new CommandLog();
+        log.setCommand(command);
+        log.setCommunityUser(user);
+        log.setLogDate(new Date());
+        communityService.persist(log);
     }
 
 }

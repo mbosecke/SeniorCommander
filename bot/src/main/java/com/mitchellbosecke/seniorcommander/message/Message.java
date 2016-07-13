@@ -68,6 +68,16 @@ public class Message {
     }
 
     /**
+     * Shouts to a specific channel.
+     *
+     * @param content
+     * @return
+     */
+    public static Message shout(String content, Channel channel) {
+        return new Message(Type.OUTPUT, channel, SeniorCommander.getName(), null, content, false);
+    }
+
+    /**
      * Responds to a particular message.
      *
      * @param originalMessage
@@ -93,16 +103,15 @@ public class Message {
         return new Message(Type.USER, channel, sender, recipient, content, whisper);
     }
 
-    public static Message names(Channel channel, String users){
+    public static Message names(Channel channel, String users) {
         return new Message(Type.MEMBERSHIP_NAMES, channel, users, null, null, false);
     }
 
-
-    public static Message join(Channel channel, String user){
+    public static Message join(Channel channel, String user) {
         return new Message(Type.MEMBERSHIP_JOIN, channel, user, null, null, false);
     }
 
-    public static Message part(Channel channel, String user){
+    public static Message part(Channel channel, String user) {
         return new Message(Type.MEMBERSHIP_PART, channel, user, null, null, false);
     }
 
