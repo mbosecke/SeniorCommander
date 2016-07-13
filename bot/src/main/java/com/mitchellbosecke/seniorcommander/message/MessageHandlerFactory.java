@@ -1,8 +1,7 @@
-package com.mitchellbosecke.seniorcommander.handler;
+package com.mitchellbosecke.seniorcommander.message;
 
 import com.mitchellbosecke.seniorcommander.Configuration;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
-import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import org.hibernate.SessionFactory;
 
 import java.util.List;

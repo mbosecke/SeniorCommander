@@ -1,8 +1,9 @@
-package com.mitchellbosecke.seniorcommander.handler;
+package com.mitchellbosecke.seniorcommander.extension.core.handler;
 
+import com.mitchellbosecke.seniorcommander.message.MessageHandler;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
-import com.mitchellbosecke.seniorcommander.repository.CommunityService;
+import com.mitchellbosecke.seniorcommander.extension.core.service.CommunityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,9 +14,9 @@ import java.util.regex.Pattern;
 /**
  * Created by mitch_000 on 2016-07-04.
  */
-public class CommandsHandler implements MessageHandler {
+public class CommandCrudHandler implements MessageHandler {
 
-    private Logger logger = LoggerFactory.getLogger(CommandsHandler.class);
+    private Logger logger = LoggerFactory.getLogger(CommandCrudHandler.class);
 
     private final Pattern commandsPattern = Pattern.compile("!commands\\s+(.*)");
 
@@ -23,7 +24,7 @@ public class CommandsHandler implements MessageHandler {
 
     private final MessageQueue messageQueue;
 
-    public CommandsHandler(CommunityService communityService, MessageQueue messageQueue) {
+    public CommandCrudHandler(CommunityService communityService, MessageQueue messageQueue) {
         this.communityService = communityService;
         this.messageQueue = messageQueue;
     }

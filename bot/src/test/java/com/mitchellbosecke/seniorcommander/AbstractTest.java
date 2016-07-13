@@ -78,7 +78,7 @@ public class AbstractTest {
 
     @AfterClass
     public static void shutdown() {
-        logger.debug("Shutting down executor repository");
+        logger.debug("Shutting down executor service");
         commander.shutdown();
         ExecutorUtils.shutdown(executorService, 10, TimeUnit.SECONDS);
     }

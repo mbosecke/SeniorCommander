@@ -1,7 +1,7 @@
 package com.mitchellbosecke.seniorcommander.extension;
 
 import com.mitchellbosecke.seniorcommander.channel.ChannelFactory;
-import com.mitchellbosecke.seniorcommander.handler.MessageHandlerFactory;
+import com.mitchellbosecke.seniorcommander.message.MessageHandlerFactory;
 import com.mitchellbosecke.seniorcommander.timer.TimerFactory;
 
 import java.util.List;

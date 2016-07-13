@@ -1,6 +1,7 @@
-package com.mitchellbosecke.seniorcommander.handler;
+package com.mitchellbosecke.seniorcommander.extension.core.handler;
 
 import com.mitchellbosecke.seniorcommander.SeniorCommander;
+import com.mitchellbosecke.seniorcommander.message.MessageHandler;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import org.slf4j.Logger;

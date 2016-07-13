@@ -1,4 +1,4 @@
-package com.mitchellbosecke.seniorcommander.repository;
+package com.mitchellbosecke.seniorcommander.extension.core.service;
 
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.domain.*;

@@ -1,4 +1,4 @@
-package com.mitchellbosecke.seniorcommander.channel;
+package com.mitchellbosecke.seniorcommander.extension.core.channel;
 
 import java.util.ArrayList;
 import java.util.List;

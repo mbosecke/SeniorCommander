@@ -1,6 +1,7 @@
-package com.mitchellbosecke.seniorcommander.channel;
+package com.mitchellbosecke.seniorcommander.extension.core.channel;
 
 import com.mitchellbosecke.seniorcommander.SeniorCommander;
+import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.message.MessageUtils;

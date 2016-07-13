@@ -1,7 +1,8 @@
-package com.mitchellbosecke.seniorcommander.handler;
+package com.mitchellbosecke.seniorcommander.extension.core.handler;
 
 import com.mitchellbosecke.seniorcommander.Configuration;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
+import com.mitchellbosecke.seniorcommander.message.MessageHandler;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

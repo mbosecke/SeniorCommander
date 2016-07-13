@@ -1,4 +1,4 @@
-package com.mitchellbosecke.seniorcommander.extension;
+package com.mitchellbosecke.seniorcommander.extension.core;
 
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.timer.TimedShout;

@@ -1,8 +1,9 @@
-package com.mitchellbosecke.seniorcommander.handler;
+package com.mitchellbosecke.seniorcommander.extension.core.handler;
 
 import com.mitchellbosecke.seniorcommander.domain.CommunityUser;
+import com.mitchellbosecke.seniorcommander.message.MessageHandler;
 import com.mitchellbosecke.seniorcommander.message.Message;
-import com.mitchellbosecke.seniorcommander.repository.CommunityService;
+import com.mitchellbosecke.seniorcommander.extension.core.service.CommunityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

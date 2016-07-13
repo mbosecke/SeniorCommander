@@ -1,9 +1,10 @@
-package com.mitchellbosecke.seniorcommander.extension;
+package com.mitchellbosecke.seniorcommander.extension.core;
 
 import com.mitchellbosecke.seniorcommander.channel.ChannelFactory;
-import com.mitchellbosecke.seniorcommander.channel.IrcChannelFactory;
-import com.mitchellbosecke.seniorcommander.channel.SocketChannelFactory;
-import com.mitchellbosecke.seniorcommander.handler.MessageHandlerFactory;
+import com.mitchellbosecke.seniorcommander.extension.Extension;
+import com.mitchellbosecke.seniorcommander.extension.core.channel.IrcChannelFactory;
+import com.mitchellbosecke.seniorcommander.extension.core.channel.SocketChannelFactory;
+import com.mitchellbosecke.seniorcommander.message.MessageHandlerFactory;
 import com.mitchellbosecke.seniorcommander.timer.TimerFactory;
 
 import java.util.ArrayList;
