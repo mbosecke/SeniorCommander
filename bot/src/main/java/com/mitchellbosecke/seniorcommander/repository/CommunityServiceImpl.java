@@ -2,6 +2,7 @@ package com.mitchellbosecke.seniorcommander.repository;
 
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.domain.ChannelConfiguration;
+import com.mitchellbosecke.seniorcommander.domain.Command;
 import com.mitchellbosecke.seniorcommander.domain.Community;
 import com.mitchellbosecke.seniorcommander.domain.CommunityUser;
 import org.hibernate.SessionFactory;
@@ -18,6 +19,42 @@ public class CommunityServiceImpl implements CommunityService {
 
     public CommunityServiceImpl(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
+    }
+
+    @Override
+    public CommunityUser findUser(Channel channel, String name) {
+        ChannelConfiguration channelConfig = find(ChannelConfiguration.class, channel.getId());
+        Community community = channelConfig.getCommunity();
+        try {
+            //@formatter:off
+            return sessionFactory.getCurrentSession()
+                    .createQuery("SELECT cu " +
+                            "FROM CommunityUser cu " +
+                            "WHERE cu.community = :community " +
+                            "AND lower(cu.name) = :name ", CommunityUser.class)
+                    .setParameter("community", community).setParameter("name", name.toLowerCase()).getSingleResult();
+            //@formatter:on
+        } catch (NoResultException ex) {
+            return null;
+        }
+    }
+
+    @Override
+    public Command findCommand(Channel channel, String trigger) {
+        ChannelConfiguration channelConfig = find(ChannelConfiguration.class, channel.getId());
+        Community community = channelConfig.getCommunity();
+        try {
+            //@formatter:off
+            return sessionFactory.getCurrentSession()
+                    .createQuery("SELECT c " +
+                            "FROM Command c " +
+                            "WHERE c.community = :community " +
+                            "AND c.trigger = :trigger ", Command.class)
+                    .setParameter("community", community).setParameter("trigger", trigger.toLowerCase()).getSingleResult();
+            //@formatter:on
+        } catch (NoResultException ex) {
+            return null;
+        }
     }
 
     @Override

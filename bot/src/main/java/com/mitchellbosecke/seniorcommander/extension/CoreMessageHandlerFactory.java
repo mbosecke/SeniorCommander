@@ -34,6 +34,7 @@ public class CoreMessageHandlerFactory implements MessageHandlerFactory {
         messageHandlers.add(new AdviceHandler(messageQueue));
         messageHandlers.add(new JoinPartHandler(communityService));
         messageHandlers.add(new NamesHandler(communityService));
+        messageHandlers.add(new CustomCommandHandler(communityService, messageQueue));
         return messageHandlers;
     }
 

@@ -1,9 +1,6 @@
 package com.mitchellbosecke.seniorcommander;
 
-import com.mitchellbosecke.seniorcommander.domain.ChannelConfiguration;
-import com.mitchellbosecke.seniorcommander.domain.ChannelConfigurationSetting;
-import com.mitchellbosecke.seniorcommander.domain.Community;
-import com.mitchellbosecke.seniorcommander.domain.CommunityUser;
+import com.mitchellbosecke.seniorcommander.domain.*;
 import org.flywaydb.core.Flyway;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataBuilder;
@@ -38,8 +35,7 @@ public class DatabaseManager {
         config.setProperty("hibernate.connection.url", configuration.getProperty(CONFIG_URL));
         config.setProperty("hibernate.connection.username", configuration.getProperty(CONFIG_USERNAME));
         config.setProperty("hibernate.connection.password", configuration.getProperty(CONFIG_PASSWORD));
-        config.setProperty("hibernate.current_session_context_class", "org.hibernate.context.internal" +
-                ".ThreadLocalSessionContext");
+        config.setProperty("hibernate.current_session_context_class", "org.hibernate.context.internal" + ".ThreadLocalSessionContext");
 
         StandardServiceRegistry registry = new StandardServiceRegistryBuilder().applySettings(config).build();
         try {
@@ -50,8 +46,8 @@ public class DatabaseManager {
             sources.addAnnotatedClass(CommunityUser.class);
             sources.addAnnotatedClass(ChannelConfiguration.class);
             sources.addAnnotatedClass(ChannelConfigurationSetting.class);
-
-
+            sources.addAnnotatedClass(Command.class);
+            sources.addAnnotatedClass(CommandLog.class);
 
             MetadataBuilder metadataBuilder = sources.getMetadataBuilder();
             metadataBuilder.applyImplicitSchemaName(configuration.getProperty(CONFIG_SCHEMA));
