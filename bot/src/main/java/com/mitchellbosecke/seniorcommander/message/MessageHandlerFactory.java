@@ -1,6 +1,5 @@
 package com.mitchellbosecke.seniorcommander.message;
 
-import com.mitchellbosecke.seniorcommander.Configuration;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import org.hibernate.SessionFactory;
 
@@ -11,7 +10,6 @@ import java.util.List;
  */
 public interface MessageHandlerFactory {
 
-    List<MessageHandler> build(SessionFactory sessionFactory, MessageQueue messageQueue, Configuration configuration,
-                               List<Channel> channels);
+    List<MessageHandler> build(SessionFactory sessionFactory, MessageQueue messageQueue, List<Channel> channels);
 
 }

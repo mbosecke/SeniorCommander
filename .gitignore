@@ -1,5 +1,4 @@
-bot/src/main/resources/config.properties
-bot/src/main/resources/hibernate.properties
+application.conf
 
 *.class
 

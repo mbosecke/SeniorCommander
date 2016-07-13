@@ -1,6 +1,5 @@
 package com.mitchellbosecke.seniorcommander.extension.core.handler;
 
-import com.mitchellbosecke.seniorcommander.Configuration;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.message.MessageHandler;
 import com.mitchellbosecke.seniorcommander.message.Message;
@@ -19,12 +18,9 @@ public class OutputHandler implements MessageHandler {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final Configuration configuration;
-
     private final List<Channel> channels;
 
-    public OutputHandler(Configuration configuration, List<Channel> channels) {
-        this.configuration = configuration;
+    public OutputHandler(List<Channel> channels) {
         this.channels = channels;
     }
 
@@ -32,24 +28,17 @@ public class OutputHandler implements MessageHandler {
     public void handle(Message message) {
         if (Message.Type.OUTPUT.equals(message.getType())) {
 
-            if (!isMute()) {
-                List<Channel> outputChannels = new ArrayList<>();
-                if (message.getChannel() != null) {
-                    outputChannels.add(message.getChannel());
-                } else {
-                    outputChannels.addAll(channels);
-                }
+            List<Channel> outputChannels = new ArrayList<>();
+            if (message.getChannel() != null) {
+                outputChannels.add(message.getChannel());
+            } else {
+                outputChannels.addAll(channels);
+            }
 
-                for (Channel channel : outputChannels) {
-                    emit(channel, message.getRecipient(), message.getContent(), message.isWhisper());
-                }
+            for (Channel channel : outputChannels) {
+                emit(channel, message.getRecipient(), message.getContent(), message.isWhisper());
             }
         }
-    }
-
-    private boolean isMute() {
-        String lurking = configuration.getProperty(CONFIG_LURK);
-        return lurking != null && Boolean.valueOf(lurking);
     }
 
     private void emit(Channel channel, String recipient, String content, boolean whisper) {

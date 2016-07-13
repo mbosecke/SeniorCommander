@@ -2,10 +2,10 @@ package com.mitchellbosecke.seniorcommander;
 
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.channel.ChannelFactory;
-import com.mitchellbosecke.seniorcommander.extension.core.CoreExtension;
 import com.mitchellbosecke.seniorcommander.extension.Extension;
-import com.mitchellbosecke.seniorcommander.message.MessageHandler;
+import com.mitchellbosecke.seniorcommander.extension.core.CoreExtension;
 import com.mitchellbosecke.seniorcommander.message.Message;
+import com.mitchellbosecke.seniorcommander.message.MessageHandler;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.timer.Timer;
 import org.hibernate.Session;
@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -41,11 +42,6 @@ public class SeniorCommanderImpl implements SeniorCommander {
     private volatile boolean running = true;
 
     /**
-     * Global configuration
-     */
-    private final Configuration configuration;
-
-    /**
      * Global session factory
      */
     private final SessionFactory sessionFactory;
@@ -67,12 +63,14 @@ public class SeniorCommanderImpl implements SeniorCommander {
      */
     private List<MessageHandler> newlyRegisteredHandlers = new LinkedList<>();
 
-    public SeniorCommanderImpl(Configuration configuration, List<Extension> extensions) {
+    public SeniorCommanderImpl(){
+        this(Collections.emptyList());
+    }
 
-        this.configuration = configuration;
+    public SeniorCommanderImpl(List<Extension> extensions) {
 
         // initiate session factory
-        DatabaseManager databaseManager = new DatabaseManager(configuration);
+        DatabaseManager databaseManager = new DatabaseManager();
         databaseManager.migrate();
         sessionFactory = databaseManager.getSessionFactory();
 
@@ -181,7 +179,7 @@ public class SeniorCommanderImpl implements SeniorCommander {
     private void buildMessageHandlers(List<Extension> extensions) {
         for (Extension extension : extensions) {
             messageHandlers.addAll(extension.getMessageHandlerFactory()
-                    .build(sessionFactory, messageQueue, configuration, channels));
+                    .build(sessionFactory, messageQueue, channels));
         }
     }
 

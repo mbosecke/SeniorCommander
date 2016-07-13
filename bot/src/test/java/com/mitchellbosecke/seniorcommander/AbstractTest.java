@@ -1,6 +1,8 @@
 package com.mitchellbosecke.seniorcommander;
 
 import com.mitchellbosecke.seniorcommander.message.MessageUtils;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
@@ -11,7 +13,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -36,10 +37,11 @@ public class AbstractTest {
     @BeforeClass
     public static void connectToSocket() {
         executorService = Executors.newFixedThreadPool(1);
-        Configuration config = new Configuration("config.properties");
 
-        commander = new SeniorCommanderImpl(config, Collections.emptyList());
+        commander = new SeniorCommanderImpl();
         executorService.submit(() -> commander.run());
+
+        Config config = ConfigFactory.load();
 
         // connect to socket channel
         Socket socket = null;
@@ -50,7 +52,7 @@ public class AbstractTest {
             retryCounter++;
             try {
                 logger.debug(retryCounter + ": Attempting to connect to socket channel.");
-                socket = new Socket("localhost", Integer.valueOf(config.getProperty("socket.port")));
+                socket = new Socket("localhost", config.getInt("socket.port"));
                 socket.setSoTimeout(5 * 60 * 1000);
                 break;
             } catch (IOException ex) {
