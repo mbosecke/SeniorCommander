@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.StringTokenizer;
-import java.util.regex.Pattern;
 
 /**
  * Created by mitch_000 on 2016-07-04.
@@ -16,8 +15,6 @@ import java.util.regex.Pattern;
 public class CommandCrudCommand implements CommandHandler {
 
     private Logger logger = LoggerFactory.getLogger(CommandCrudCommand.class);
-
-    private final Pattern commandsPattern = Pattern.compile("!commands\\s+(.*)");
 
     private final CommunityService communityService;
 
