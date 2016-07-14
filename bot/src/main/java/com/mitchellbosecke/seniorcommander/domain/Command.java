@@ -25,6 +25,9 @@ public class Command {
     private String message;
 
     @Column
+    private String implementation;
+
+    @Column
     private long cooldown;
 
     public long getId() {
@@ -65,5 +68,13 @@ public class Command {
 
     public void setCommunity(Community community) {
         this.community = community;
+    }
+
+    public String getImplementation() {
+        return implementation;
+    }
+
+    public void setImplementation(String implementation) {
+        this.implementation = implementation;
     }
 }

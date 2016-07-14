@@ -1,7 +1,7 @@
-package com.mitchellbosecke.seniorcommander.extension.core.handler;
+package com.mitchellbosecke.seniorcommander.extension.core.event;
 
 import com.mitchellbosecke.seniorcommander.domain.CommunityUser;
-import com.mitchellbosecke.seniorcommander.message.MessageHandler;
+import com.mitchellbosecke.seniorcommander.message.EventHandler;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.extension.core.service.CommunityService;
 import org.slf4j.Logger;
@@ -12,7 +12,7 @@ import java.util.Date;
 /**
  * Created by mitch_000 on 2016-07-04.
  */
-public class UserChatHandler implements MessageHandler {
+public class UserChatHandler implements EventHandler {
 
     private Logger logger = LoggerFactory.getLogger(UserChatHandler.class);
 

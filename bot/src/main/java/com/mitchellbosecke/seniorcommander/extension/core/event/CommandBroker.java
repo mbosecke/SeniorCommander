@@ -1,32 +1,41 @@
-package com.mitchellbosecke.seniorcommander.extension.core.handler;
+package com.mitchellbosecke.seniorcommander.extension.core.event;
 
+import com.mitchellbosecke.seniorcommander.CommandHandler;
 import com.mitchellbosecke.seniorcommander.domain.Command;
 import com.mitchellbosecke.seniorcommander.domain.CommandLog;
 import com.mitchellbosecke.seniorcommander.domain.CommunityUser;
-import com.mitchellbosecke.seniorcommander.message.MessageHandler;
+import com.mitchellbosecke.seniorcommander.extension.core.service.CommunityService;
+import com.mitchellbosecke.seniorcommander.message.EventHandler;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
-import com.mitchellbosecke.seniorcommander.extension.core.service.CommunityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.stream.Collectors;
 
 /**
  * Created by mitch_000 on 2016-07-04.
  */
-public class CustomCommandHandler implements MessageHandler {
+public class CommandBroker implements EventHandler {
 
-    private Logger logger = LoggerFactory.getLogger(CustomCommandHandler.class);
+    private Logger logger = LoggerFactory.getLogger(CommandBroker.class);
 
     private final CommunityService communityService;
 
     private final MessageQueue messageQueue;
 
-    public CustomCommandHandler(CommunityService communityService, MessageQueue messageQueue) {
+    private final Map<String, CommandHandler> commandHandlers;
+
+    public CommandBroker(CommunityService communityService, MessageQueue messageQueue,
+                         List<CommandHandler> commandHandlers) {
         this.communityService = communityService;
         this.messageQueue = messageQueue;
+        this.commandHandlers = commandHandlers.stream()
+                .collect(Collectors.toMap(handler -> handler.getClass().getName(), handler -> handler));
     }
 
     @Override
@@ -56,7 +65,13 @@ public class CustomCommandHandler implements MessageHandler {
     }
 
     private void executeCommand(Message message, Command command, CommunityUser user) {
-        messageQueue.add(Message.shout(command.getMessage(), message.getChannel()));
+
+        if (command.getImplementation() != null) {
+            CommandHandler commandHandler = commandHandlers.get(command.getImplementation());
+            commandHandler.execute(message);
+        } else {
+            messageQueue.add(Message.shout(command.getMessage(), message.getChannel()));
+        }
 
         // log this use
         CommandLog log = new CommandLog();

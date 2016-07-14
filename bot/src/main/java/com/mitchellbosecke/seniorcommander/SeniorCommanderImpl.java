@@ -5,7 +5,7 @@ import com.mitchellbosecke.seniorcommander.channel.ChannelFactory;
 import com.mitchellbosecke.seniorcommander.extension.Extension;
 import com.mitchellbosecke.seniorcommander.extension.core.CoreExtension;
 import com.mitchellbosecke.seniorcommander.message.Message;
-import com.mitchellbosecke.seniorcommander.message.MessageHandler;
+import com.mitchellbosecke.seniorcommander.message.EventHandler;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.timer.Timer;
 import org.hibernate.Session;
@@ -55,15 +55,16 @@ public class SeniorCommanderImpl implements SeniorCommander {
      * Components created from the extensions
      */
     private List<Channel> channels = new LinkedList<>();
-    private List<MessageHandler> messageHandlers = new LinkedList<>();
+    private List<EventHandler> eventHandlers = new LinkedList<>();
+    private List<CommandHandler> commandHandlers = new LinkedList<>();
     private List<Timer> timers = new LinkedList<>();
 
     /**
      * Message handlers added at runtime
      */
-    private List<MessageHandler> newlyRegisteredHandlers = new LinkedList<>();
+    private List<EventHandler> newlyRegisteredHandlers = new LinkedList<>();
 
-    public SeniorCommanderImpl(){
+    public SeniorCommanderImpl() {
         this(Collections.emptyList());
     }
 
@@ -111,7 +112,7 @@ public class SeniorCommanderImpl implements SeniorCommander {
                 Session session = sessionFactory.getCurrentSession();
                 session.beginTransaction();
 
-                messageHandlers.forEach(messageHandler -> {
+                eventHandlers.forEach(messageHandler -> {
                     try {
                         messageHandler.handle(message);
                     } catch (Exception ex) {
@@ -138,12 +139,12 @@ public class SeniorCommanderImpl implements SeniorCommander {
         ExecutorUtils.shutdown(channelThreadPool, 10, TimeUnit.SECONDS);
     }
 
-    public void registerHandler(MessageHandler messageHandler) {
-        newlyRegisteredHandlers.add(messageHandler);
+    public void registerHandler(EventHandler eventHandler) {
+        newlyRegisteredHandlers.add(eventHandler);
     }
 
     private void acknowledgeNewHandlers() {
-        messageHandlers.addAll(newlyRegisteredHandlers);
+        eventHandlers.addAll(newlyRegisteredHandlers);
         newlyRegisteredHandlers.clear();
     }
 
@@ -154,7 +155,8 @@ public class SeniorCommanderImpl implements SeniorCommander {
 
         // build components from extensions
         buildChannels(allExtensions);
-        buildMessageHandlers(allExtensions);
+        buildCommandHandlers(allExtensions);
+        buildEventHandlers(allExtensions);
         buildTimers(allExtensions);
     }
 
@@ -176,10 +178,15 @@ public class SeniorCommanderImpl implements SeniorCommander {
         session.close();
     }
 
-    private void buildMessageHandlers(List<Extension> extensions) {
+    private void buildCommandHandlers(List<Extension> extensions) {
         for (Extension extension : extensions) {
-            messageHandlers.addAll(extension.getMessageHandlerFactory()
-                    .build(sessionFactory, messageQueue, channels));
+            commandHandlers.addAll(extension.buildCommandHandlers(sessionFactory, messageQueue));
+        }
+    }
+
+    private void buildEventHandlers(List<Extension> extensions) {
+        for (Extension extension : extensions) {
+            eventHandlers.addAll(extension.buildEventHandlers(sessionFactory, messageQueue, channels, commandHandlers));
         }
     }
 

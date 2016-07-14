@@ -1,7 +1,7 @@
-package com.mitchellbosecke.seniorcommander.extension.core.handler;
+package com.mitchellbosecke.seniorcommander.extension.core.event;
 
 import com.mitchellbosecke.seniorcommander.channel.Channel;
-import com.mitchellbosecke.seniorcommander.message.MessageHandler;
+import com.mitchellbosecke.seniorcommander.message.EventHandler;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Created by mitch_000 on 2016-07-05.
  */
-public class OutputHandler implements MessageHandler {
+public class OutputHandler implements EventHandler {
 
     public static final String CONFIG_LURK = "seniorcommander.lurk";
 

@@ -1,6 +1,6 @@
-package com.mitchellbosecke.seniorcommander.extension.core.handler;
+package com.mitchellbosecke.seniorcommander.extension.core.event;
 
-import com.mitchellbosecke.seniorcommander.message.MessageHandler;
+import com.mitchellbosecke.seniorcommander.message.EventHandler;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by mitch_000 on 2016-07-04.
  */
-public class LoggingHandler implements MessageHandler {
+public class LoggingHandler implements EventHandler {
 
     Logger logger = LoggerFactory.getLogger(getClass());
 

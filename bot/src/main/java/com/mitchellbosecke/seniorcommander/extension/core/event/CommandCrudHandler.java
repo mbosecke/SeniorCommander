@@ -1,6 +1,6 @@
-package com.mitchellbosecke.seniorcommander.extension.core.handler;
+package com.mitchellbosecke.seniorcommander.extension.core.event;
 
-import com.mitchellbosecke.seniorcommander.message.MessageHandler;
+import com.mitchellbosecke.seniorcommander.message.EventHandler;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.extension.core.service.CommunityService;
@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 /**
  * Created by mitch_000 on 2016-07-04.
  */
-public class CommandCrudHandler implements MessageHandler {
+public class CommandCrudHandler implements EventHandler {
 
     private Logger logger = LoggerFactory.getLogger(CommandCrudHandler.class);
 
