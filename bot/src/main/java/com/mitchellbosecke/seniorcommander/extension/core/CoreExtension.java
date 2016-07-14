@@ -1,17 +1,19 @@
 package com.mitchellbosecke.seniorcommander.extension.core;
 
 import com.mitchellbosecke.seniorcommander.CommandHandler;
-import com.mitchellbosecke.seniorcommander.extension.core.command.AdviceCommand;
-import com.mitchellbosecke.seniorcommander.extension.core.command.RollCommand;
+import com.mitchellbosecke.seniorcommander.EventHandler;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.channel.ChannelFactory;
 import com.mitchellbosecke.seniorcommander.extension.Extension;
 import com.mitchellbosecke.seniorcommander.extension.core.channel.IrcChannelFactory;
 import com.mitchellbosecke.seniorcommander.extension.core.channel.SocketChannelFactory;
+import com.mitchellbosecke.seniorcommander.extension.core.command.AdviceCommand;
+import com.mitchellbosecke.seniorcommander.extension.core.command.CommandCrudCommand;
+import com.mitchellbosecke.seniorcommander.extension.core.command.RollCommand;
+import com.mitchellbosecke.seniorcommander.extension.core.command.RouletteCommand;
 import com.mitchellbosecke.seniorcommander.extension.core.event.*;
 import com.mitchellbosecke.seniorcommander.extension.core.service.CommunityService;
 import com.mitchellbosecke.seniorcommander.extension.core.service.CommunityServiceImpl;
-import com.mitchellbosecke.seniorcommander.EventHandler;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.timer.TimerFactory;
 import org.hibernate.SessionFactory;
@@ -41,8 +43,6 @@ public class CoreExtension implements Extension {
 
         eventHandlers.add(new CommandBroker(communityService, messageQueue, commandHandlers));
 
-        eventHandlers.add(new RouletteHandler(messageQueue));
-        eventHandlers.add(new CommandCrudHandler(communityService, messageQueue));
         return eventHandlers;
     }
 
@@ -61,9 +61,12 @@ public class CoreExtension implements Extension {
 
     @Override
     public List<CommandHandler> buildCommandHandlers(SessionFactory sessionFactory, MessageQueue messageQueue) {
+        CommunityService communityService = new CommunityServiceImpl(sessionFactory);
         List<CommandHandler> commandHandlers = new ArrayList<>();
         commandHandlers.add(new RollCommand(messageQueue));
         commandHandlers.add(new AdviceCommand(messageQueue));
+        commandHandlers.add(new RouletteCommand(messageQueue));
+        commandHandlers.add(new CommandCrudCommand(communityService, messageQueue));
         return commandHandlers;
     }
 }
