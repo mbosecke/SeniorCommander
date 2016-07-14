@@ -1,4 +1,4 @@
-package com.mitchellbosecke.seniorcommander.message;
+package com.mitchellbosecke.seniorcommander;
 
 import com.mitchellbosecke.seniorcommander.message.Message;
 

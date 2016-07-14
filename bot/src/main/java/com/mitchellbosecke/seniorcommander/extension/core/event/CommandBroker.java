@@ -5,7 +5,7 @@ import com.mitchellbosecke.seniorcommander.domain.Command;
 import com.mitchellbosecke.seniorcommander.domain.CommandLog;
 import com.mitchellbosecke.seniorcommander.domain.CommunityUser;
 import com.mitchellbosecke.seniorcommander.extension.core.service.CommunityService;
-import com.mitchellbosecke.seniorcommander.message.EventHandler;
+import com.mitchellbosecke.seniorcommander.EventHandler;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import org.slf4j.Logger;

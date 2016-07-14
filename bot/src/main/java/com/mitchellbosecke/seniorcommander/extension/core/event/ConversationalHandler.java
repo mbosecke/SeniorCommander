@@ -1,7 +1,7 @@
 package com.mitchellbosecke.seniorcommander.extension.core.event;
 
 import com.mitchellbosecke.seniorcommander.SeniorCommander;
-import com.mitchellbosecke.seniorcommander.message.EventHandler;
+import com.mitchellbosecke.seniorcommander.EventHandler;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import org.slf4j.Logger;
