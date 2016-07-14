@@ -14,9 +14,7 @@ insert into community(name) values ('My Twitch Community');
 ```
 * Configure a twitch channel:
 ```sql
-insert into channel(community_id, type) 
-select id, 'irc'
-from community;
+insert into channel(community_id, type) values (?, 'irc');
 
 insert into channel_setting(channel_id, key, value) values (?, 'server', 'irc.chat.twitch.tv');
 insert into channel_setting(channel_id, key, value) values (?, 'port', '6667');
@@ -24,6 +22,6 @@ insert into channel_setting(channel_id, key, value) values (?, 'username', 'bill
 insert into channel_setting(channel_id, key, value) values (?, 'password', 'oauth:1234');
 insert into channel_setting(channel_id, key, value) values (?, 'channel', '#billy');
 ```
-* Restart bot
+* Restart bot. He will join your channel. Add him as a mod.
 
 
