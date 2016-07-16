@@ -58,11 +58,6 @@ public class SeniorCommanderImpl implements SeniorCommander {
     private List<CommandHandler> commandHandlers = new LinkedList<>();
     private List<Timer> timers = new LinkedList<>();
 
-    /**
-     * Message handlers added at runtime
-     */
-    private List<EventHandler> newlyRegisteredHandlers = new LinkedList<>();
-
     public SeniorCommanderImpl() {
         this(Collections.emptyList());
     }
@@ -105,7 +100,7 @@ public class SeniorCommanderImpl implements SeniorCommander {
         timers.forEach(timer -> timer.run());
 
         while (true) {
-            Message message = messageQueue.readMessage();
+            Message message = messageQueue.readMessage(); // only blocks for a small period of time
             if (message != null) {
 
                 Session session = sessionFactory.getCurrentSession();
@@ -123,7 +118,6 @@ public class SeniorCommanderImpl implements SeniorCommander {
                 session.getTransaction().commit();
                 session.close();
             }
-            acknowledgeNewHandlers();
             if (!running) {
                 break;
             }
@@ -136,15 +130,6 @@ public class SeniorCommanderImpl implements SeniorCommander {
         running = false;
         channels.forEach(Channel::shutdown);
         ExecutorUtils.shutdown(channelThreadPool, 10, TimeUnit.SECONDS);
-    }
-
-    public void registerHandler(EventHandler eventHandler) {
-        newlyRegisteredHandlers.add(eventHandler);
-    }
-
-    private void acknowledgeNewHandlers() {
-        eventHandlers.addAll(newlyRegisteredHandlers);
-        newlyRegisteredHandlers.clear();
     }
 
     private void registerExtensions(List<Extension> extensions) {
