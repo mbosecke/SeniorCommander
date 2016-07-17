@@ -1,6 +1,7 @@
 package com.mitchellbosecke.seniorcommander.extension.core.command;
 
 import com.mitchellbosecke.seniorcommander.CommandHandler;
+import com.mitchellbosecke.seniorcommander.domain.Command;
 import com.mitchellbosecke.seniorcommander.domain.Community;
 import com.mitchellbosecke.seniorcommander.extension.core.service.CommandService;
 import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;
@@ -32,6 +33,8 @@ public class CommandCrudCommand implements CommandHandler {
 
     private final MessageQueue messageQueue;
 
+    private String[] cooldownOption = {"cooldown", "cd"};
+
     public CommandCrudCommand(MessageQueue messageQueue, UserService userService, CommandService commandService) {
         this.userService = userService;
         this.messageQueue = messageQueue;
@@ -48,21 +51,31 @@ public class CommandCrudCommand implements CommandHandler {
         String commandName = parsed.getComponents().get(1);
 
         if ("add".equalsIgnoreCase(subCommand)) {
-            String cooldownText = parsed.getOption("cooldown", "cd");
-            long cooldown = cooldownText == null ? 0 : Long.valueOf(cooldownText);
-
-            // convert minutes to seconds
-            cooldown = cooldown * 60;
-
-            commandService.addCommand(community, commandName, parsed.getQuotedText(), cooldown);
+            commandService.addCommand(community, commandName, parsed.getQuotedText(), getCooldown(parsed));
             messageQueue.add(Message.response(message, "Command has been added: " + commandName));
-        }
-
-        if ("delete".equalsIgnoreCase(subCommand)) {
+        } else if ("delete".equalsIgnoreCase(subCommand)) {
             commandService.deleteCommand(community, commandName);
             messageQueue.add(Message.response(message, "Command has been deleted: " + commandName));
+        } else if ("edit".equalsIgnoreCase(subCommand)) {
+
+            Command command = commandService.findCommand(community, commandName);
+            if (parsed.getQuotedText() != null) {
+                command.setMessage(parsed.getQuotedText());
+            }
+
+            if (parsed.getOption(cooldownOption) != null) {
+                command.setCooldown(getCooldown(parsed));
+            }
         }
 
+    }
+
+    private long getCooldown(ParsedCommand parsed) {
+        String cooldownText = parsed.getOption(cooldownOption);
+        long cooldown = cooldownText == null ? 0 : Long.valueOf(cooldownText);
+
+        // convert minutes to seconds
+        return cooldown * 60;
     }
 
 }
