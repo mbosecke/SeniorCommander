@@ -1,4 +1,4 @@
-package com.mitchellbosecke.seniorcommander;
+package com.mitchellbosecke.seniorcommander.utils;
 
 import java.io.*;
 import java.util.*;

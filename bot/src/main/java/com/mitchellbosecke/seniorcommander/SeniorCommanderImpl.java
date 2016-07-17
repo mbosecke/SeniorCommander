@@ -7,6 +7,8 @@ import com.mitchellbosecke.seniorcommander.extension.core.CoreExtension;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.timer.Timer;
+import com.mitchellbosecke.seniorcommander.utils.DatabaseManager;
+import com.mitchellbosecke.seniorcommander.utils.ExecutorUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;

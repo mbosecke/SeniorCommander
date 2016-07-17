@@ -1,4 +1,4 @@
-package com.mitchellbosecke.seniorcommander;
+package com.mitchellbosecke.seniorcommander.utils;
 
 import com.mitchellbosecke.seniorcommander.domain.*;
 import com.typesafe.config.Config;

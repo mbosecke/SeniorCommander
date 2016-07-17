@@ -1,4 +1,4 @@
-package com.mitchellbosecke.seniorcommander;
+package com.mitchellbosecke.seniorcommander.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

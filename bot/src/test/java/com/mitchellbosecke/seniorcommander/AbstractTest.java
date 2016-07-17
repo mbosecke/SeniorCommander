@@ -1,6 +1,7 @@
 package com.mitchellbosecke.seniorcommander;
 
 import com.mitchellbosecke.seniorcommander.message.MessageUtils;
+import com.mitchellbosecke.seniorcommander.utils.ExecutorUtils;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.junit.AfterClass;

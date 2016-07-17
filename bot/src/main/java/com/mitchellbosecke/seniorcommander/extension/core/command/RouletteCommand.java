@@ -1,7 +1,7 @@
 package com.mitchellbosecke.seniorcommander.extension.core.command;
 
 import com.mitchellbosecke.seniorcommander.CommandHandler;
-import com.mitchellbosecke.seniorcommander.PhraseProvider;
+import com.mitchellbosecke.seniorcommander.utils.PhraseProvider;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import org.slf4j.Logger;
