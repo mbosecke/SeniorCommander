@@ -10,37 +10,17 @@ import java.util.Date;
 /**
  * Created by mitch_000 on 2016-07-10.
  */
-public class CommunityServiceImpl implements CommunityService {
+public class UserServiceImpl extends BaseServiceImpl implements UserService {
 
-    private final SessionFactory sessionFactory;
-
-    public CommunityServiceImpl(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+    public UserServiceImpl(SessionFactory sessionFactory) {
+        super(sessionFactory);
     }
 
-    public CommandLog findMostRecentCommandLog(Command command, CommunityUser communityUser) {
 
-        CommandLog log = null;
-        try {
-            //@formatter:off
-            log = sessionFactory.getCurrentSession()
-                    .createQuery("SELECT cl " +
-                            "FROM CommandLog cl " +
-                            "WHERE cl.command = :command " +
-                            "AND cl.communityUser = :user " +
-                            "ORDER BY cl.logDate desc ", CommandLog.class)
-                    .setParameter("command", command).setParameter("user", communityUser).setMaxResults(1)
-                    .getSingleResult();
-            //@formatter:on
-        } catch (NoResultException ex) {
-        }
-        return log;
-    }
 
     @Override
     public CommunityUser findUser(Channel channel, String name) {
-        ChannelConfiguration channelConfig = find(ChannelConfiguration.class, channel.getId());
-        Community community = channelConfig.getCommunity();
+        Community community = findCommunity(channel);
         try {
             //@formatter:off
             return sessionFactory.getCurrentSession()
@@ -55,23 +35,7 @@ public class CommunityServiceImpl implements CommunityService {
         }
     }
 
-    @Override
-    public Command findCommand(Channel channel, String trigger) {
-        ChannelConfiguration channelConfig = find(ChannelConfiguration.class, channel.getId());
-        Community community = channelConfig.getCommunity();
-        try {
-            //@formatter:off
-            return sessionFactory.getCurrentSession()
-                    .createQuery("SELECT c " +
-                            "FROM Command c " +
-                            "WHERE c.community = :community " +
-                            "AND c.trigger = :trigger ", Command.class)
-                    .setParameter("community", community).setParameter("trigger", trigger.toLowerCase()).getSingleResult();
-            //@formatter:on
-        } catch (NoResultException ex) {
-            return null;
-        }
-    }
+
 
     @Override
     public CommunityUser setUserOnline(Channel channel, String name) {
@@ -119,15 +83,5 @@ public class CommunityServiceImpl implements CommunityService {
         } catch (NoResultException ex) {
             return null;
         }
-    }
-
-    @Override
-    public <T> T find(Class<T> clazz, long id) {
-        return sessionFactory.getCurrentSession().find(clazz, id);
-    }
-
-    @Override
-    public void persist(Object entity) {
-        sessionFactory.getCurrentSession().persist(entity);
     }
 }

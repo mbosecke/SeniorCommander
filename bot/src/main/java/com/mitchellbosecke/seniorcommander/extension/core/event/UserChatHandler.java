@@ -3,7 +3,7 @@ package com.mitchellbosecke.seniorcommander.extension.core.event;
 import com.mitchellbosecke.seniorcommander.domain.CommunityUser;
 import com.mitchellbosecke.seniorcommander.EventHandler;
 import com.mitchellbosecke.seniorcommander.message.Message;
-import com.mitchellbosecke.seniorcommander.extension.core.service.CommunityService;
+import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,17 +16,17 @@ public class UserChatHandler implements EventHandler {
 
     private Logger logger = LoggerFactory.getLogger(UserChatHandler.class);
 
-    private final CommunityService communityService;
+    private final UserService userService;
 
-    public UserChatHandler(CommunityService communityService) {
-        this.communityService = communityService;
+    public UserChatHandler(UserService userService) {
+        this.userService = userService;
     }
 
     @Override
     public void handle(Message message) {
 
         if (Message.Type.USER.equals(message.getType())) {
-            CommunityUser user = communityService.setUserOnline(message.getChannel(), message.getSender());
+            CommunityUser user = userService.setUserOnline(message.getChannel(), message.getSender());
             user.setLastChatted(new Date());
         }
     }

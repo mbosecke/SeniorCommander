@@ -40,4 +40,21 @@ public class CommandParserTest {
         Assert.assertEquals("!command", parsedCommand.getTrigger());
         Assert.assertEquals("yo", parsedCommand.getQuotedText());
     }
+
+
+    @Test
+    public void optionAliases(){
+        CommandParser parser = new CommandParser();
+        String command = "!command alias=foo a=bar";
+        ParsedCommand parsedCommand = parser.parse(command);
+        Assert.assertEquals("foo", parsedCommand.getOption("alias", "a"));
+    }
+
+    @Test
+    public void optionMissingAlias(){
+        CommandParser parser = new CommandParser();
+        String command = "!command a=bar";
+        ParsedCommand parsedCommand = parser.parse(command);
+        Assert.assertEquals("bar", parsedCommand.getOption("alias", "a"));
+    }
 }

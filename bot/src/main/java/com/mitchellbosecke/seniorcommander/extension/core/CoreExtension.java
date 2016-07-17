@@ -12,8 +12,10 @@ import com.mitchellbosecke.seniorcommander.extension.core.command.CommandCrudCom
 import com.mitchellbosecke.seniorcommander.extension.core.command.RollCommand;
 import com.mitchellbosecke.seniorcommander.extension.core.command.RouletteCommand;
 import com.mitchellbosecke.seniorcommander.extension.core.event.*;
-import com.mitchellbosecke.seniorcommander.extension.core.service.CommunityService;
-import com.mitchellbosecke.seniorcommander.extension.core.service.CommunityServiceImpl;
+import com.mitchellbosecke.seniorcommander.extension.core.service.CommandService;
+import com.mitchellbosecke.seniorcommander.extension.core.service.CommandServiceImpl;
+import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;
+import com.mitchellbosecke.seniorcommander.extension.core.service.UserServiceImpl;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.timer.TimerFactory;
 import org.hibernate.SessionFactory;
@@ -27,26 +29,6 @@ import java.util.List;
 public class CoreExtension implements Extension {
 
     @Override
-    public List<EventHandler> buildEventHandlers(SessionFactory sessionFactory, MessageQueue messageQueue,
-                                                 List<Channel> channels, List<CommandHandler> commandHandlers) {
-
-        List<EventHandler> eventHandlers = new ArrayList<>();
-
-        CommunityService communityService = new CommunityServiceImpl(sessionFactory);
-
-        eventHandlers.add(new LoggingHandler());
-        eventHandlers.add(new OutputHandler(channels));
-        eventHandlers.add(new ConversationalHandler(messageQueue));
-        eventHandlers.add(new UserChatHandler(communityService));
-        eventHandlers.add(new JoinPartHandler(communityService));
-        eventHandlers.add(new NamesHandler(communityService));
-
-        eventHandlers.add(new CommandBroker(communityService, messageQueue, commandHandlers));
-
-        return eventHandlers;
-    }
-
-    @Override
     public List<ChannelFactory> getChannelFactories() {
         List<ChannelFactory> factories = new ArrayList<>();
         factories.add(new IrcChannelFactory());
@@ -55,18 +37,45 @@ public class CoreExtension implements Extension {
     }
 
     @Override
-    public TimerFactory getTimerFactory() {
-        return new CoreTimerFactory();
+    public List<EventHandler> buildEventHandlers(SessionFactory sessionFactory, MessageQueue messageQueue,
+                                                 List<Channel> channels, List<CommandHandler> commandHandlers) {
+
+        List<EventHandler> eventHandlers = new ArrayList<>();
+
+        // service tiers
+        UserService userService = new UserServiceImpl(sessionFactory);
+        CommandService commandService = new CommandServiceImpl(sessionFactory);
+
+        // handlers
+        eventHandlers.add(new LoggingHandler());
+        eventHandlers.add(new OutputHandler(channels));
+        eventHandlers.add(new ConversationalHandler(messageQueue));
+        eventHandlers.add(new UserChatHandler(userService));
+        eventHandlers.add(new JoinPartHandler(userService));
+        eventHandlers.add(new NamesHandler(userService));
+        eventHandlers.add(new CommandBroker(messageQueue, commandHandlers, userService, commandService));
+
+        return eventHandlers;
     }
 
     @Override
     public List<CommandHandler> buildCommandHandlers(SessionFactory sessionFactory, MessageQueue messageQueue) {
-        CommunityService communityService = new CommunityServiceImpl(sessionFactory);
+
+        // service tiers
+        UserService userService = new UserServiceImpl(sessionFactory);
+        CommandService commandService = new CommandServiceImpl(sessionFactory);
+
+        // handlers
         List<CommandHandler> commandHandlers = new ArrayList<>();
         commandHandlers.add(new RollCommand(messageQueue));
         commandHandlers.add(new AdviceCommand(messageQueue));
         commandHandlers.add(new RouletteCommand(messageQueue));
-        commandHandlers.add(new CommandCrudCommand(communityService, messageQueue));
+        commandHandlers.add(new CommandCrudCommand(messageQueue, userService, commandService));
         return commandHandlers;
+    }
+
+    @Override
+    public TimerFactory getTimerFactory() {
+        return new CoreTimerFactory();
     }
 }

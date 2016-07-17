@@ -49,4 +49,13 @@ public class ParsedCommand {
     public void setOptions(Map<String, String> options) {
         this.options = options;
     }
+
+    public String getOption(String ... keys){
+        for(String key : keys){
+            if(options.containsKey(key)){
+                return options.get(key);
+            }
+        }
+        return null;
+    }
 }
