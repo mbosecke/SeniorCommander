@@ -66,6 +66,14 @@ public class CommandCrudCommand implements CommandHandler {
             if (parsed.getOption(cooldownOption) != null) {
                 command.setCooldown(getCooldown(parsed));
             }
+        } else if ("enable".equalsIgnoreCase(subCommand)){
+            Command command = commandService.findCommand(community, commandName);
+            command.setEnabled(true);
+            messageQueue.add(Message.response(message, "Command has been enabled: " + commandName));
+        } else if ("disable".equalsIgnoreCase(subCommand)){
+            Command command = commandService.findCommand(community, commandName);
+            command.setEnabled(false);
+            messageQueue.add(Message.response(message, "Command has been disabled: " + commandName));
         }
 
     }

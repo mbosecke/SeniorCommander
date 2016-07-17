@@ -30,6 +30,9 @@ public class Command {
     @Column
     private long cooldown;
 
+    @Column
+    private boolean enabled;
+
     public long getId() {
         return id;
     }
@@ -76,5 +79,13 @@ public class Command {
 
     public void setImplementation(String implementation) {
         this.implementation = implementation;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }

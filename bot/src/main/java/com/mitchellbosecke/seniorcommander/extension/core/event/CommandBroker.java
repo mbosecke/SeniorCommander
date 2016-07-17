@@ -50,7 +50,7 @@ public class CommandBroker implements EventHandler {
             Community community = commandService.findCommunity(message.getChannel());
             Command command = commandService.findCommand(community, tokenizer.nextToken());
 
-            if (command != null) {
+            if (command != null && command.isEnabled()) {
                 CommunityUser user = userService.findUser(message.getChannel(), message.getSender());
                 if (command.getCooldown() > 0) {
 
