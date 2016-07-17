@@ -22,19 +22,21 @@ public class DatabaseManager {
     private static final String CONFIG_PASSWORD = "database.password";
     private static final String CONFIG_SCHEMA = "database.schema";
 
+    private static final String CONFIG_HIBERNATE_DIALECT = "hibernate.dialect";
+    private static final String CONFIG_HIBERNATE_DRIVER_CLASS = "hibernate.connection.driver_class";
 
     public SessionFactory getSessionFactory() {
-        SessionFactory sessionFactory = null;
+        SessionFactory sessionFactory;
 
         Config configuration = ConfigFactory.load();
 
         Properties config = new Properties();
-        config.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQL9Dialect");
-        config.setProperty("hibernate.connection.driver_class", "org.postgresql.Driver");
+        config.setProperty("hibernate.dialect", configuration.getString(CONFIG_HIBERNATE_DIALECT));
+        config.setProperty("hibernate.connection.driver_class", configuration.getString(CONFIG_HIBERNATE_DRIVER_CLASS));
         config.setProperty("hibernate.connection.url", configuration.getString(CONFIG_URL));
         config.setProperty("hibernate.connection.username", configuration.getString(CONFIG_USERNAME));
         config.setProperty("hibernate.connection.password", configuration.getString(CONFIG_PASSWORD));
-        config.setProperty("hibernate.current_session_context_class", "org.hibernate.context.internal" + ".ThreadLocalSessionContext");
+        config.setProperty("hibernate.current_session_context_class", "org.hibernate.context.internal.ThreadLocalSessionContext");
 
         StandardServiceRegistry registry = new StandardServiceRegistryBuilder().applySettings(config).build();
         try {

@@ -4,6 +4,7 @@ import com.mitchellbosecke.seniorcommander.CommandHandler;
 import com.mitchellbosecke.seniorcommander.EventHandler;
 import com.mitchellbosecke.seniorcommander.domain.Command;
 import com.mitchellbosecke.seniorcommander.domain.CommandLog;
+import com.mitchellbosecke.seniorcommander.domain.Community;
 import com.mitchellbosecke.seniorcommander.domain.CommunityUser;
 import com.mitchellbosecke.seniorcommander.extension.core.service.CommandService;
 import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;
@@ -46,7 +47,8 @@ public class CommandBroker implements EventHandler {
     public void handle(Message message) {
         if (Message.Type.USER.equals(message.getType())) {
             StringTokenizer tokenizer = new StringTokenizer(message.getContent());
-            Command command = commandService.findCommand(message.getChannel(), tokenizer.nextToken());
+            Community community = commandService.findCommunity(message.getChannel());
+            Command command = commandService.findCommand(community, tokenizer.nextToken());
 
             if (command != null) {
                 CommunityUser user = userService.findUser(message.getChannel(), message.getSender());

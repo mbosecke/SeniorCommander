@@ -1,7 +1,10 @@
 package com.mitchellbosecke.seniorcommander.extension.core.service;
 
-import com.mitchellbosecke.seniorcommander.channel.Channel;
-import com.mitchellbosecke.seniorcommander.domain.*;
+import com.mitchellbosecke.seniorcommander.domain.Command;
+import com.mitchellbosecke.seniorcommander.domain.CommandLog;
+import com.mitchellbosecke.seniorcommander.domain.Community;
+import com.mitchellbosecke.seniorcommander.domain.CommunityUser;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import javax.persistence.NoResultException;
@@ -26,6 +29,18 @@ public class CommandServiceImpl extends BaseServiceImpl implements CommandServic
     }
 
     @Override
+    public void deleteCommand(Community community, String trigger) {
+
+        Command command = findCommand(community, trigger);
+        Session session = sessionFactory.getCurrentSession();
+        // command logs
+        session.createQuery("DELETE FROM CommandLog cl WHERE cl.command = :command").setParameter("command", command)
+                .executeUpdate();
+
+        session.delete(command);
+    }
+
+    @Override
     public CommandLog findMostRecentCommandLog(Command command, CommunityUser communityUser) {
 
         CommandLog log = null;
@@ -46,9 +61,7 @@ public class CommandServiceImpl extends BaseServiceImpl implements CommandServic
     }
 
     @Override
-    public Command findCommand(Channel channel, String trigger) {
-        ChannelConfiguration channelConfig = find(ChannelConfiguration.class, channel.getId());
-        Community community = channelConfig.getCommunity();
+    public Command findCommand(Community community, String trigger) {
         try {
             //@formatter:off
             return sessionFactory.getCurrentSession()

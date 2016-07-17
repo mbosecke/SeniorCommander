@@ -48,12 +48,19 @@ public class CommandCrudCommand implements CommandHandler {
         String commandName = parsed.getComponents().get(1);
 
         if ("add".equalsIgnoreCase(subCommand)) {
-            logger.debug("Command has been added: " + commandName);
-            messageQueue.add(Message.response(message, "The command has been added."));
-
             String cooldownText = parsed.getOption("cooldown", "cd");
-            long cooldown = cooldownText == null ? 0 : Long.valueOf(cooldownText) * 60;
+            long cooldown = cooldownText == null ? 0 : Long.valueOf(cooldownText);
+
+            // convert minutes to seconds
+            cooldown = cooldown * 60;
+
             commandService.addCommand(community, commandName, parsed.getQuotedText(), cooldown);
+            messageQueue.add(Message.response(message, "Command has been added: " + commandName));
+        }
+
+        if ("delete".equalsIgnoreCase(subCommand)) {
+            commandService.deleteCommand(community, commandName);
+            messageQueue.add(Message.response(message, "Command has been deleted: " + commandName));
         }
 
     }
