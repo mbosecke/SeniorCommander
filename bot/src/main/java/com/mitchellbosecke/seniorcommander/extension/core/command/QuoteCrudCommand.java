@@ -41,9 +41,9 @@ public class QuoteCrudCommand implements CommandHandler {
         ParsedCommand parsed = new CommandParser().parse(message.getContent());
         Community community = quoteService.findCommunity(message.getChannel());
 
-        if(parsed.getComponents().isEmpty()){
+        if (parsed.getComponents().isEmpty()) {
             // TODO: get random quote
-        }else{
+        } else {
             String subCommand = parsed.getComponents().get(0);
 
             if ("add".equalsIgnoreCase(subCommand)) {
@@ -51,12 +51,23 @@ public class QuoteCrudCommand implements CommandHandler {
                 if (parsed.getQuotedText() == null) {
                     messageQueue.add(Message.response(message, "You are missing the quoted text"));
                 } else {
-                    Quote result = quoteService.addQuote(community, parsed.getComponents().get(1), parsed.getQuotedText());
-                    messageQueue.add(Message.response(message, String.format("Quote #%d has been added", result.getId())));
+                    Quote result = quoteService
+                            .addQuote(community, parsed.getComponents().get(1), parsed.getQuotedText());
+                    messageQueue
+                            .add(Message.response(message, String.format("Quote #%d has been added", result.getId())));
+                }
+            } else {
+                try {
+                    long id = Long.parseLong(subCommand);
+                    Quote quote = quoteService.find(Quote.class, id);
+                    messageQueue.add(Message
+                            .shout(String.format("\"%s\" -%s", quote.getContent(), quote.getAuthor()), message
+                                    .getChannel()));
+                } catch (NumberFormatException ex) {
+                    // must be a name...
                 }
             }
         }
-
 
     }
 

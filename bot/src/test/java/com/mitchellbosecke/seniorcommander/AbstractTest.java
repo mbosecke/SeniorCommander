@@ -95,25 +95,26 @@ public class AbstractTest {
 
     }
 
-    protected void testCommandAndResult(String command, String expectedResult) {
+    protected String testCommandAndResult(String command, String expectedResult) {
         output.println(command);
         output.flush();
         try {
             String reply = removeRecipient(input.readLine());
             Assert.assertEquals(expectedResult, reply);
-
+            return reply;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    protected void testCommandAndResult(String command, Pattern expectedResult) {
+    protected String testCommandAndResult(String command, Pattern expectedResult) {
         output.println(command);
         output.flush();
         try {
             String reply = removeRecipient(input.readLine());
             Matcher matcher = expectedResult.matcher(reply);
             Assert.assertTrue(matcher.matches());
+            return reply;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
