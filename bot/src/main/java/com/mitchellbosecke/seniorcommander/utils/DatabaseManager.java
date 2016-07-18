@@ -25,6 +25,18 @@ public class DatabaseManager {
     private static final String CONFIG_HIBERNATE_DIALECT = "hibernate.dialect";
     private static final String CONFIG_HIBERNATE_DRIVER_CLASS = "hibernate.connection.driver_class";
 
+    private Flyway flyway;
+
+    public DatabaseManager() {
+        flyway = new Flyway();
+        Config configuration = ConfigFactory.load();
+        String url = configuration.getString(CONFIG_URL);
+        String username = configuration.getString(CONFIG_USERNAME);
+        String password = configuration.getString(CONFIG_PASSWORD);
+        flyway.setDataSource(url, username, password);
+        flyway.setSchemas(configuration.getString(CONFIG_SCHEMA));
+    }
+
     public SessionFactory getSessionFactory() {
         SessionFactory sessionFactory;
 
@@ -62,16 +74,10 @@ public class DatabaseManager {
     }
 
     public void migrate() {
-        Flyway flyway = new Flyway();
-
-        Config configuration = ConfigFactory.load();
-
-        String url = configuration.getString(CONFIG_URL);
-        String username = configuration.getString(CONFIG_USERNAME);
-        String password = configuration.getString(CONFIG_PASSWORD);
-        flyway.setDataSource(url, username, password);
-        flyway.setSchemas(configuration.getString(CONFIG_SCHEMA));
-
         flyway.migrate();
+    }
+
+    public void teardown() {
+        flyway.clean();
     }
 }

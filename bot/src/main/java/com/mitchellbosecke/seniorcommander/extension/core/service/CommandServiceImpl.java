@@ -25,6 +25,7 @@ public class CommandServiceImpl extends BaseServiceImpl implements CommandServic
         command.setTrigger(trigger);
         command.setMessage(message);
         command.setCooldown(cooldown);
+        command.setEnabled(true);
         persist(command);
     }
 

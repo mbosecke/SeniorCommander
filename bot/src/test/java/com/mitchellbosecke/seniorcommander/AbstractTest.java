@@ -1,12 +1,13 @@
 package com.mitchellbosecke.seniorcommander;
 
 import com.mitchellbosecke.seniorcommander.message.MessageUtils;
+import com.mitchellbosecke.seniorcommander.utils.DatabaseManager;
 import com.mitchellbosecke.seniorcommander.utils.ExecutorUtils;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,18 +29,18 @@ public class AbstractTest {
 
     static Logger logger = LoggerFactory.getLogger(AbstractTest.class);
 
-    protected static PrintWriter output;
+    protected PrintWriter output;
 
-    protected static BufferedReader input;
+    protected BufferedReader input;
 
-    private static SeniorCommander commander;
+    private SeniorCommander commander;
 
-    private static ExecutorService executorService;
+    private ExecutorService executorService;
 
-    private static int READ_TIMEOUT = 20 * 1000;
+    private int READ_TIMEOUT = 20 * 1000;
 
-    @BeforeClass
-    public static void connectToSocket() {
+    @Before
+    public void connectToSocket() {
         executorService = Executors.newFixedThreadPool(1);
 
         commander = new SeniorCommanderImpl();
@@ -82,15 +83,18 @@ public class AbstractTest {
         }
     }
 
-    @AfterClass
-    public static void shutdown() {
+    @After
+    public void shutdown() {
         logger.debug("Shutting down executor service");
         commander.shutdown();
         ExecutorUtils.shutdown(executorService, 10, TimeUnit.SECONDS);
+
+        DatabaseManager manager = new DatabaseManager();
+        manager.teardown();
     }
 
     protected void testCommandAndResult(String command, String expectedResult) {
-       // logger.debug("Command: " + command);
+        output.println(command);
         try {
             String reply = removeRecipient(input.readLine());
             Assert.assertEquals(expectedResult, reply);
@@ -101,15 +105,16 @@ public class AbstractTest {
     }
 
     protected void testCommandAndResult(String command, Pattern expectedResult) {
-        //logger.debug("Command: " + command);
+        output.println(command);
         try {
             String reply = removeRecipient(input.readLine());
             Matcher matcher = expectedResult.matcher(reply);
-           Assert.assertTrue(matcher.matches());
+            Assert.assertTrue(matcher.matches());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
+
 
     private String removeRecipient(String reply) {
         return MessageUtils.splitRecipient(reply)[1];

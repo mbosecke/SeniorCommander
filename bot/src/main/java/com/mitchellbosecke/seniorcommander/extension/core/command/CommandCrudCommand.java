@@ -51,8 +51,19 @@ public class CommandCrudCommand implements CommandHandler {
         String commandName = parsed.getComponents().get(1);
 
         if ("add".equalsIgnoreCase(subCommand)) {
-            commandService.addCommand(community, commandName, parsed.getQuotedText(), getCooldown(parsed));
-            messageQueue.add(Message.response(message, "Command has been added: " + commandName));
+
+            Command existingCommand = commandService.findCommand(community, commandName);
+            if (existingCommand == null) {
+
+                if (parsed.getQuotedText() == null) {
+                    messageQueue.add(Message.response(message, "You are missing the quoted text to be used as output"));
+                } else {
+                    commandService.addCommand(community, commandName, parsed.getQuotedText(), getCooldown(parsed));
+                    messageQueue.add(Message.response(message, "Command has been added: " + commandName));
+                }
+            } else {
+                messageQueue.add(Message.response(message, "Command already exists."));
+            }
         } else if ("delete".equalsIgnoreCase(subCommand)) {
             commandService.deleteCommand(community, commandName);
             messageQueue.add(Message.response(message, "Command has been deleted: " + commandName));
@@ -66,11 +77,11 @@ public class CommandCrudCommand implements CommandHandler {
             if (parsed.getOption(cooldownOption) != null) {
                 command.setCooldown(getCooldown(parsed));
             }
-        } else if ("enable".equalsIgnoreCase(subCommand)){
+        } else if ("enable".equalsIgnoreCase(subCommand)) {
             Command command = commandService.findCommand(community, commandName);
             command.setEnabled(true);
             messageQueue.add(Message.response(message, "Command has been enabled: " + commandName));
-        } else if ("disable".equalsIgnoreCase(subCommand)){
+        } else if ("disable".equalsIgnoreCase(subCommand)) {
             Command command = commandService.findCommand(community, commandName);
             command.setEnabled(false);
             messageQueue.add(Message.response(message, "Command has been disabled: " + commandName));
