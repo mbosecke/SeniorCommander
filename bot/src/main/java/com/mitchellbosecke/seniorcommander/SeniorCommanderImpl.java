@@ -92,7 +92,7 @@ public class SeniorCommanderImpl implements SeniorCommander {
             channelThreadPool.submit(() -> {
                 try {
                     channel.listen(messageQueue);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             });

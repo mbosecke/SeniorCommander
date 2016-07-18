@@ -119,6 +119,21 @@ public class AbstractTest {
         }
     }
 
+    protected void sendAndIgnoreResponse(String command){
+        output.println(command);
+        output.flush();
+        try {
+            input.readLine();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected void sendWithoutResponse(String command){
+        output.println(command);
+        output.flush();
+    }
+
 
     private String removeRecipient(String reply) {
         return MessageUtils.splitRecipient(reply)[1];
