@@ -5,6 +5,7 @@ import com.mitchellbosecke.seniorcommander.utils.ExecutorUtils;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,8 @@ public class AbstractTest {
 
     private static ExecutorService executorService;
 
+    private static int READ_TIMEOUT = 20 * 1000;
+
     @BeforeClass
     public static void connectToSocket() {
         executorService = Executors.newFixedThreadPool(1);
@@ -54,7 +57,7 @@ public class AbstractTest {
             try {
                 logger.debug(retryCounter + ": Attempting to connect to socket channel.");
                 socket = new Socket("localhost", config.getInt("socket.port"));
-                socket.setSoTimeout(5 * 60 * 1000);
+                socket.setSoTimeout(READ_TIMEOUT);
                 break;
             } catch (IOException ex) {
                 logger.debug("Socket attempt failed");
@@ -86,22 +89,23 @@ public class AbstractTest {
         ExecutorUtils.shutdown(executorService, 10, TimeUnit.SECONDS);
     }
 
-    protected boolean testCommandAndResult(String command, String expectedResult) {
-        output.println(command);
+    protected void testCommandAndResult(String command, String expectedResult) {
+       // logger.debug("Command: " + command);
         try {
             String reply = removeRecipient(input.readLine());
-            return expectedResult.equalsIgnoreCase(reply);
+            Assert.assertEquals(expectedResult, reply);
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    protected boolean testCommandAndResult(String command, Pattern expectedResult) {
-        output.println(command);
+    protected void testCommandAndResult(String command, Pattern expectedResult) {
+        //logger.debug("Command: " + command);
         try {
             String reply = removeRecipient(input.readLine());
             Matcher matcher = expectedResult.matcher(reply);
-            return matcher.matches();
+           Assert.assertTrue(matcher.matches());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -14,6 +14,6 @@ public class LoggingHandler implements EventHandler {
 
     @Override
     public void handle(Message message) {
-        logger.trace(String.format("[%s] %s: %s", message.getType(), message.getSender(), message.getContent()));
+        logger.debug(String.format("[%s] %s: %s", message.getType(), message.getSender(), message.getContent()));
     }
 }

@@ -6,8 +6,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertTrue;
-
 /**
  * Created by mitch_000 on 2016-07-08.
  */
@@ -17,6 +15,6 @@ public class AdviceTest extends AbstractTest {
 
     @Test
     public void advice() {
-        assertTrue(testCommandAndResult("!advice", Pattern.compile(".*")));
+        testCommandAndResult("!advice", Pattern.compile(".*"));
     }
 }
