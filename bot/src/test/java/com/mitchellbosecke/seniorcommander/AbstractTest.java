@@ -41,6 +41,9 @@ public class AbstractTest {
 
     @Before
     public void connectToSocket() {
+        DatabaseManager manager = new DatabaseManager();
+        manager.teardown();
+
         executorService = Executors.newFixedThreadPool(1);
 
         commander = new SeniorCommanderImpl();
@@ -89,12 +92,13 @@ public class AbstractTest {
         commander.shutdown();
         ExecutorUtils.shutdown(executorService, 10, TimeUnit.SECONDS);
 
-        DatabaseManager manager = new DatabaseManager();
-        manager.teardown();
+
     }
 
     protected void testCommandAndResult(String command, String expectedResult) {
+        logger.debug("Command: " + command);
         output.println(command);
+        output.flush();
         try {
             String reply = removeRecipient(input.readLine());
             Assert.assertEquals(expectedResult, reply);
@@ -105,7 +109,9 @@ public class AbstractTest {
     }
 
     protected void testCommandAndResult(String command, Pattern expectedResult) {
+        logger.debug("Command: " + command);
         output.println(command);
+        output.flush();
         try {
             String reply = removeRecipient(input.readLine());
             Matcher matcher = expectedResult.matcher(reply);
