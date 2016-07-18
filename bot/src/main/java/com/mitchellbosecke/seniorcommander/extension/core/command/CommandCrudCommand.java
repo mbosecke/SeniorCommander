@@ -4,7 +4,6 @@ import com.mitchellbosecke.seniorcommander.CommandHandler;
 import com.mitchellbosecke.seniorcommander.domain.Command;
 import com.mitchellbosecke.seniorcommander.domain.Community;
 import com.mitchellbosecke.seniorcommander.extension.core.service.CommandService;
-import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.utils.CommandParser;
@@ -27,16 +26,13 @@ public class CommandCrudCommand implements CommandHandler {
 
     private Logger logger = LoggerFactory.getLogger(CommandCrudCommand.class);
 
-    private final UserService userService;
-
     private final CommandService commandService;
 
     private final MessageQueue messageQueue;
 
     private String[] cooldownOption = {"cooldown", "cd"};
 
-    public CommandCrudCommand(MessageQueue messageQueue, UserService userService, CommandService commandService) {
-        this.userService = userService;
+    public CommandCrudCommand(MessageQueue messageQueue, CommandService commandService) {
         this.messageQueue = messageQueue;
         this.commandService = commandService;
     }
@@ -45,7 +41,7 @@ public class CommandCrudCommand implements CommandHandler {
     public void execute(Message message) {
 
         ParsedCommand parsed = new CommandParser().parse(message.getContent());
-        Community community = userService.findCommunity(message.getChannel());
+        Community community = commandService.findCommunity(message.getChannel());
 
         String subCommand = parsed.getComponents().get(0);
         String commandName = parsed.getComponents().get(1);

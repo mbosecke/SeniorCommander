@@ -16,3 +16,6 @@ values (1, '!advice', 0, 'com.mitchellbosecke.seniorcommander.extension.core.com
 
 insert into command (community_id, trigger, cooldown, implementation)
 values (1, '!command', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.CommandCrudCommand');
+
+insert into command (community_id, trigger, cooldown, implementation)
+values (1, '!quote', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.QuoteCrudCommand');

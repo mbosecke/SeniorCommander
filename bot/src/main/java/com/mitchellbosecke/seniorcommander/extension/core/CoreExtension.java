@@ -7,15 +7,9 @@ import com.mitchellbosecke.seniorcommander.channel.ChannelFactory;
 import com.mitchellbosecke.seniorcommander.extension.Extension;
 import com.mitchellbosecke.seniorcommander.extension.core.channel.IrcChannelFactory;
 import com.mitchellbosecke.seniorcommander.extension.core.channel.SocketChannelFactory;
-import com.mitchellbosecke.seniorcommander.extension.core.command.AdviceCommand;
-import com.mitchellbosecke.seniorcommander.extension.core.command.CommandCrudCommand;
-import com.mitchellbosecke.seniorcommander.extension.core.command.RollCommand;
-import com.mitchellbosecke.seniorcommander.extension.core.command.RouletteCommand;
+import com.mitchellbosecke.seniorcommander.extension.core.command.*;
 import com.mitchellbosecke.seniorcommander.extension.core.event.*;
-import com.mitchellbosecke.seniorcommander.extension.core.service.CommandService;
-import com.mitchellbosecke.seniorcommander.extension.core.service.CommandServiceImpl;
-import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;
-import com.mitchellbosecke.seniorcommander.extension.core.service.UserServiceImpl;
+import com.mitchellbosecke.seniorcommander.extension.core.service.*;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.timer.TimerFactory;
 import org.hibernate.SessionFactory;
@@ -62,15 +56,16 @@ public class CoreExtension implements Extension {
     public List<CommandHandler> buildCommandHandlers(SessionFactory sessionFactory, MessageQueue messageQueue) {
 
         // service tiers
-        UserService userService = new UserServiceImpl(sessionFactory);
         CommandService commandService = new CommandServiceImpl(sessionFactory);
+        QuoteService quoteService = new QuoteServiceImpl(sessionFactory);
 
         // handlers
         List<CommandHandler> commandHandlers = new ArrayList<>();
         commandHandlers.add(new RollCommand(messageQueue));
         commandHandlers.add(new AdviceCommand(messageQueue));
         commandHandlers.add(new RouletteCommand(messageQueue));
-        commandHandlers.add(new CommandCrudCommand(messageQueue, userService, commandService));
+        commandHandlers.add(new CommandCrudCommand(messageQueue, commandService));
+        commandHandlers.add(new QuoteCrudCommand(messageQueue, quoteService));
         return commandHandlers;
     }
 
