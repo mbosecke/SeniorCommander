@@ -96,7 +96,6 @@ public class AbstractTest {
     }
 
     protected void testCommandAndResult(String command, String expectedResult) {
-        logger.debug("Command: " + command);
         output.println(command);
         output.flush();
         try {
@@ -109,7 +108,6 @@ public class AbstractTest {
     }
 
     protected void testCommandAndResult(String command, Pattern expectedResult) {
-        logger.debug("Command: " + command);
         output.println(command);
         output.flush();
         try {

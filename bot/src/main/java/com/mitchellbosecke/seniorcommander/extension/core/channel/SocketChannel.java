@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 /**
  * Created by mitch_000 on 2016-07-08.
@@ -36,6 +37,12 @@ public class SocketChannel implements Channel {
 
     private final Integer port;
 
+    /**
+     * How long it blocks while reading from the socket before
+     * it temporarily stops to perform maintenance (ex. handle shutdown request).
+     */
+    private static final int READ_TIMEOUT = 1000;
+
     public SocketChannel(long id, Integer port) {
         this.id = id;
         this.port = port;
@@ -51,7 +58,7 @@ public class SocketChannel implements Channel {
 
                 // block until a client connects
                 Socket clientSocket = serverSocket.accept();
-                clientSocket.setSoTimeout(100);
+                clientSocket.setSoTimeout(READ_TIMEOUT);
 
                 output = new PrintWriter(clientSocket.getOutputStream(), true);
                 input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -59,11 +66,17 @@ public class SocketChannel implements Channel {
             }
         }
 
-        String inputLine;
         if (input != null) {
 
             while (true) {
-                inputLine = input.readLine();
+                String inputLine = null;
+
+                try {
+                    inputLine = input.readLine();
+                } catch (SocketTimeoutException ex) {
+                    // do nothing
+                }
+
                 if (inputLine != null) {
                     String[] split = MessageUtils.splitRecipient(inputLine);
                     String recipient = split[0];
@@ -75,6 +88,7 @@ public class SocketChannel implements Channel {
                 }
             }
         }
+
     }
 
     @Override

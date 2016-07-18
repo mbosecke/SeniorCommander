@@ -17,4 +17,10 @@ public class CommandsTest extends AbstractTest {
         testCommandAndResult("!command add !foo \"bar\"", "Command has been added: !foo");
         testCommandAndResult("!foo", "bar");
     }
+
+    @Test
+    public void addExistingCommand() {
+        testCommandAndResult("!command add !foo \"bar\"", "Command has been added: !foo");
+        testCommandAndResult("!command add !foo \"baz\"", "Command already exists.");
+    }
 }
