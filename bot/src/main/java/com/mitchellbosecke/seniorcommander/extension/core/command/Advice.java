@@ -10,31 +10,19 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by mitch_000 on 2016-07-04.
  */
-public class RouletteCommand implements CommandHandler {
+public class Advice implements CommandHandler {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final MessageQueue messageQueue;
 
-    public RouletteCommand(MessageQueue messageQueue) {
+    public Advice(MessageQueue messageQueue) {
         this.messageQueue = messageQueue;
     }
 
     @Override
     public void execute(Message message) {
-
-        String user = message.getSender();
-
-        boolean survives = Math.random() > 0.5;
-
-        if (survives) {
-            messageQueue.add(Message
-                    .response(message, PhraseProvider.getPhrase(PhraseProvider.Category.CLOSE_CALL)));
-        } else {
-            messageQueue
-                    .add(Message.response(message, PhraseProvider.getPhrase(PhraseProvider.Category.GRIEF)));
-            message.getChannel().timeout(user, 5 * 60l);
-        }
+        messageQueue.add(Message.response(message, PhraseProvider.getPhrase(PhraseProvider.Category.ADVICE)));
     }
 
 }

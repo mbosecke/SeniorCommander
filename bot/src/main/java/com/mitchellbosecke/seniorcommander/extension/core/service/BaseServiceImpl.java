@@ -22,6 +22,12 @@ public class BaseServiceImpl implements BaseService {
     }
 
     @Override
+    public <T> void delete(Class<T> clazz, long id) {
+        T obj = find(clazz, id);
+        sessionFactory.getCurrentSession().delete(obj);
+    }
+
+    @Override
     public void persist(Object entity) {
         sessionFactory.getCurrentSession().persist(entity);
     }

@@ -23,9 +23,9 @@ import org.slf4j.LoggerFactory;
  * </p>
  * Created by mitch_000 on 2016-07-04.
  */
-public class CommandCrudCommand implements CommandHandler {
+public class CommandCrud implements CommandHandler {
 
-    private Logger logger = LoggerFactory.getLogger(CommandCrudCommand.class);
+    private Logger logger = LoggerFactory.getLogger(CommandCrud.class);
 
     private final CommandService commandService;
 
@@ -34,7 +34,7 @@ public class CommandCrudCommand implements CommandHandler {
     private String[] cooldownOption = {"cooldown", "cd"};
     private String[] accessLevel = {"access", "ac"};
 
-    public CommandCrudCommand(MessageQueue messageQueue, CommandService commandService) {
+    public CommandCrud(MessageQueue messageQueue, CommandService commandService) {
         this.messageQueue = messageQueue;
         this.commandService = commandService;
     }

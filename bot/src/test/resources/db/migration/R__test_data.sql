@@ -9,13 +9,22 @@ select id, 'port', '4444'
 from channel where type = 'socket';
 
 insert into command (community_id, trigger, cooldown, implementation, access_level)
-values (1, '!roll', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.RollCommand', 'USER');
+values (1, '!roll', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.Roll', 'USER');
 
 insert into command (community_id, trigger, cooldown, implementation, access_level)
-values (1, '!advice', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.AdviceCommand', 'USER');
+values (1, '!advice', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.Advice', 'USER');
 
 insert into command (community_id, trigger, cooldown, implementation, access_level)
-values (1, '!command', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.CommandCrudCommand', 'MODERATOR');
+values (1, '!command', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.CommandCrud', 'MODERATOR');
 
 insert into command (community_id, trigger, cooldown, implementation, access_level)
-values (1, '!quote', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.QuoteCrudCommand', 'USER');
+values (1, '!quote', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.RandomQuote', 'USER');
+
+insert into command (community_id, cooldown, trigger, implementation, access_level)
+values (1, '!quote delete', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.QuoteCrud', 'MODERATOR')
+
+insert into command (community_id, cooldown, trigger, implementation, access_level)
+values (1, '!quote add', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.QuoteCrud', 'MODERATOR')
+
+insert into command (community_id, cooldown, trigger, implementation, access_level)
+values (1, '!quote edit', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.QuoteCrud', 'MODERATOR')

@@ -12,5 +12,7 @@ public interface BaseService {
 
     <T> T find(Class<T> clazz, long id);
 
+    <T> void delete(Class<T> clazz, long id);
+
     void persist(Object entity);
 }

@@ -10,6 +10,4 @@ public interface QuoteService extends BaseService {
 
     Quote addQuote(Community community, String author, String content);
 
-
-
 }

@@ -10,11 +10,11 @@ import java.util.StringTokenizer;
 /**
  * Created by mitch_000 on 2016-07-13.
  */
-public class RollCommand implements CommandHandler {
+public class Roll implements CommandHandler {
 
     private final MessageQueue messageQueue;
 
-    public RollCommand(MessageQueue messageQueue) {
+    public Roll(MessageQueue messageQueue) {
         this.messageQueue = messageQueue;
     }
 
