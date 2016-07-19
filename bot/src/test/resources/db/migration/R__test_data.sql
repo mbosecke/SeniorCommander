@@ -20,11 +20,11 @@ values (1, '!command', 0, 'com.mitchellbosecke.seniorcommander.extension.core.co
 insert into command (community_id, trigger, cooldown, implementation, access_level)
 values (1, '!quote', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.RandomQuote', 'USER');
 
-insert into command (community_id, cooldown, trigger, implementation, access_level)
-values (1, '!quote delete', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.QuoteCrud', 'MODERATOR')
+insert into command (community_id, trigger, cooldown, implementation, access_level)
+values (1, '!quote delete', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.QuoteCrud', 'MODERATOR');
 
-insert into command (community_id, cooldown, trigger, implementation, access_level)
-values (1, '!quote add', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.QuoteCrud', 'MODERATOR')
+insert into command (community_id, trigger, cooldown, implementation, access_level)
+values (1, '!quote add', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.QuoteCrud', 'MODERATOR');
 
-insert into command (community_id, cooldown, trigger, implementation, access_level)
-values (1, '!quote edit', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.QuoteCrud', 'MODERATOR')
+insert into command (community_id, trigger, cooldown, implementation, access_level)
+values (1, '!quote edit', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.QuoteCrud', 'MODERATOR');
