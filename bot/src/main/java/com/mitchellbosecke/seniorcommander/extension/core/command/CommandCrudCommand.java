@@ -1,5 +1,6 @@
 package com.mitchellbosecke.seniorcommander.extension.core.command;
 
+import com.mitchellbosecke.seniorcommander.AccessLevel;
 import com.mitchellbosecke.seniorcommander.CommandHandler;
 import com.mitchellbosecke.seniorcommander.domain.Command;
 import com.mitchellbosecke.seniorcommander.domain.Community;
@@ -31,6 +32,7 @@ public class CommandCrudCommand implements CommandHandler {
     private final MessageQueue messageQueue;
 
     private String[] cooldownOption = {"cooldown", "cd"};
+    private String[] accessLevel = {"access", "ac"};
 
     public CommandCrudCommand(MessageQueue messageQueue, CommandService commandService) {
         this.messageQueue = messageQueue;
@@ -54,7 +56,8 @@ public class CommandCrudCommand implements CommandHandler {
                 if (parsed.getQuotedText() == null) {
                     messageQueue.add(Message.response(message, "You are missing the quoted text to be used as output"));
                 } else {
-                    commandService.addCommand(community, commandName, parsed.getQuotedText(), getCooldown(parsed));
+                    commandService.addCommand(community, commandName, parsed
+                            .getQuotedText(), getCooldown(parsed), getAccessLevel(parsed));
                     messageQueue.add(Message.response(message, "Command has been added: " + commandName));
                 }
             } else {
@@ -72,6 +75,10 @@ public class CommandCrudCommand implements CommandHandler {
 
             if (parsed.getOption(cooldownOption) != null) {
                 command.setCooldown(getCooldown(parsed));
+            }
+
+            if (parsed.getOption(accessLevel) != null) {
+                command.setAccessLevel(getAccessLevel(parsed));
             }
         } else if ("enable".equalsIgnoreCase(subCommand)) {
             Command command = commandService.findCommand(community, commandName);
@@ -91,6 +98,15 @@ public class CommandCrudCommand implements CommandHandler {
 
         // convert minutes to seconds
         return cooldown * 60;
+    }
+
+    private AccessLevel getAccessLevel(ParsedCommand parsed) {
+        String access = parsed.getOption(accessLevel);
+        if (access != null) {
+            return AccessLevel.valueOf(access.toUpperCase());
+        } else {
+            return AccessLevel.USER;
+        }
     }
 
 }

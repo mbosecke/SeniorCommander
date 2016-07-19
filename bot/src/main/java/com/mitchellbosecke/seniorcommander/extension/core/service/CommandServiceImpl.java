@@ -20,14 +20,15 @@ public class CommandServiceImpl extends BaseServiceImpl implements CommandServic
     }
 
     @Override
-    public void addCommand(Community community, String trigger, String message, long cooldown) {
+    public void addCommand(Community community, String trigger, String message, long cooldown, AccessLevel
+            accessLevel) {
         Command command = new Command();
         command.setCommunity(community);
         command.setTrigger(trigger);
         command.setMessage(message);
         command.setCooldown(cooldown);
         command.setEnabled(true);
-        command.setAccessLevel(AccessLevel.USER);
+        command.setAccessLevel(accessLevel);
         persist(command);
     }
 
