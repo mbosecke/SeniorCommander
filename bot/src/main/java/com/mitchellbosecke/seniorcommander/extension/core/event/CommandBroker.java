@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
 /**
@@ -46,27 +45,36 @@ public class CommandBroker implements EventHandler {
     @Override
     public void handle(Message message) {
         if (Message.Type.USER.equals(message.getType())) {
-            StringTokenizer tokenizer = new StringTokenizer(message.getContent());
             Community community = commandService.findCommunity(message.getChannel());
-            Command command = commandService.findCommand(community, tokenizer.nextToken());
+            Command command = commandService.findCommand(community, message.getContent());
 
             if (command != null && command.isEnabled()) {
                 CommunityUser user = userService.findUser(message.getChannel(), message.getSender());
-                if (command.getCooldown() > 0) {
+                if (hasPermission(command, user)) {
+                    executeAfterCooldown(message, command, user);
+                }
+            }
+        }
+    }
 
-                    CommandLog commandLog = commandService.findMostRecentCommandLog(command, user);
-                    if (commandLog == null) {
-                        executeCommand(message, command, user);
-                    } else {
-                        long cooldownMilliseconds = command.getCooldown() * 1000;
-                        if (commandLog.getLogDate().getTime() + cooldownMilliseconds <= new Date().getTime()) {
-                            executeCommand(message, command, user);
-                        }
-                    }
-                } else {
+    private boolean hasPermission(Command command, CommunityUser user) {
+        return user.getAccessLevel().hasAccess(command.getAccessLevel());
+    }
+
+    private void executeAfterCooldown(Message message, Command command, CommunityUser user) {
+        if (command.getCooldown() > 0) {
+
+            CommandLog commandLog = commandService.findMostRecentCommandLog(command, user);
+            if (commandLog == null) {
+                executeCommand(message, command, user);
+            } else {
+                long cooldownMilliseconds = command.getCooldown() * 1000;
+                if (commandLog.getLogDate().getTime() + cooldownMilliseconds <= new Date().getTime()) {
                     executeCommand(message, command, user);
                 }
             }
+        } else {
+            executeCommand(message, command, user);
         }
     }
 

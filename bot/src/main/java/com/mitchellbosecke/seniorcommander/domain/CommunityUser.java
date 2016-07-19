@@ -1,5 +1,7 @@
 package com.mitchellbosecke.seniorcommander.domain;
 
+import com.mitchellbosecke.seniorcommander.AccessLevel;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -9,10 +11,6 @@ import java.util.Date;
 @Entity
 @Table(name = "community_user")
 public class CommunityUser {
-
-    public enum AccessLevel {
-        USER, MODERATOR, ADMIN
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,7 +28,8 @@ public class CommunityUser {
     private int points;
 
     @Column(name = "access_level")
-    private String accessLevel;
+    @Enumerated(EnumType.STRING)
+    private AccessLevel accessLevel;
 
     @Column(name = "first_seen")
     @Temporal(value = TemporalType.TIMESTAMP)
@@ -40,11 +39,11 @@ public class CommunityUser {
     @Temporal(value = TemporalType.TIMESTAMP)
     private Date lastChatted;
 
-    public String getAccessLevel() {
+    public AccessLevel getAccessLevel() {
         return accessLevel;
     }
 
-    public void setAccessLevel(String accessLevel) {
+    public void setAccessLevel(AccessLevel accessLevel) {
         this.accessLevel = accessLevel;
     }
 

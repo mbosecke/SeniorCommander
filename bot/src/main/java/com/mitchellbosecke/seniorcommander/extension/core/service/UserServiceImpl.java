@@ -1,7 +1,10 @@
 package com.mitchellbosecke.seniorcommander.extension.core.service;
 
+import com.mitchellbosecke.seniorcommander.AccessLevel;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
-import com.mitchellbosecke.seniorcommander.domain.*;
+import com.mitchellbosecke.seniorcommander.domain.ChannelConfiguration;
+import com.mitchellbosecke.seniorcommander.domain.Community;
+import com.mitchellbosecke.seniorcommander.domain.CommunityUser;
 import org.hibernate.SessionFactory;
 
 import javax.persistence.NoResultException;
@@ -15,8 +18,6 @@ public class UserServiceImpl extends BaseServiceImpl implements UserService {
     public UserServiceImpl(SessionFactory sessionFactory) {
         super(sessionFactory);
     }
-
-
 
     @Override
     public CommunityUser findUser(Channel channel, String name) {
@@ -34,8 +35,6 @@ public class UserServiceImpl extends BaseServiceImpl implements UserService {
             return null;
         }
     }
-
-
 
     @Override
     public CommunityUser setUserOnline(Channel channel, String name) {
@@ -70,7 +69,7 @@ public class UserServiceImpl extends BaseServiceImpl implements UserService {
         user.setCommunity(community);
         user.setName(name.toLowerCase());
         user.setFirstSeen(new Date());
-        user.setAccessLevel(CommunityUser.AccessLevel.USER.name());
+        user.setAccessLevel(AccessLevel.USER);
         persist(user);
         return user;
     }

@@ -1,5 +1,6 @@
 package com.mitchellbosecke.seniorcommander.extension.core.service;
 
+import com.mitchellbosecke.seniorcommander.AccessLevel;
 import com.mitchellbosecke.seniorcommander.domain.Command;
 import com.mitchellbosecke.seniorcommander.domain.CommandLog;
 import com.mitchellbosecke.seniorcommander.domain.Community;
@@ -26,6 +27,7 @@ public class CommandServiceImpl extends BaseServiceImpl implements CommandServic
         command.setMessage(message);
         command.setCooldown(cooldown);
         command.setEnabled(true);
+        command.setAccessLevel(AccessLevel.USER);
         persist(command);
     }
 
@@ -69,8 +71,10 @@ public class CommandServiceImpl extends BaseServiceImpl implements CommandServic
                     .createQuery("SELECT c " +
                             "FROM Command c " +
                             "WHERE c.community = :community " +
-                            "AND c.trigger = :trigger ", Command.class)
-                    .setParameter("community", community).setParameter("trigger", trigger.toLowerCase()).getSingleResult();
+                            "AND :trigger LIKE (c.trigger || '%') " +
+                            "ORDER BY trigger DESC", Command.class)
+                    .setParameter("community", community).setParameter("trigger", trigger.toLowerCase())
+                    .setMaxResults(1).getSingleResult();
             //@formatter:on
         } catch (NoResultException ex) {
             return null;

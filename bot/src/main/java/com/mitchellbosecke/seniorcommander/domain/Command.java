@@ -1,5 +1,7 @@
 package com.mitchellbosecke.seniorcommander.domain;
 
+import com.mitchellbosecke.seniorcommander.AccessLevel;
+
 import javax.persistence.*;
 
 /**
@@ -32,6 +34,10 @@ public class Command {
 
     @Column
     private boolean enabled;
+
+    @Column(name = "access_level")
+    @Enumerated(EnumType.STRING)
+    private AccessLevel accessLevel;
 
     public long getId() {
         return id;
@@ -87,5 +93,13 @@ public class Command {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public AccessLevel getAccessLevel() {
+        return accessLevel;
+    }
+
+    public void setAccessLevel(AccessLevel accessLevel) {
+        this.accessLevel = accessLevel;
     }
 }
