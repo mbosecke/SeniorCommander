@@ -41,16 +41,17 @@ public class RandomQuote implements CommandHandler {
         if (parsed.getComponents().isEmpty()) {
             // TODO: get random quote
         } else {
-            String subCommand = parsed.getComponents().get(0);
+            String identifier = parsed.getComponents().get(0);
 
             try {
-                long id = Long.parseLong(subCommand);
+                long id = Long.parseLong(identifier);
                 Quote quote = quoteService.find(Quote.class, id);
                 messageQueue.add(Message
                         .shout(String.format("\"%s\" -%s", quote.getContent(), quote.getAuthor()), message
                                 .getChannel()));
             } catch (NumberFormatException ex) {
-                // must be a name...
+                String author = identifier;
+                // TODO: get randome quote from author name
             }
         }
 
