@@ -46,9 +46,13 @@ public class RandomQuote implements CommandHandler {
             try {
                 long id = Long.parseLong(identifier);
                 Quote quote = quoteService.find(Quote.class, id);
-                messageQueue.add(Message
-                        .shout(String.format("\"%s\" -%s", quote.getContent(), quote.getAuthor()), message
-                                .getChannel()));
+
+                if(quote == null) {
+                    messageQueue.add(Message.response(message, "Quote does not exist"));
+                }else {
+                    messageQueue.add(Message
+                            .shout(String.format("\"%s\" -%s", quote.getContent(), quote.getAuthor()), message.getChannel()));
+                }
             } catch (NumberFormatException ex) {
                 String author = identifier;
                 // TODO: get randome quote from author name
