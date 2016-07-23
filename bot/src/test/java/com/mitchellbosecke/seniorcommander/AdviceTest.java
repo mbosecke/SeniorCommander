@@ -15,6 +15,7 @@ public class AdviceTest extends AbstractTest {
 
     @Test
     public void advice() {
-        testCommandAndResult("!advice", Pattern.compile(".*"));
+        send("user: !advice");
+        recv(Pattern.compile(".*"));
     }
 }

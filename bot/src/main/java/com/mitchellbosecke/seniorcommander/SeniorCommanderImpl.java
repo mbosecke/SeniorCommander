@@ -14,7 +14,6 @@ import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -93,6 +92,7 @@ public class SeniorCommanderImpl implements SeniorCommander {
                 try {
                     channel.listen(messageQueue);
                 } catch (Exception e) {
+                    logger.debug("Exception in channel: " + e.getMessage());
                     throw new RuntimeException(e);
                 }
             });

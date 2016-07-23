@@ -17,10 +17,12 @@ public class QuoteTest extends AbstractTest {
     @Test
     public void addQuote() {
         Pattern pattern = Pattern.compile("Quote #([0-9]{1,2}) has been added");
-        String reply = testCommandAndResult("!quote add Mitchell \"hello world\"", pattern);
+        send("moderator: !quote add Mitchell \"hello world\"");
+        String reply = recv(pattern);
         Matcher matcher = pattern.matcher(reply);
         matcher.matches();
         String number = matcher.group(1);
-        testCommandAndResult("!quote " + number, "\"hello world\" -Mitchell");
+        send("user: !quote " + number);
+        recv("\"hello world\" -Mitchell");
     }
 }

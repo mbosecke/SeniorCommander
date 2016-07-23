@@ -95,45 +95,35 @@ public class AbstractTest {
 
     }
 
-    protected String testCommandAndResult(String command, String expectedResult) {
+    protected void send(String command){
         output.println(command);
         output.flush();
+    }
+
+    protected String recv(String expectedReply){
         try {
             String reply = removeRecipient(input.readLine());
-            Assert.assertEquals(expectedResult, reply);
+            Assert.assertEquals(expectedReply, reply);
             return reply;
-        } catch (IOException e) {
+        }catch(IOException e){
             throw new RuntimeException(e);
         }
     }
 
-    protected String testCommandAndResult(String command, Pattern expectedResult) {
-        output.println(command);
-        output.flush();
+    protected String recv(Pattern expectedResult){
         try {
             String reply = removeRecipient(input.readLine());
             Matcher matcher = expectedResult.matcher(reply);
-            Assert.assertTrue(matcher.matches());
+            Assert.assertTrue(String
+                    .format("Reply does not match. Expected: [%s] Actual: [%s]", expectedResult.toString(), reply), matcher
+                    .matches());
             return reply;
-        } catch (IOException e) {
+        }catch(IOException e){
             throw new RuntimeException(e);
         }
     }
 
-    protected void sendAndIgnoreResponse(String command){
-        output.println(command);
-        output.flush();
-        try {
-            input.readLine();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
-    protected void sendWithoutResponse(String command){
-        output.println(command);
-        output.flush();
-    }
 
 
     private String removeRecipient(String reply) {

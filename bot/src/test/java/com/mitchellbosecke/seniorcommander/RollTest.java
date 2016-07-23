@@ -11,6 +11,7 @@ public class RollTest extends AbstractTest {
 
     @Test
     public void rollD100() {
-        testCommandAndResult("!roll 100", Pattern.compile("You rolled a \\d{1,2}"));
+        send("user: !roll 100");
+        recv(Pattern.compile("You rolled a \\d{1,3}"));
     }
 }

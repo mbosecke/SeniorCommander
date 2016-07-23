@@ -14,6 +14,8 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by mitch_000 on 2016-07-08.
@@ -25,6 +27,8 @@ public class SocketChannel implements Channel {
     private ServerSocket serverSocket;
 
     private PrintWriter output;
+
+    private static Pattern targetedMessage = Pattern.compile("(\\w+):\\s*(.*)");
 
     /**
      * Ensure that either startup or shutdown are performed exclusively.
@@ -78,17 +82,33 @@ public class SocketChannel implements Channel {
                 }
 
                 if (inputLine != null) {
-                    String[] split = MessageUtils.splitRecipient(inputLine);
-                    String recipient = split[0];
-                    String message = split[1];
-                    messageQueue.add(Message.userInput(this, "user", recipient, message, false));
+                    String[] senderSplit = splitSender(inputLine);
+                    String sender = senderSplit[0];
+                    String message = senderSplit[1];
+
+                    String[] recipientSplit = MessageUtils.splitRecipient(message);
+                    String recipient = recipientSplit[0];
+                    message = recipientSplit[1];
+                    messageQueue.add(Message.userInput(this, sender, recipient, message, false));
                 }
                 if (!running) {
                     break;
                 }
             }
         }
+    }
 
+    private String[] splitSender(String message){
+        String sender;
+        Matcher matcher = targetedMessage.matcher(message);
+        if (matcher.matches()) {
+            sender = matcher.group(1);
+            message = matcher.group(2);
+        }else{
+            logger.debug(String.format("No sender for message: [%s]", message));
+            throw new RuntimeException("No sender for message");
+        }
+        return new String[]{sender, message};
     }
 
     @Override
