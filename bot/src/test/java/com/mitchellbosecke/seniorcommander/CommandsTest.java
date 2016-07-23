@@ -75,4 +75,22 @@ public class CommandsTest extends AbstractTest {
         send("user: !foo");
         recv("baz");
     }
+
+    @Test
+    public void disableCommand() {
+        send("moderator: !command add !foo \"bar\"");
+        recv("Command has been added: !foo");
+        send("user: !foo");
+        recv("bar");
+
+        send("moderator: !command disable !foo");
+        recv("Command has been disabled: !foo");
+        send("user: !foo");
+        expectNoBotOutput();
+
+        send("moderator: !command enable !foo");
+        recv("Command has been enabled: !foo");
+        send("user: !foo");
+        recv("bar");
+    }
 }
