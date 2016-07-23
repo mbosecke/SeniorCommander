@@ -23,7 +23,31 @@ public class CommandsTest extends AbstractTest {
     public void nonModeratorAddsCommand() {
         send("user: !command add !foo \"bar\"");
         send("user: !foo");
-        // expect no response
+        expectNoBotOutput();
+    }
+
+
+    @Test
+    public void commandWithAccessLevel() {
+        send("moderator: !command add !foo \"bar\" access=regular");
+        recv("Command has been added: !foo");
+        send("user: !foo");
+        expectNoBotOutput();
+        send("regular: !foo");
+        recv("bar");
+    }
+
+    @Test
+    public void commandWithCooldown() throws InterruptedException {
+        send("moderator: !command add !foo \"bar\" cooldown=1");
+        recv("Command has been added: !foo");
+        send("user: !foo");
+        recv("bar");
+        send("user: !foo");
+        expectNoBotOutput();
+        Thread.sleep(1 * 60 * 1000);
+        send("user: !foo");
+        recv("bar");
     }
 
     @Test

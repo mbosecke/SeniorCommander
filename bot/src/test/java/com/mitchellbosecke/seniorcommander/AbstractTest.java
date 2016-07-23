@@ -90,19 +90,11 @@ public class AbstractTest {
     }
 
     @After
-    public void shutdown() throws IOException {
+    public void shutdown() {
 
         try {
             // check that there is no input from the bot
-            socket.setSoTimeout(500);
-            try {
-                String unexpectedOutput = input.readLine();
-                if (unexpectedOutput != null) {
-                    throw new RuntimeException("Unexpected output from bot: " + unexpectedOutput);
-                }
-            } catch (SocketTimeoutException ex) {
-                // we expect to be here
-            }
+            expectNoBotOutput();
         } finally {
 
             // shutdown everything
@@ -135,6 +127,23 @@ public class AbstractTest {
             Assert.assertTrue(String.format("Reply does not match. Expected: [%s] Actual: [%s]", expectedResult
                     .toString(), reply), matcher.matches());
             return reply;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected void expectNoBotOutput() {
+
+        try {
+            try {
+                socket.setSoTimeout(500);
+                String unexpectedOutput = input.readLine();
+                if (unexpectedOutput != null) {
+                    throw new RuntimeException("Unexpected output from bot: " + unexpectedOutput);
+                }
+            } catch (SocketTimeoutException ex) {
+                // we expect to be here
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
