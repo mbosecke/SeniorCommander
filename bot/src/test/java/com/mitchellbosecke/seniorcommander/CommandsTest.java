@@ -20,6 +20,13 @@ public class CommandsTest extends AbstractTest {
     }
 
     @Test
+    public void nonModeratorAddsCommand() {
+        send("user: !command add !foo \"bar\"");
+        send("user: !foo");
+        // expect no response
+    }
+
+    @Test
     public void addExistingCommand() {
         send("moderator: !command add !foo \"bar\"");
         recv("Command has been added: !foo");
@@ -30,8 +37,7 @@ public class CommandsTest extends AbstractTest {
     @Test
     public void forgetQuote() {
         send("moderator: !command add !foo bar");
-        recv("You are missing the quoted text to be used as " +
-                "output");
+        recv("You are missing the quoted text to be used as output");
     }
 
     @Test

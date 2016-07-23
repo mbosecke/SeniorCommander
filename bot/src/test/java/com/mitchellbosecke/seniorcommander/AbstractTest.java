@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -37,7 +38,9 @@ public class AbstractTest {
 
     private ExecutorService executorService;
 
-    private int READ_TIMEOUT = 20 * 1000;
+    private Socket socket;
+
+    private int READ_TIMEOUT = 5 * 1000;
 
     @Before
     public void connectToSocket() {
@@ -52,7 +55,7 @@ public class AbstractTest {
         Config config = ConfigFactory.load();
 
         // connect to socket channel
-        Socket socket = null;
+        socket = null;
 
         int threshold = 10;
         int retryCounter = 0;
@@ -87,44 +90,55 @@ public class AbstractTest {
     }
 
     @After
-    public void shutdown() {
-        logger.debug("Shutting down executor service");
-        commander.shutdown();
-        ExecutorUtils.shutdown(executorService, 10, TimeUnit.SECONDS);
+    public void shutdown() throws IOException {
 
+        try {
+            // check that there is no input from the bot
+            socket.setSoTimeout(500);
+            try {
+                String unexpectedOutput = input.readLine();
+                if (unexpectedOutput != null) {
+                    throw new RuntimeException("Unexpected output from bot: " + unexpectedOutput);
+                }
+            } catch (SocketTimeoutException ex) {
+                // we expect to be here
+            }
+        } finally {
+
+            // shutdown everything
+            logger.debug("Shutting down executor service");
+            commander.shutdown();
+            ExecutorUtils.shutdown(executorService, 10, TimeUnit.SECONDS);
+        }
 
     }
 
-    protected void send(String command){
+    protected void send(String command) {
         output.println(command);
         output.flush();
     }
 
-    protected String recv(String expectedReply){
+    protected String recv(String expectedReply) {
         try {
             String reply = removeRecipient(input.readLine());
             Assert.assertEquals(expectedReply, reply);
             return reply;
-        }catch(IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    protected String recv(Pattern expectedResult){
+    protected String recv(Pattern expectedResult) {
         try {
             String reply = removeRecipient(input.readLine());
             Matcher matcher = expectedResult.matcher(reply);
-            Assert.assertTrue(String
-                    .format("Reply does not match. Expected: [%s] Actual: [%s]", expectedResult.toString(), reply), matcher
-                    .matches());
+            Assert.assertTrue(String.format("Reply does not match. Expected: [%s] Actual: [%s]", expectedResult
+                    .toString(), reply), matcher.matches());
             return reply;
-        }catch(IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-
-
-
 
     private String removeRecipient(String reply) {
         return MessageUtils.splitRecipient(reply)[1];
