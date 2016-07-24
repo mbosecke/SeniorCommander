@@ -10,9 +10,9 @@ import java.util.regex.Pattern;
 /**
  * Created by mitch_000 on 2016-07-08.
  */
-public class QuoteTest extends AbstractTest {
+public class QuoteIT extends AbstractIT {
 
-    private Logger logger = LoggerFactory.getLogger(QuoteTest.class);
+    private Logger logger = LoggerFactory.getLogger(QuoteIT.class);
 
     @Test
     public void newQuote() {

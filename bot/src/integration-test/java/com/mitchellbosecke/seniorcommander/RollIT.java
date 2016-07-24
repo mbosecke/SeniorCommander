@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 /**
  * Created by mitch_000 on 2016-07-08.
  */
-public class RollTest extends AbstractTest {
+public class RollIT extends AbstractIT {
 
     @Test
     public void rollD100() {

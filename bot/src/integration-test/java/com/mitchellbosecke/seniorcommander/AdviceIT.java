@@ -9,9 +9,9 @@ import java.util.regex.Pattern;
 /**
  * Created by mitch_000 on 2016-07-08.
  */
-public class AdviceTest extends AbstractTest {
+public class AdviceIT extends AbstractIT {
 
-    private Logger logger = LoggerFactory.getLogger(AdviceTest.class);
+    private Logger logger = LoggerFactory.getLogger(AdviceIT.class);
 
     @Test
     public void advice() {

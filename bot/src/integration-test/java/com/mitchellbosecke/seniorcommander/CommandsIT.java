@@ -7,9 +7,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by mitch_000 on 2016-07-08.
  */
-public class CommandsTest extends AbstractTest {
+public class CommandsIT extends AbstractIT {
 
-    private Logger logger = LoggerFactory.getLogger(CommandsTest.class);
+    private Logger logger = LoggerFactory.getLogger(CommandsIT.class);
 
     @Test
     public void addCommand() {

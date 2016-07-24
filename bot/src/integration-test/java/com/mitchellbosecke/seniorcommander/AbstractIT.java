@@ -26,9 +26,9 @@ import java.util.regex.Pattern;
 /**
  * Created by mitch_000 on 2016-07-08.
  */
-public class AbstractTest {
+public class AbstractIT {
 
-    static Logger logger = LoggerFactory.getLogger(AbstractTest.class);
+    static Logger logger = LoggerFactory.getLogger(AbstractIT.class);
 
     protected PrintWriter output;
 

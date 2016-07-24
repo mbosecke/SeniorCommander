@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/SeniorCommander.iml" filepath="$PROJECT_DIR$/.idea/modules/SeniorCommander.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/SeniorCommander_integrationTest.iml" filepath="$PROJECT_DIR$/.idea/modules/SeniorCommander_integrationTest.iml" group="SeniorCommander" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/SeniorCommander_main.iml" filepath="$PROJECT_DIR$/.idea/modules/SeniorCommander_main.iml" group="SeniorCommander" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/SeniorCommander_test.iml" filepath="$PROJECT_DIR$/.idea/modules/SeniorCommander_test.iml" group="SeniorCommander" />
     </modules>

@@ -9,6 +9,20 @@ repositories {
     mavenCentral()
 }
 
+sourceSets {
+    integrationTest{
+        compileClasspath += main.output + test.output
+        runtimeClasspath += main.output + test.output
+        java.srcDir file ('src/integration-test/java')
+        resources.srcDir file('src/integration-test/resources')
+    }
+}
+
+configurations {
+    integrationTestCompile.extendsFrom testCompile
+    integrationTestRuntime.extendsFrom testRuntime
+}
+
 dependencies {
 
     // configuration
@@ -29,4 +43,9 @@ dependencies {
 
     // testing
     testCompile group: 'junit', name: 'junit', version: '4.11'
+}
+
+task integrationTest(type: Test) {
+    testClassesDir = sourceSets.integrationTest.output.classesDir
+    classpath = sourceSets.integrationTest.runtimeClasspath
 }
