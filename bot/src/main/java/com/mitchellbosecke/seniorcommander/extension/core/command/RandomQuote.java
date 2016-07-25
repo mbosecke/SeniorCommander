@@ -30,7 +30,7 @@ public class RandomQuote implements CommandHandler {
 
     private final MessageQueue messageQueue;
 
-    private static final DateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy");
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("MMM d, yyyy");
 
     public RandomQuote(MessageQueue messageQueue, QuoteService quoteService) {
         this.messageQueue = messageQueue;
@@ -66,7 +66,7 @@ public class RandomQuote implements CommandHandler {
             messageQueue.add(Message.response(message, "Quote does not exist"));
         } else {
             messageQueue.add(Message.shout(String
-                    .format("\"%s\" -%s on %s", quote.getContent(), quote.getAuthor(), dateFormat
+                    .format("\"%s\" -%s on %s", quote.getContent(), quote.getAuthor(), DATE_FORMAT
                             .format(quote.getCreatedDate()), message.getChannel())));
         }
     }
