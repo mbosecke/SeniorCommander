@@ -12,4 +12,8 @@ public interface QuoteService extends BaseService {
 
     Quote findQuote(Community community, long communitySequenceId);
 
+    Quote findRandomQuote(Community community);
+
+    Quote findRandomQuote(Community community, String author);
+
 }

@@ -39,7 +39,7 @@ public class RandomQuote implements CommandHandler {
         Community community = quoteService.findCommunity(message.getChannel());
 
         if (parsed.getComponents().isEmpty()) {
-            // TODO: get random quote
+            shoutQuote(message, quoteService.findRandomQuote(community));
         } else {
             String identifier = parsed.getComponents().get(0);
 
@@ -47,18 +47,22 @@ public class RandomQuote implements CommandHandler {
                 long id = Long.parseLong(identifier);
                 Quote quote = quoteService.findQuote(community, id);
 
-                if(quote == null) {
-                    messageQueue.add(Message.response(message, "Quote does not exist"));
-                }else {
-                    messageQueue.add(Message
-                            .shout(String.format("\"%s\" -%s", quote.getContent(), quote.getAuthor()), message.getChannel()));
-                }
+                shoutQuote(message, quote);
+
             } catch (NumberFormatException ex) {
                 String author = identifier;
-                // TODO: get randome quote from author name
+                shoutQuote(message, quoteService.findRandomQuote(community, author));
             }
         }
+    }
 
+    private void shoutQuote(Message message, Quote quote) {
+        if (quote == null) {
+            messageQueue.add(Message.response(message, "Quote does not exist"));
+        } else {
+            messageQueue.add(Message
+                    .shout(String.format("\"%s\" -%s", quote.getContent(), quote.getAuthor()), message.getChannel()));
+        }
     }
 
 }

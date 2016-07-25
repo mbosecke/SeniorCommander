@@ -51,4 +51,32 @@ public class QuoteServiceImpl extends BaseServiceImpl implements QuoteService {
         return quote;
     }
 
+    @Override
+    public Quote findRandomQuote(Community community) {
+        Quote quote = null;
+
+        try {
+            quote = sessionFactory.getCurrentSession()
+                    .createQuery("SELECT q FROM Quote q WHERE q.community = :community ORDER BY rand()", Quote.class)
+                    .setParameter("community", community).setMaxResults(1).getSingleResult();
+        } catch (NoResultException ex) {
+        }
+
+        return quote;
+    }
+
+    @Override
+    public Quote findRandomQuote(Community community, String author) {
+        Quote quote = null;
+
+        try {
+            quote = sessionFactory.getCurrentSession()
+                    .createQuery("SELECT q FROM Quote q WHERE q.community = :community AND lower(q.author) = lower(:author) ORDER BY rand()", Quote.class)
+                    .setParameter("community", community).setParameter("author", author).setMaxResults(1)
+                    .getSingleResult();
+        } catch (NoResultException ex) {
+        }
+
+        return quote;
+    }
 }
