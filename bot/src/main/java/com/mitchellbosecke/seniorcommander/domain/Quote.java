@@ -1,6 +1,7 @@
 package com.mitchellbosecke.seniorcommander.domain;
 
 import javax.persistence.*;
+import java.util.Date;
 
 /**
  * Created by mitch_000 on 2016-07-17.
@@ -26,6 +27,10 @@ public class Quote {
 
     @Column
     private String content;
+
+    @Column(name = "created_date")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdDate;
 
     public long getId() {
         return id;
@@ -65,5 +70,13 @@ public class Quote {
 
     public void setCommunitySequence(long communitySequence) {
         this.communitySequence = communitySequence;
+    }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
     }
 }

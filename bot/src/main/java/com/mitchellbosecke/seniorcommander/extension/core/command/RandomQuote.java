@@ -11,6 +11,9 @@ import com.mitchellbosecke.seniorcommander.utils.ParsedCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
 /**
  * <p>
  * !quote
@@ -26,6 +29,8 @@ public class RandomQuote implements CommandHandler {
     private final QuoteService quoteService;
 
     private final MessageQueue messageQueue;
+
+    private static final DateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy");
 
     public RandomQuote(MessageQueue messageQueue, QuoteService quoteService) {
         this.messageQueue = messageQueue;
@@ -60,8 +65,9 @@ public class RandomQuote implements CommandHandler {
         if (quote == null) {
             messageQueue.add(Message.response(message, "Quote does not exist"));
         } else {
-            messageQueue.add(Message
-                    .shout(String.format("\"%s\" -%s", quote.getContent(), quote.getAuthor()), message.getChannel()));
+            messageQueue.add(Message.shout(String
+                    .format("\"%s\" -%s on %s", quote.getContent(), quote.getAuthor(), dateFormat
+                            .format(quote.getCreatedDate()), message.getChannel())));
         }
     }
 

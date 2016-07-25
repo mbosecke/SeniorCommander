@@ -5,6 +5,7 @@ import com.mitchellbosecke.seniorcommander.domain.Quote;
 import org.hibernate.SessionFactory;
 
 import javax.persistence.NoResultException;
+import java.util.Date;
 
 /**
  * Created by mitch_000 on 2016-07-10.
@@ -32,6 +33,7 @@ public class QuoteServiceImpl extends BaseServiceImpl implements QuoteService {
         quote.setAuthor(author);
         quote.setContent(content);
         quote.setCommunitySequence(communitySequence);
+        quote.setCreatedDate(new Date());
         persist(quote);
         return quote;
     }
