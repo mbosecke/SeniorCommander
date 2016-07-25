@@ -10,4 +10,6 @@ public interface QuoteService extends BaseService {
 
     Quote addQuote(Community community, String author, String content);
 
+    Quote findQuote(Community community, long communitySequenceId);
+
 }

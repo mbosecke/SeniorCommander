@@ -28,6 +28,11 @@ public class BaseServiceImpl implements BaseService {
     }
 
     @Override
+    public void delete(Object entity) {
+        sessionFactory.getCurrentSession().delete(entity);
+    }
+
+    @Override
     public void persist(Object entity) {
         sessionFactory.getCurrentSession().persist(entity);
     }

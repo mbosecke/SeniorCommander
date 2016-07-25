@@ -45,7 +45,7 @@ public class RandomQuote implements CommandHandler {
 
             try {
                 long id = Long.parseLong(identifier);
-                Quote quote = quoteService.find(Quote.class, id);
+                Quote quote = quoteService.findQuote(community, id);
 
                 if(quote == null) {
                     messageQueue.add(Message.response(message, "Quote does not exist"));

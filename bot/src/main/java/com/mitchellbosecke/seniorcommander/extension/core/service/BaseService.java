@@ -14,5 +14,7 @@ public interface BaseService {
 
     <T> void delete(Class<T> clazz, long id);
 
+    void delete(Object entity);
+
     void persist(Object entity);
 }

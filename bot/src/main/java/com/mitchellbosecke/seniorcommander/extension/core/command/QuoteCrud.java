@@ -46,16 +46,17 @@ public class QuoteCrud implements CommandHandler {
                 messageQueue.add(Message.response(message, "You are missing the quoted text"));
             } else {
                 Quote result = quoteService.addQuote(community, parsed.getComponents().get(1), parsed.getQuotedText());
-                messageQueue.add(Message.response(message, String.format("Quote #%d has been added", result.getId())));
+                messageQueue.add(Message.response(message, String.format("Quote #%d has been added", result.getCommunitySequence())));
             }
         } else if ("edit".equalsIgnoreCase(subCommand)){
             long id = Long.parseLong(parsed.getComponents().get(1));
-            Quote quote = quoteService.find(Quote.class, id);
+            Quote quote = quoteService.findQuote(community, id);
             quote.setContent(parsed.getQuotedText());
             messageQueue.add(Message.response(message, String.format("Quote #%d has been edited", id)));
         } else if ("delete".equalsIgnoreCase(subCommand)) {
             long id = Long.parseLong(parsed.getComponents().get(1));
-            quoteService.delete(Quote.class, id);
+            Quote quote = quoteService.findQuote(community, id);
+            quoteService.delete(quote);
             messageQueue.add(Message.response(message, String.format("Quote #%d has been deleted", id)));
         }
     }

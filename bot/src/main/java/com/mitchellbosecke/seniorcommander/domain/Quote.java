@@ -18,6 +18,9 @@ public class Quote {
     @JoinColumn(name = "community_id")
     private Community community;
 
+    @Column(name = "community_sequence")
+    private long communitySequence;
+
     @Column
     private String author;
 
@@ -54,5 +57,13 @@ public class Quote {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public long getCommunitySequence() {
+        return communitySequence;
+    }
+
+    public void setCommunitySequence(long communitySequence) {
+        this.communitySequence = communitySequence;
     }
 }
