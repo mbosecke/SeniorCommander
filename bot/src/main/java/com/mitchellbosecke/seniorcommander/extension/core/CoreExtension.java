@@ -58,6 +58,7 @@ public class CoreExtension implements Extension {
         // service tiers
         CommandService commandService = new CommandServiceImpl(sessionFactory);
         QuoteService quoteService = new QuoteServiceImpl(sessionFactory);
+        TimerService timerService = new TimerServiceImpl(sessionFactory);
 
         // handlers
         List<CommandHandler> commandHandlers = new ArrayList<>();
@@ -67,6 +68,7 @@ public class CoreExtension implements Extension {
         commandHandlers.add(new CommandCrud(messageQueue, commandService));
         commandHandlers.add(new QuoteCrud(messageQueue, quoteService));
         commandHandlers.add(new RandomQuote(messageQueue, quoteService));
+        commandHandlers.add(new TimerCrud(messageQueue, timerService));
         return commandHandlers;
     }
 
