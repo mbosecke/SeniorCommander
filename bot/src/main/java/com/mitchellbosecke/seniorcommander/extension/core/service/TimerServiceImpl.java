@@ -16,7 +16,7 @@ public class TimerServiceImpl extends BaseServiceImpl implements TimerService {
     }
 
     @Override
-    public void addTimer(Community community, String message, long interval, long chatLines) {
+    public Timer addTimer(Community community, String message, long interval, long chatLines) {
         Long communitySequence;
 
         communitySequence = sessionFactory.getCurrentSession()
@@ -34,6 +34,7 @@ public class TimerServiceImpl extends BaseServiceImpl implements TimerService {
         timer.setChatLines(chatLines);
         timer.setEnabled(true);
         persist(timer);
+        return timer;
     }
 
     @Override

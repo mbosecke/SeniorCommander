@@ -1,6 +1,7 @@
 package com.mitchellbosecke.seniorcommander.extension.core.command;
 
 import com.mitchellbosecke.seniorcommander.CommandHandler;
+import com.mitchellbosecke.seniorcommander.TaskManager;
 import com.mitchellbosecke.seniorcommander.domain.Community;
 import com.mitchellbosecke.seniorcommander.domain.Timer;
 import com.mitchellbosecke.seniorcommander.extension.core.service.TimerService;
@@ -31,12 +32,15 @@ public class TimerCrud implements CommandHandler {
 
     private final MessageQueue messageQueue;
 
+    private final TaskManager taskManager;
+
     private String[] intervalOption = {"interval", "in"};
     private String[] chatLinesOption = {"chat-lines", "cl"};
 
-    public TimerCrud(MessageQueue messageQueue, TimerService timerService) {
+    public TimerCrud(MessageQueue messageQueue, TimerService timerService, TaskManager taskManager) {
         this.messageQueue = messageQueue;
         this.timerService = timerService;
+        this.taskManager = taskManager;
     }
 
     @Override
@@ -52,13 +56,15 @@ public class TimerCrud implements CommandHandler {
             if (parsed.getQuotedText() == null) {
                 messageQueue.add(Message.response(message, "You are missing the quoted text to be used as output"));
             } else {
-                timerService.addTimer(community, parsed
+                Timer timer = timerService.addTimer(community, parsed
                         .getQuotedText(), getInterval(parsed), getChatLines(parsed));
+                taskManager.startTimer(timer);
                 messageQueue.add(Message.response(message, "Timer has been added"));
             }
         } else if ("delete".equalsIgnoreCase(subCommand)) {
             long id = Long.parseLong(parsed.getComponents().get(1));
             Timer timer = timerService.findTimer(community, id);
+            taskManager.stopTimer(timer.getId());
             timerService.delete(timer);
             messageQueue.add(Message.response(message, "Timer has been deleted: " + id));
 
@@ -66,12 +72,14 @@ public class TimerCrud implements CommandHandler {
             long id = Long.parseLong(parsed.getComponents().get(1));
             Timer timer = timerService.findTimer(community, id);
             timer.setEnabled(true);
-            messageQueue.add(Message.response(message, "Command has been enabled: " + id));
+            taskManager.startTimer(timer);
+            messageQueue.add(Message.response(message, "Timer has been enabled: " + id));
         } else if ("disable".equalsIgnoreCase(subCommand)) {
             long id = Long.parseLong(parsed.getComponents().get(1));
             Timer timer = timerService.findTimer(community, id);
             timer.setEnabled(false);
-            messageQueue.add(Message.response(message, "Command has been disabled: " + id));
+            taskManager.stopTimer(timer.getId());
+            messageQueue.add(Message.response(message, "Timer has been disabled: " + id));
         }
 
     }

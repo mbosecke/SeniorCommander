@@ -2,6 +2,7 @@ package com.mitchellbosecke.seniorcommander.extension.core;
 
 import com.mitchellbosecke.seniorcommander.CommandHandler;
 import com.mitchellbosecke.seniorcommander.EventHandler;
+import com.mitchellbosecke.seniorcommander.TaskManager;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.channel.ChannelFactory;
 import com.mitchellbosecke.seniorcommander.extension.Extension;
@@ -11,7 +12,6 @@ import com.mitchellbosecke.seniorcommander.extension.core.command.*;
 import com.mitchellbosecke.seniorcommander.extension.core.event.*;
 import com.mitchellbosecke.seniorcommander.extension.core.service.*;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
-import com.mitchellbosecke.seniorcommander.timer.TimerFactory;
 import org.hibernate.SessionFactory;
 
 import java.util.ArrayList;
@@ -53,7 +53,8 @@ public class CoreExtension implements Extension {
     }
 
     @Override
-    public List<CommandHandler> buildCommandHandlers(SessionFactory sessionFactory, MessageQueue messageQueue) {
+    public List<CommandHandler> buildCommandHandlers(SessionFactory sessionFactory, MessageQueue messageQueue,
+                                                     TaskManager taskManager) {
 
         // service tiers
         CommandService commandService = new CommandServiceImpl(sessionFactory);
@@ -68,12 +69,8 @@ public class CoreExtension implements Extension {
         commandHandlers.add(new CommandCrud(messageQueue, commandService));
         commandHandlers.add(new QuoteCrud(messageQueue, quoteService));
         commandHandlers.add(new RandomQuote(messageQueue, quoteService));
-        commandHandlers.add(new TimerCrud(messageQueue, timerService));
+        commandHandlers.add(new TimerCrud(messageQueue, timerService, taskManager));
         return commandHandlers;
     }
 
-    @Override
-    public TimerFactory getTimerFactory() {
-        return new CoreTimerFactory();
-    }
 }

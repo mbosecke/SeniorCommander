@@ -15,7 +15,7 @@ public class TimerIT extends AbstractIT {
     private Logger logger = LoggerFactory.getLogger(TimerIT.class);
 
     @Test
-    public void newQuote() throws InterruptedException {
+    public void newTimer() throws InterruptedException {
         addTimer("Hello World", 1);
         Thread.sleep(30 * 1000);
         expectNoBotOutput();

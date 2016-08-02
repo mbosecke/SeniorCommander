@@ -6,7 +6,6 @@ import com.mitchellbosecke.seniorcommander.extension.Extension;
 import com.mitchellbosecke.seniorcommander.extension.core.CoreExtension;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
-import com.mitchellbosecke.seniorcommander.timer.Timer;
 import com.mitchellbosecke.seniorcommander.utils.DatabaseManager;
 import com.mitchellbosecke.seniorcommander.utils.ExecutorUtils;
 import org.hibernate.Session;
@@ -14,14 +13,8 @@ import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * Created by mitch_000 on 2016-07-04.
@@ -51,13 +44,14 @@ public class SeniorCommanderImpl implements SeniorCommander {
      */
     private final MessageQueue messageQueue;
 
+    private final TaskManager taskManager;
+
     /**
      * Components created from the extensions
      */
     private List<Channel> channels = new LinkedList<>();
     private List<EventHandler> eventHandlers = new LinkedList<>();
     private List<CommandHandler> commandHandlers = new LinkedList<>();
-    private List<Timer> timers = new LinkedList<>();
 
     public SeniorCommanderImpl() {
         this(Collections.emptyList());
@@ -72,6 +66,9 @@ public class SeniorCommanderImpl implements SeniorCommander {
 
         // message queue
         messageQueue = new MessageQueue();
+
+        // task manager
+        taskManager = new TaskManager(Executors.newScheduledThreadPool(5), messageQueue);
 
         // add core extension to list of user-provided extensions
         registerExtensions(extensions);
@@ -99,7 +96,7 @@ public class SeniorCommanderImpl implements SeniorCommander {
         }
 
         // run the timers
-        timers.forEach(timer -> timer.run());
+        // timers.forEach(timer -> timer.run());
 
         while (true) {
             Message message = messageQueue.readMessage(); // only blocks for a small period of time
@@ -108,9 +105,9 @@ public class SeniorCommanderImpl implements SeniorCommander {
                 Session session = sessionFactory.getCurrentSession();
                 session.beginTransaction();
 
-                eventHandlers.forEach(messageHandler -> {
+                eventHandlers.forEach(eventHandler -> {
                     try {
-                        messageHandler.handle(message);
+                        eventHandler.handle(message);
                     } catch (Exception ex) {
                         // we don't want to die! Just log the error.
                         logger.error("Error when handling message", ex);
@@ -143,7 +140,6 @@ public class SeniorCommanderImpl implements SeniorCommander {
         buildChannels(allExtensions);
         buildCommandHandlers(allExtensions);
         buildEventHandlers(allExtensions);
-        buildTimers(allExtensions);
     }
 
     private void buildChannels(List<Extension> extensions) {
@@ -166,7 +162,7 @@ public class SeniorCommanderImpl implements SeniorCommander {
 
     private void buildCommandHandlers(List<Extension> extensions) {
         for (Extension extension : extensions) {
-            commandHandlers.addAll(extension.buildCommandHandlers(sessionFactory, messageQueue));
+            commandHandlers.addAll(extension.buildCommandHandlers(sessionFactory, messageQueue, taskManager));
         }
     }
 
@@ -174,14 +170,6 @@ public class SeniorCommanderImpl implements SeniorCommander {
         for (Extension extension : extensions) {
             eventHandlers.addAll(extension.buildEventHandlers(sessionFactory, messageQueue, channels, commandHandlers));
         }
-    }
-
-    private void buildTimers(List<Extension> extensions) {
-        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(10);
-        for (Extension extension : extensions) {
-            timers.addAll(extension.getTimerFactory().build(scheduledExecutorService, messageQueue));
-        }
-
     }
 
 }
