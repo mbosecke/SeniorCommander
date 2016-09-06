@@ -23,6 +23,20 @@ public class TimerIT extends AbstractIT {
         recv("Hello World");
     }
 
+    @Test
+    public void disableAndEnableTimer() throws InterruptedException {
+        long id = addTimer("Hello World", 1);
+        send("moderator: !timer disable " + id);
+        recv(String.format("Timer #%d has been disabled", id));
+        Thread.sleep(65 * 1000);
+        expectNoBotOutput();
+        send("moderator: !timer enable " + id);
+        recv(String.format("Timer #%d has been enabled", id));
+        Thread.sleep(65 * 1000);
+        recv("Hello World");
+    }
+
+
     /**
      * Adds a quote and returns the ID of it
      *

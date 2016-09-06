@@ -59,27 +59,28 @@ public class TimerCrud implements CommandHandler {
                 Timer timer = timerService.addTimer(community, parsed
                         .getQuotedText(), getInterval(parsed), getChatLines(parsed));
                 taskManager.startTimer(timer);
-                messageQueue.add(Message.response(message, "Timer has been added"));
+                messageQueue.add(Message.response(message, String.format("Timer #%d has been added", timer
+                        .getCommunitySequence())));
             }
         } else if ("delete".equalsIgnoreCase(subCommand)) {
             long id = Long.parseLong(parsed.getComponents().get(1));
             Timer timer = timerService.findTimer(community, id);
             taskManager.stopTimer(timer.getId());
             timerService.delete(timer);
-            messageQueue.add(Message.response(message, "Timer has been deleted: " + id));
+            messageQueue.add(Message.response(message, String.format("Timer #%dhas been deleted: ", id)));
 
         } else if ("enable".equalsIgnoreCase(subCommand)) {
             long id = Long.parseLong(parsed.getComponents().get(1));
             Timer timer = timerService.findTimer(community, id);
             timer.setEnabled(true);
             taskManager.startTimer(timer);
-            messageQueue.add(Message.response(message, "Timer has been enabled: " + id));
+            messageQueue.add(Message.response(message, String.format("Timer #%d has been enabled", id)));
         } else if ("disable".equalsIgnoreCase(subCommand)) {
             long id = Long.parseLong(parsed.getComponents().get(1));
             Timer timer = timerService.findTimer(community, id);
             timer.setEnabled(false);
             taskManager.stopTimer(timer.getId());
-            messageQueue.add(Message.response(message, "Timer has been disabled: " + id));
+            messageQueue.add(Message.response(message, String.format("Timer #%d has been disabled", id)));
         }
 
     }

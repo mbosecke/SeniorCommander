@@ -60,4 +60,5 @@ values (1, '!quote add', 0, 'com.mitchellbosecke.seniorcommander.extension.core.
 insert into command (community_id, trigger, cooldown, implementation, access_level)
 values (1, '!quote edit', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.QuoteCrud', 'MODERATOR');
 
-
+insert into command (community_id, trigger, cooldown, implementation, access_level)
+values (1, '!timer', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.TimerCrud', 'MODERATOR');
