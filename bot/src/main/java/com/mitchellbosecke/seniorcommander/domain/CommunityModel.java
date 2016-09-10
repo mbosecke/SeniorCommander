@@ -8,7 +8,7 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "community")
-public class Community {
+public class CommunityModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,8 +18,8 @@ public class Community {
     @Column
     private String name;
 
-    @OneToMany(mappedBy="community")
-    private Set<ChannelConfiguration> channelConfigurations;
+    @OneToMany(mappedBy="communityModel")
+    private Set<ChannelModel> channelModels;
 
     public long getId() {
         return id;
@@ -37,11 +37,11 @@ public class Community {
         this.name = name;
     }
 
-    public Set<ChannelConfiguration> getChannelConfigurations() {
-        return channelConfigurations;
+    public Set<ChannelModel> getChannelModels() {
+        return channelModels;
     }
 
-    public void setChannelConfigurations(Set<ChannelConfiguration> channelConfigurations) {
-        this.channelConfigurations = channelConfigurations;
+    public void setChannelModels(Set<ChannelModel> channelModels) {
+        this.channelModels = channelModels;
     }
 }

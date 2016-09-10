@@ -1,6 +1,6 @@
 package com.mitchellbosecke.seniorcommander.extension.core.event;
 
-import com.mitchellbosecke.seniorcommander.domain.CommunityUser;
+import com.mitchellbosecke.seniorcommander.domain.CommunityUserModel;
 import com.mitchellbosecke.seniorcommander.EventHandler;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;
@@ -26,7 +26,7 @@ public class UserChatHandler implements EventHandler {
     public void handle(Message message) {
 
         if (Message.Type.USER.equals(message.getType())) {
-            CommunityUser user = userService.setUserOnline(message.getChannel(), message.getSender());
+            CommunityUserModel user = userService.setUserOnline(message.getChannel(), message.getSender());
             user.setLastChatted(new Date());
         }
     }

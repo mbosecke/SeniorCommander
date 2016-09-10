@@ -2,8 +2,8 @@ package com.mitchellbosecke.seniorcommander.extension.core.command;
 
 import com.mitchellbosecke.seniorcommander.AccessLevel;
 import com.mitchellbosecke.seniorcommander.CommandHandler;
-import com.mitchellbosecke.seniorcommander.domain.Command;
-import com.mitchellbosecke.seniorcommander.domain.Community;
+import com.mitchellbosecke.seniorcommander.domain.CommandModel;
+import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.CommandService;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
@@ -43,20 +43,20 @@ public class CommandCrud implements CommandHandler {
     public void execute(Message message) {
 
         ParsedCommand parsed = new CommandParser().parse(message.getContent());
-        Community community = commandService.findCommunity(message.getChannel());
+        CommunityModel communityModel = commandService.findCommunity(message.getChannel());
 
         String subCommand = parsed.getComponents().get(0);
         String commandName = parsed.getComponents().get(1);
 
         if ("add".equalsIgnoreCase(subCommand)) {
 
-            Command existingCommand = commandService.findCommand(community, commandName);
-            if (existingCommand == null) {
+            CommandModel existingCommandModel = commandService.findCommand(communityModel, commandName);
+            if (existingCommandModel == null) {
 
                 if (parsed.getQuotedText() == null) {
                     messageQueue.add(Message.response(message, "You are missing the quoted text to be used as output"));
                 } else {
-                    commandService.addCommand(community, commandName, parsed
+                    commandService.addCommand(communityModel, commandName, parsed
                             .getQuotedText(), getCooldown(parsed), getAccessLevel(parsed));
                     messageQueue.add(Message.response(message, "Command has been added: " + commandName));
                 }
@@ -64,29 +64,29 @@ public class CommandCrud implements CommandHandler {
                 messageQueue.add(Message.response(message, "Command already exists."));
             }
         } else if ("delete".equalsIgnoreCase(subCommand)) {
-            commandService.deleteCommand(community, commandName);
+            commandService.deleteCommand(communityModel, commandName);
             messageQueue.add(Message.response(message, "Command has been deleted: " + commandName));
         } else if ("edit".equalsIgnoreCase(subCommand)) {
 
-            Command command = commandService.findCommand(community, commandName);
+            CommandModel commandModel = commandService.findCommand(communityModel, commandName);
             if (parsed.getQuotedText() != null) {
-                command.setMessage(parsed.getQuotedText());
+                commandModel.setMessage(parsed.getQuotedText());
             }
 
             if (parsed.getOption(cooldownOption) != null) {
-                command.setCooldown(getCooldown(parsed));
+                commandModel.setCooldown(getCooldown(parsed));
             }
 
             if (parsed.getOption(accessLevel) != null) {
-                command.setAccessLevel(getAccessLevel(parsed));
+                commandModel.setAccessLevel(getAccessLevel(parsed));
             }
         } else if ("enable".equalsIgnoreCase(subCommand)) {
-            Command command = commandService.findCommand(community, commandName);
-            command.setEnabled(true);
+            CommandModel commandModel = commandService.findCommand(communityModel, commandName);
+            commandModel.setEnabled(true);
             messageQueue.add(Message.response(message, "Command has been enabled: " + commandName));
         } else if ("disable".equalsIgnoreCase(subCommand)) {
-            Command command = commandService.findCommand(community, commandName);
-            command.setEnabled(false);
+            CommandModel commandModel = commandService.findCommand(communityModel, commandName);
+            commandModel.setEnabled(false);
             messageQueue.add(Message.response(message, "Command has been disabled: " + commandName));
         }
 

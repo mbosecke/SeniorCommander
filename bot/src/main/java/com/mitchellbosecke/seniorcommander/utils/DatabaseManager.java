@@ -55,15 +55,15 @@ public class DatabaseManager {
             MetadataSources sources = new MetadataSources(registry);
 
             // register all persistent entities
-            sources.addAnnotatedClass(Community.class);
-            sources.addAnnotatedClass(CommunityUser.class);
-            sources.addAnnotatedClass(ChannelConfiguration.class);
-            sources.addAnnotatedClass(ChannelConfigurationSetting.class);
-            sources.addAnnotatedClass(Command.class);
-            sources.addAnnotatedClass(CommandLog.class);
-            sources.addAnnotatedClass(Quote.class);
-            sources.addAnnotatedClass(Timer.class);
-            sources.addAnnotatedClass(ChatLog.class);
+            sources.addAnnotatedClass(CommunityModel.class);
+            sources.addAnnotatedClass(CommunityUserModel.class);
+            sources.addAnnotatedClass(ChannelModel.class);
+            sources.addAnnotatedClass(ChannelSettingModel.class);
+            sources.addAnnotatedClass(CommandModel.class);
+            sources.addAnnotatedClass(CommandLogModel.class);
+            sources.addAnnotatedClass(QuoteModel.class);
+            sources.addAnnotatedClass(TimerModel.class);
+            sources.addAnnotatedClass(ChatLogModel.class);
 
             MetadataBuilder metadataBuilder = sources.getMetadataBuilder();
             metadataBuilder.applyImplicitSchemaName(configuration.getString(CONFIG_SCHEMA));

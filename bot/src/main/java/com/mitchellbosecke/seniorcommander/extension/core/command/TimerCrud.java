@@ -1,9 +1,9 @@
 package com.mitchellbosecke.seniorcommander.extension.core.command;
 
 import com.mitchellbosecke.seniorcommander.CommandHandler;
-import com.mitchellbosecke.seniorcommander.TaskManager;
-import com.mitchellbosecke.seniorcommander.domain.Community;
-import com.mitchellbosecke.seniorcommander.domain.Timer;
+import com.mitchellbosecke.seniorcommander.domain.TimerModel;
+import com.mitchellbosecke.seniorcommander.task.TaskManager;
+import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.TimerService;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
@@ -47,7 +47,7 @@ public class TimerCrud implements CommandHandler {
     public void execute(Message message) {
 
         ParsedCommand parsed = new CommandParser().parse(message.getContent());
-        Community community = timerService.findCommunity(message.getChannel());
+        CommunityModel communityModel = timerService.findCommunity(message.getChannel());
 
         String subCommand = parsed.getComponents().get(0);
 
@@ -56,30 +56,30 @@ public class TimerCrud implements CommandHandler {
             if (parsed.getQuotedText() == null) {
                 messageQueue.add(Message.response(message, "You are missing the quoted text to be used as output"));
             } else {
-                Timer timer = timerService.addTimer(community, parsed
+                TimerModel timerModel = timerService.addTimer(communityModel, parsed
                         .getQuotedText(), getInterval(parsed), getChatLines(parsed));
-                taskManager.startTimer(timer);
-                messageQueue.add(Message.response(message, String.format("Timer #%d has been added", timer
+                taskManager.startTimer(timerModel);
+                messageQueue.add(Message.response(message, String.format("Timer #%d has been added", timerModel
                         .getCommunitySequence())));
             }
         } else if ("delete".equalsIgnoreCase(subCommand)) {
             long id = Long.parseLong(parsed.getComponents().get(1));
-            Timer timer = timerService.findTimer(community, id);
-            taskManager.stopTimer(timer.getId());
-            timerService.delete(timer);
+            TimerModel timerModel = timerService.findTimer(communityModel, id);
+            taskManager.stopTimer(timerModel.getId());
+            timerService.delete(timerModel);
             messageQueue.add(Message.response(message, String.format("Timer #%dhas been deleted: ", id)));
 
         } else if ("enable".equalsIgnoreCase(subCommand)) {
             long id = Long.parseLong(parsed.getComponents().get(1));
-            Timer timer = timerService.findTimer(community, id);
-            timer.setEnabled(true);
-            taskManager.startTimer(timer);
+            TimerModel timerModel = timerService.findTimer(communityModel, id);
+            timerModel.setEnabled(true);
+            taskManager.startTimer(timerModel);
             messageQueue.add(Message.response(message, String.format("Timer #%d has been enabled", id)));
         } else if ("disable".equalsIgnoreCase(subCommand)) {
             long id = Long.parseLong(parsed.getComponents().get(1));
-            Timer timer = timerService.findTimer(community, id);
-            timer.setEnabled(false);
-            taskManager.stopTimer(timer.getId());
+            TimerModel timerModel = timerService.findTimer(communityModel, id);
+            timerModel.setEnabled(false);
+            taskManager.stopTimer(timerModel.getId());
             messageQueue.add(Message.response(message, String.format("Timer #%d has been disabled", id)));
         }
 

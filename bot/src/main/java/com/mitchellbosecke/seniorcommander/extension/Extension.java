@@ -2,10 +2,11 @@ package com.mitchellbosecke.seniorcommander.extension;
 
 import com.mitchellbosecke.seniorcommander.CommandHandler;
 import com.mitchellbosecke.seniorcommander.EventHandler;
-import com.mitchellbosecke.seniorcommander.TaskManager;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.channel.ChannelFactory;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
+import com.mitchellbosecke.seniorcommander.task.TaskFactory;
+import com.mitchellbosecke.seniorcommander.task.TaskManager;
 import org.hibernate.SessionFactory;
 
 import java.util.List;
@@ -19,6 +20,8 @@ public interface Extension {
                                           List<Channel> channels, List<CommandHandler> commandHandlers);
 
     List<ChannelFactory> getChannelFactories();
+
+    List<TaskFactory> getTaskFactories();
 
     List<CommandHandler> buildCommandHandlers(SessionFactory sessionFactory, MessageQueue messageQueue,
                                               TaskManager taskManager);

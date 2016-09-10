@@ -2,9 +2,9 @@ package com.mitchellbosecke.seniorcommander.extension.core.service;
 
 import com.mitchellbosecke.seniorcommander.AccessLevel;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
-import com.mitchellbosecke.seniorcommander.domain.ChannelConfiguration;
-import com.mitchellbosecke.seniorcommander.domain.Community;
-import com.mitchellbosecke.seniorcommander.domain.CommunityUser;
+import com.mitchellbosecke.seniorcommander.domain.ChannelModel;
+import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
+import com.mitchellbosecke.seniorcommander.domain.CommunityUserModel;
 import org.hibernate.SessionFactory;
 
 import javax.persistence.NoResultException;
@@ -20,16 +20,16 @@ public class UserServiceImpl extends BaseServiceImpl implements UserService {
     }
 
     @Override
-    public CommunityUser findUser(Channel channel, String name) {
-        Community community = findCommunity(channel);
+    public CommunityUserModel findUser(Channel channel, String name) {
+        CommunityModel communityModel = findCommunity(channel);
         try {
             //@formatter:off
             return sessionFactory.getCurrentSession()
                     .createQuery("SELECT cu " +
-                            "FROM CommunityUser cu " +
-                            "WHERE cu.community = :community " +
-                            "AND lower(cu.name) = :name ", CommunityUser.class)
-                    .setParameter("community", community).setParameter("name", name.toLowerCase()).getSingleResult();
+                            "FROM CommunityUserModel cu " +
+                            "WHERE cu.communityModel = :community " +
+                            "AND lower(cu.name) = :name ", CommunityUserModel.class)
+                    .setParameter("community", communityModel).setParameter("name", name.toLowerCase()).getSingleResult();
             //@formatter:on
         } catch (NoResultException ex) {
             return null;
@@ -37,36 +37,36 @@ public class UserServiceImpl extends BaseServiceImpl implements UserService {
     }
 
     @Override
-    public CommunityUser setUserOnline(Channel channel, String name) {
-        ChannelConfiguration channelConfig = find(ChannelConfiguration.class, channel.getId());
-        Community community = channelConfig.getCommunity();
-        CommunityUser user = findUser(community, name);
+    public CommunityUserModel setUserOnline(Channel channel, String name) {
+        ChannelModel channelModel = find(ChannelModel.class, channel.getId());
+        CommunityModel communityModel = channelModel.getCommunityModel();
+        CommunityUserModel user = findUser(communityModel, name);
         if (user == null) {
-            user = addUser(community, name);
+            user = addUser(communityModel, name);
         }
-        if (!channelConfig.getOnlineUsers().contains(user)) {
-            channelConfig.getOnlineUsers().add(user);
+        if (!channelModel.getOnlineUsers().contains(user)) {
+            channelModel.getOnlineUsers().add(user);
         }
         return user;
     }
 
     @Override
-    public CommunityUser setUserOffline(Channel channel, String name) {
-        ChannelConfiguration channelConfig = find(ChannelConfiguration.class, channel.getId());
-        Community community = channelConfig.getCommunity();
-        CommunityUser user = findUser(community, name);
+    public CommunityUserModel setUserOffline(Channel channel, String name) {
+        ChannelModel channelModel = find(ChannelModel.class, channel.getId());
+        CommunityModel communityModel = channelModel.getCommunityModel();
+        CommunityUserModel user = findUser(communityModel, name);
         if (user == null) {
-            user = addUser(community, name);
+            user = addUser(communityModel, name);
         }
-        if (channelConfig.getOnlineUsers().contains(user)) {
-            channelConfig.getOnlineUsers().remove(user);
+        if (channelModel.getOnlineUsers().contains(user)) {
+            channelModel.getOnlineUsers().remove(user);
         }
         return user;
     }
 
-    private CommunityUser addUser(Community community, String name) {
-        CommunityUser user = new CommunityUser();
-        user.setCommunity(community);
+    private CommunityUserModel addUser(CommunityModel communityModel, String name) {
+        CommunityUserModel user = new CommunityUserModel();
+        user.setCommunityModel(communityModel);
         user.setName(name.toLowerCase());
         user.setFirstSeen(new Date());
         user.setAccessLevel(AccessLevel.USER);
@@ -74,11 +74,13 @@ public class UserServiceImpl extends BaseServiceImpl implements UserService {
         return user;
     }
 
-    private CommunityUser findUser(Community community, String name) {
+    private CommunityUserModel findUser(CommunityModel communityModel, String name) {
         try {
             return sessionFactory.getCurrentSession()
-                    .createQuery("SELECT cu FROM CommunityUser cu WHERE cu.community = :community AND cu.name = :name", CommunityUser.class)
-                    .setParameter("community", community).setParameter("name", name.toLowerCase()).getSingleResult();
+                    .createQuery("SELECT cu FROM CommunityUserModel cu WHERE cu.communityModel = :community AND cu" +
+                            ".name = " +
+                            ":name", CommunityUserModel.class)
+                    .setParameter("community", communityModel).setParameter("name", name.toLowerCase()).getSingleResult();
         } catch (NoResultException ex) {
             return null;
         }

@@ -1,9 +1,8 @@
-package com.mitchellbosecke.seniorcommander;
+package com.mitchellbosecke.seniorcommander.task;
 
-import com.mitchellbosecke.seniorcommander.domain.Timer;
+import com.mitchellbosecke.seniorcommander.domain.TimerModel;
+import com.mitchellbosecke.seniorcommander.extension.core.task.Shout;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
-import com.mitchellbosecke.seniorcommander.timer.Shout;
-import com.mitchellbosecke.seniorcommander.timer.Task;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,29 +26,29 @@ public class TaskManager {
         this.messageQueue = messageQueue;
     }
 
-    public void startTimer(Timer timer) {
-        if (tasks.containsKey(timer.getId())) {
-            if (tasks.get(timer.getId()).isCancelled()) {
-                scheduleTask(timer);
+    public void startTimer(TimerModel timerModel) {
+        if (tasks.containsKey(timerModel.getId())) {
+            if (tasks.get(timerModel.getId()).isCancelled()) {
+                scheduleTask(timerModel);
             }
         } else {
-            scheduleTask(timer);
+            scheduleTask(timerModel);
         }
     }
 
-    private Task buildTask(Timer timer) {
+    private Task buildTask(TimerModel timerModel) {
         Task task = null;
-        if (timer.getImplementation() == null) {
-            task = new Shout(messageQueue, timer.getMessage());
+        if (timerModel.getImplementation() == null) {
+            task = new Shout(messageQueue, timerModel.getMessage());
         }
         return task;
     }
 
-    private void scheduleTask(Timer timer) {
-        Task task = buildTask(timer);
+    private void scheduleTask(TimerModel timerModel) {
+        Task task = buildTask(timerModel);
         ScheduledFuture<?> future = executorService
-                .scheduleAtFixedRate(() -> task.perform(), timer.getInterval(), timer.getInterval(), TimeUnit.SECONDS);
-        tasks.put(timer.getId(), future);
+                .scheduleAtFixedRate(() -> task.perform(), timerModel.getInterval(), timerModel.getInterval(), TimeUnit.SECONDS);
+        tasks.put(timerModel.getId(), future);
     }
 
     public void stopTimer(long id) {

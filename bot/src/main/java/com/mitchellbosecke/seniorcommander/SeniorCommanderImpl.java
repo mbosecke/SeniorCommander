@@ -6,6 +6,7 @@ import com.mitchellbosecke.seniorcommander.extension.Extension;
 import com.mitchellbosecke.seniorcommander.extension.core.CoreExtension;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
+import com.mitchellbosecke.seniorcommander.task.TaskManager;
 import com.mitchellbosecke.seniorcommander.utils.DatabaseManager;
 import com.mitchellbosecke.seniorcommander.utils.ExecutorUtils;
 import org.hibernate.Session;

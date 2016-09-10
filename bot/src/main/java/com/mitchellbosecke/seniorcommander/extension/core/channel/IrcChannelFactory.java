@@ -2,7 +2,7 @@ package com.mitchellbosecke.seniorcommander.extension.core.channel;
 
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.channel.ChannelFactory;
-import com.mitchellbosecke.seniorcommander.domain.ChannelConfiguration;
+import com.mitchellbosecke.seniorcommander.domain.ChannelModel;
 import org.hibernate.Session;
 
 import java.util.ArrayList;
@@ -24,19 +24,19 @@ public class IrcChannelFactory implements ChannelFactory {
     public List<Channel> build(Session session) {
         List<Channel> ircChannels = new ArrayList<>();
 
-        List<ChannelConfiguration> channelConfigurations = session
-                .createQuery("SELECT cc FROM ChannelConfiguration cc WHERE cc.type = 'irc'", ChannelConfiguration.class)
+        List<ChannelModel> channelModels = session
+                .createQuery("SELECT cm FROM ChannelModel cm WHERE cm.type = 'irc'", ChannelModel.class)
                 .getResultList();
 
-        for(ChannelConfiguration configuration : channelConfigurations){
+        for(ChannelModel channelModel : channelModels){
 
-            String server = configuration.getSetting(CONFIG_SERVER);
-            Integer port = Integer.valueOf(configuration.getSetting(CONFIG_PORT));
-            String username = configuration.getSetting(CONFIG_USERNAME);
-            String password = configuration.getSetting(CONFIG_PASSWORD);
-            String channel = configuration.getSetting(CONFIG_CHANNEL);
+            String server = channelModel.getSetting(CONFIG_SERVER);
+            Integer port = Integer.valueOf(channelModel.getSetting(CONFIG_PORT));
+            String username = channelModel.getSetting(CONFIG_USERNAME);
+            String password = channelModel.getSetting(CONFIG_PASSWORD);
+            String channel = channelModel.getSetting(CONFIG_CHANNEL);
 
-            ircChannels.add(new IrcChannel(configuration.getId(), server, port, username, password, channel));
+            ircChannels.add(new IrcChannel(channelModel.getId(), server, port, username, password, channel));
         }
 
         return ircChannels;

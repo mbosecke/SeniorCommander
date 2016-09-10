@@ -2,10 +2,10 @@ package com.mitchellbosecke.seniorcommander.extension.core.event;
 
 import com.mitchellbosecke.seniorcommander.CommandHandler;
 import com.mitchellbosecke.seniorcommander.EventHandler;
-import com.mitchellbosecke.seniorcommander.domain.Command;
-import com.mitchellbosecke.seniorcommander.domain.CommandLog;
-import com.mitchellbosecke.seniorcommander.domain.Community;
-import com.mitchellbosecke.seniorcommander.domain.CommunityUser;
+import com.mitchellbosecke.seniorcommander.domain.CommandModel;
+import com.mitchellbosecke.seniorcommander.domain.CommandLogModel;
+import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
+import com.mitchellbosecke.seniorcommander.domain.CommunityUserModel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.CommandService;
 import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;
 import com.mitchellbosecke.seniorcommander.message.Message;
@@ -45,52 +45,52 @@ public class CommandBroker implements EventHandler {
     @Override
     public void handle(Message message) {
         if (Message.Type.USER.equals(message.getType())) {
-            Community community = commandService.findCommunity(message.getChannel());
-            Command command = commandService.findCommand(community, message.getContent());
+            CommunityModel communityModel = commandService.findCommunity(message.getChannel());
+            CommandModel commandModel = commandService.findCommand(communityModel, message.getContent());
 
-            if (command != null && command.isEnabled()) {
-                CommunityUser user = userService.findUser(message.getChannel(), message.getSender());
-                if (hasPermission(command, user)) {
-                    executeAfterCooldown(message, command, user);
+            if (commandModel != null && commandModel.isEnabled()) {
+                CommunityUserModel user = userService.findUser(message.getChannel(), message.getSender());
+                if (hasPermission(commandModel, user)) {
+                    executeAfterCooldown(message, commandModel, user);
                 }
             }
         }
     }
 
-    private boolean hasPermission(Command command, CommunityUser user) {
-        return user.getAccessLevel().hasAccess(command.getAccessLevel());
+    private boolean hasPermission(CommandModel commandModel, CommunityUserModel user) {
+        return user.getAccessLevel().hasAccess(commandModel.getAccessLevel());
     }
 
-    private void executeAfterCooldown(Message message, Command command, CommunityUser user) {
-        if (command.getCooldown() > 0) {
+    private void executeAfterCooldown(Message message, CommandModel commandModel, CommunityUserModel user) {
+        if (commandModel.getCooldown() > 0) {
 
-            CommandLog commandLog = commandService.findMostRecentCommandLog(command, user);
-            if (commandLog == null) {
-                executeCommand(message, command, user);
+            CommandLogModel commandLogModel = commandService.findMostRecentCommandLog(commandModel, user);
+            if (commandLogModel == null) {
+                executeCommand(message, commandModel, user);
             } else {
-                long cooldownMilliseconds = command.getCooldown() * 1000;
-                if (commandLog.getLogDate().getTime() + cooldownMilliseconds <= new Date().getTime()) {
-                    executeCommand(message, command, user);
+                long cooldownMilliseconds = commandModel.getCooldown() * 1000;
+                if (commandLogModel.getLogDate().getTime() + cooldownMilliseconds <= new Date().getTime()) {
+                    executeCommand(message, commandModel, user);
                 }
             }
         } else {
-            executeCommand(message, command, user);
+            executeCommand(message, commandModel, user);
         }
     }
 
-    private void executeCommand(Message message, Command command, CommunityUser user) {
+    private void executeCommand(Message message, CommandModel commandModel, CommunityUserModel user) {
 
-        if (command.getImplementation() != null) {
-            CommandHandler commandHandler = commandHandlers.get(command.getImplementation());
+        if (commandModel.getImplementation() != null) {
+            CommandHandler commandHandler = commandHandlers.get(commandModel.getImplementation());
             commandHandler.execute(message);
         } else {
-            messageQueue.add(Message.shout(command.getMessage(), message.getChannel()));
+            messageQueue.add(Message.shout(commandModel.getMessage(), message.getChannel()));
         }
 
         // log this use
-        CommandLog log = new CommandLog();
-        log.setCommand(command);
-        log.setCommunityUser(user);
+        CommandLogModel log = new CommandLogModel();
+        log.setCommandModel(commandModel);
+        log.setCommunityUserModel(user);
         log.setLogDate(new Date());
         userService.persist(log);
     }

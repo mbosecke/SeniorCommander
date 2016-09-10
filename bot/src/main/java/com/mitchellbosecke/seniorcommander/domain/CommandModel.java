@@ -9,7 +9,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "command")
-public class Command {
+public class CommandModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,7 +18,7 @@ public class Command {
 
     @ManyToOne
     @JoinColumn(name = "community_id")
-    private Community community;
+    private CommunityModel communityModel;
 
     @Column
     private String trigger;
@@ -71,12 +71,12 @@ public class Command {
         this.cooldown = cooldown;
     }
 
-    public Community getCommunity() {
-        return community;
+    public CommunityModel getCommunityModel() {
+        return communityModel;
     }
 
-    public void setCommunity(Community community) {
-        this.community = community;
+    public void setCommunityModel(CommunityModel communityModel) {
+        this.communityModel = communityModel;
     }
 
     public String getImplementation() {

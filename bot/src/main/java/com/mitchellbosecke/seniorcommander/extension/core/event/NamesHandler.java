@@ -1,6 +1,6 @@
 package com.mitchellbosecke.seniorcommander.extension.core.event;
 
-import com.mitchellbosecke.seniorcommander.domain.ChannelConfiguration;
+import com.mitchellbosecke.seniorcommander.domain.ChannelModel;
 import com.mitchellbosecke.seniorcommander.EventHandler;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;
@@ -24,9 +24,9 @@ public class NamesHandler implements EventHandler {
     public void handle(Message message) {
         if (Message.Type.MEMBERSHIP_NAMES.equals(message.getType())) {
 
-            ChannelConfiguration channelConfiguration = userService
-                    .find(ChannelConfiguration.class, message.getChannel().getId());
-            channelConfiguration.getOnlineUsers().clear();
+            ChannelModel channelModel = userService
+                    .find(ChannelModel.class, message.getChannel().getId());
+            channelModel.getOnlineUsers().clear();
 
             String[] usernames = message.getSender().split(",");
             for (String username : usernames) {

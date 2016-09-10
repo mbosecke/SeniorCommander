@@ -7,7 +7,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "channel_setting")
-public class ChannelConfigurationSetting {
+public class ChannelSettingModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,7 +16,7 @@ public class ChannelConfigurationSetting {
 
     @ManyToOne
     @JoinColumn(name = "channel_id")
-    private ChannelConfiguration channelConfiguration;
+    private ChannelModel channelModel;
 
     @Column
     private String key;
@@ -24,12 +24,12 @@ public class ChannelConfigurationSetting {
     @Column
     private String value;
 
-    public ChannelConfiguration getChannelConfiguration() {
-        return channelConfiguration;
+    public ChannelModel getChannelModel() {
+        return channelModel;
     }
 
-    public void setChannelConfiguration(ChannelConfiguration channelConfiguration) {
-        this.channelConfiguration = channelConfiguration;
+    public void setChannelModel(ChannelModel channelModel) {
+        this.channelModel = channelModel;
     }
 
     public long getId() {

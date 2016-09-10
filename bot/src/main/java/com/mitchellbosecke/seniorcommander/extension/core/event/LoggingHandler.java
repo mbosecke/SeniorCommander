@@ -1,8 +1,8 @@
 package com.mitchellbosecke.seniorcommander.extension.core.event;
 
 import com.mitchellbosecke.seniorcommander.EventHandler;
-import com.mitchellbosecke.seniorcommander.domain.ChannelConfiguration;
-import com.mitchellbosecke.seniorcommander.domain.ChatLog;
+import com.mitchellbosecke.seniorcommander.domain.ChannelModel;
+import com.mitchellbosecke.seniorcommander.domain.ChatLogModel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import org.slf4j.Logger;
@@ -28,10 +28,10 @@ public class LoggingHandler implements EventHandler {
         logger.debug(String.format("[%s] %s: %s", message.getType(), message.getSender(), message.getContent()));
 
         if(Message.Type.USER == message.getType()) {
-            ChatLog log = new ChatLog();
+            ChatLogModel log = new ChatLogModel();
             log.setMessage(message.getContent());
-            log.setChannel(userService.find(ChannelConfiguration.class, message.getChannel().getId()));
-            log.setCommunityUser(userService.findUser(message.getChannel(), message.getSender()));
+            log.setChannel(userService.find(ChannelModel.class, message.getChannel().getId()));
+            log.setCommunityUserModel(userService.findUser(message.getChannel(), message.getSender()));
             log.setDate(new Date());
             userService.persist(log);
         }

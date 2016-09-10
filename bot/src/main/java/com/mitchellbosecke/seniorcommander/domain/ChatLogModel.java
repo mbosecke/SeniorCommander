@@ -8,7 +8,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "chat_log")
-public class ChatLog {
+public class ChatLogModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,14 +17,14 @@ public class ChatLog {
 
     @ManyToOne
     @JoinColumn(name = "channel_id")
-    private ChannelConfiguration channel;
+    private ChannelModel channel;
 
     @Column
     private String message;
 
     @ManyToOne
     @JoinColumn(name = "community_user_id")
-    private CommunityUser communityUser;
+    private CommunityUserModel communityUserModel;
 
     @Column
     private Date date;
@@ -37,11 +37,11 @@ public class ChatLog {
         this.id = id;
     }
 
-    public ChannelConfiguration getChannel() {
+    public ChannelModel getChannel() {
         return channel;
     }
 
-    public void setChannel(ChannelConfiguration channel) {
+    public void setChannel(ChannelModel channel) {
         this.channel = channel;
     }
 
@@ -53,12 +53,12 @@ public class ChatLog {
         this.message = message;
     }
 
-    public CommunityUser getCommunityUser() {
-        return communityUser;
+    public CommunityUserModel getCommunityUserModel() {
+        return communityUserModel;
     }
 
-    public void setCommunityUser(CommunityUser communityUser) {
-        this.communityUser = communityUser;
+    public void setCommunityUserModel(CommunityUserModel communityUserModel) {
+        this.communityUserModel = communityUserModel;
     }
 
     public Date getDate() {

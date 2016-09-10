@@ -8,7 +8,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "command_log")
-public class CommandLog {
+public class CommandLogModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,11 +17,11 @@ public class CommandLog {
 
     @ManyToOne
     @JoinColumn(name = "command_id")
-    private Command command;
+    private CommandModel commandModel;
 
     @ManyToOne
     @JoinColumn(name = "community_user_id")
-    private CommunityUser communityUser;
+    private CommunityUserModel communityUserModel;
 
     @Column(name = "log_date")
     @Temporal(TemporalType.TIMESTAMP)
@@ -35,20 +35,20 @@ public class CommandLog {
         this.id = id;
     }
 
-    public Command getCommand() {
-        return command;
+    public CommandModel getCommandModel() {
+        return commandModel;
     }
 
-    public void setCommand(Command command) {
-        this.command = command;
+    public void setCommandModel(CommandModel commandModel) {
+        this.commandModel = commandModel;
     }
 
-    public CommunityUser getCommunityUser() {
-        return communityUser;
+    public CommunityUserModel getCommunityUserModel() {
+        return communityUserModel;
     }
 
-    public void setCommunityUser(CommunityUser communityUser) {
-        this.communityUser = communityUser;
+    public void setCommunityUserModel(CommunityUserModel communityUserModel) {
+        this.communityUserModel = communityUserModel;
     }
 
     public Date getLogDate() {

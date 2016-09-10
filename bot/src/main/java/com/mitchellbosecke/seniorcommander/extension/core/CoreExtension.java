@@ -2,7 +2,8 @@ package com.mitchellbosecke.seniorcommander.extension.core;
 
 import com.mitchellbosecke.seniorcommander.CommandHandler;
 import com.mitchellbosecke.seniorcommander.EventHandler;
-import com.mitchellbosecke.seniorcommander.TaskManager;
+import com.mitchellbosecke.seniorcommander.task.TaskFactory;
+import com.mitchellbosecke.seniorcommander.task.TaskManager;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.channel.ChannelFactory;
 import com.mitchellbosecke.seniorcommander.extension.Extension;
@@ -28,6 +29,11 @@ public class CoreExtension implements Extension {
         factories.add(new IrcChannelFactory());
         factories.add(new SocketChannelFactory());
         return factories;
+    }
+
+    @Override
+    public List<TaskFactory> getTaskFactories() {
+        return null;
     }
 
     @Override

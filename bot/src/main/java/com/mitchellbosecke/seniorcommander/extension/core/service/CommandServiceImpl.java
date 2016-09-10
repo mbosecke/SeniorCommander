@@ -1,10 +1,10 @@
 package com.mitchellbosecke.seniorcommander.extension.core.service;
 
 import com.mitchellbosecke.seniorcommander.AccessLevel;
-import com.mitchellbosecke.seniorcommander.domain.Command;
-import com.mitchellbosecke.seniorcommander.domain.CommandLog;
-import com.mitchellbosecke.seniorcommander.domain.Community;
-import com.mitchellbosecke.seniorcommander.domain.CommunityUser;
+import com.mitchellbosecke.seniorcommander.domain.CommandModel;
+import com.mitchellbosecke.seniorcommander.domain.CommandLogModel;
+import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
+import com.mitchellbosecke.seniorcommander.domain.CommunityUserModel;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
@@ -20,43 +20,44 @@ public class CommandServiceImpl extends BaseServiceImpl implements CommandServic
     }
 
     @Override
-    public void addCommand(Community community, String trigger, String message, long cooldown, AccessLevel
+    public void addCommand(CommunityModel communityModel, String trigger, String message, long cooldown, AccessLevel
             accessLevel) {
-        Command command = new Command();
-        command.setCommunity(community);
-        command.setTrigger(trigger);
-        command.setMessage(message);
-        command.setCooldown(cooldown);
-        command.setEnabled(true);
-        command.setAccessLevel(accessLevel);
-        persist(command);
+        CommandModel commandModel = new CommandModel();
+        commandModel.setCommunityModel(communityModel);
+        commandModel.setTrigger(trigger);
+        commandModel.setMessage(message);
+        commandModel.setCooldown(cooldown);
+        commandModel.setEnabled(true);
+        commandModel.setAccessLevel(accessLevel);
+        persist(commandModel);
     }
 
     @Override
-    public void deleteCommand(Community community, String trigger) {
+    public void deleteCommand(CommunityModel communityModel, String trigger) {
 
-        Command command = findCommand(community, trigger);
+        CommandModel commandModel = findCommand(communityModel, trigger);
         Session session = sessionFactory.getCurrentSession();
-        // command logs
-        session.createQuery("DELETE FROM CommandLog cl WHERE cl.command = :command").setParameter("command", command)
+        // commandModel logs
+        session.createQuery("DELETE FROM CommandLogModel cl WHERE cl.command = :command").setParameter("command",
+                commandModel)
                 .executeUpdate();
 
-        session.delete(command);
+        session.delete(commandModel);
     }
 
     @Override
-    public CommandLog findMostRecentCommandLog(Command command, CommunityUser communityUser) {
+    public CommandLogModel findMostRecentCommandLog(CommandModel commandModel, CommunityUserModel communityUserModel) {
 
-        CommandLog log = null;
+        CommandLogModel log = null;
         try {
             //@formatter:off
             log = sessionFactory.getCurrentSession()
                     .createQuery("SELECT cl " +
-                            "FROM CommandLog cl " +
-                            "WHERE cl.command = :command " +
-                            "AND cl.communityUser = :user " +
-                            "ORDER BY cl.logDate desc ", CommandLog.class)
-                    .setParameter("command", command).setParameter("user", communityUser).setMaxResults(1)
+                            "FROM CommandLogModel cl " +
+                            "WHERE cl.commandModel = :command " +
+                            "AND cl.communityUserModel = :user " +
+                            "ORDER BY cl.logDate desc ", CommandLogModel.class)
+                    .setParameter("command", commandModel).setParameter("user", communityUserModel).setMaxResults(1)
                     .getSingleResult();
             //@formatter:on
         } catch (NoResultException ex) {
@@ -65,16 +66,16 @@ public class CommandServiceImpl extends BaseServiceImpl implements CommandServic
     }
 
     @Override
-    public Command findCommand(Community community, String trigger) {
+    public CommandModel findCommand(CommunityModel communityModel, String trigger) {
         try {
             //@formatter:off
             return sessionFactory.getCurrentSession()
                     .createQuery("SELECT c " +
-                            "FROM Command c " +
-                            "WHERE c.community = :community " +
+                            "FROM CommandModel c " +
+                            "WHERE c.communityModel = :community " +
                             "AND :trigger LIKE (c.trigger || '%') " +
-                            "ORDER BY trigger DESC", Command.class)
-                    .setParameter("community", community).setParameter("trigger", trigger.toLowerCase())
+                            "ORDER BY trigger DESC", CommandModel.class)
+                    .setParameter("community", communityModel).setParameter("trigger", trigger.toLowerCase())
                     .setMaxResults(1).getSingleResult();
             //@formatter:on
         } catch (NoResultException ex) {

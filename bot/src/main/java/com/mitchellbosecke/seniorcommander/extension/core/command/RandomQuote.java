@@ -1,8 +1,8 @@
 package com.mitchellbosecke.seniorcommander.extension.core.command;
 
 import com.mitchellbosecke.seniorcommander.CommandHandler;
-import com.mitchellbosecke.seniorcommander.domain.Community;
-import com.mitchellbosecke.seniorcommander.domain.Quote;
+import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
+import com.mitchellbosecke.seniorcommander.domain.QuoteModel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.QuoteService;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
@@ -41,33 +41,33 @@ public class RandomQuote implements CommandHandler {
     public void execute(Message message) {
 
         ParsedCommand parsed = new CommandParser().parse(message.getContent());
-        Community community = quoteService.findCommunity(message.getChannel());
+        CommunityModel communityModel = quoteService.findCommunity(message.getChannel());
 
         if (parsed.getComponents().isEmpty()) {
-            shoutQuote(message, quoteService.findRandomQuote(community));
+            shoutQuote(message, quoteService.findRandomQuote(communityModel));
         } else {
             String identifier = parsed.getComponents().get(0);
 
             try {
                 long id = Long.parseLong(identifier);
-                Quote quote = quoteService.findQuote(community, id);
+                QuoteModel quoteModel = quoteService.findQuote(communityModel, id);
 
-                shoutQuote(message, quote);
+                shoutQuote(message, quoteModel);
 
             } catch (NumberFormatException ex) {
                 String author = identifier;
-                shoutQuote(message, quoteService.findRandomQuote(community, author));
+                shoutQuote(message, quoteService.findRandomQuote(communityModel, author));
             }
         }
     }
 
-    private void shoutQuote(Message message, Quote quote) {
-        if (quote == null) {
+    private void shoutQuote(Message message, QuoteModel quoteModel) {
+        if (quoteModel == null) {
             messageQueue.add(Message.response(message, "Quote does not exist"));
         } else {
             messageQueue.add(Message.shout(String
-                    .format("\"%s\" -%s on %s", quote.getContent(), quote.getAuthor(), DATE_FORMAT
-                            .format(quote.getCreatedDate()), message.getChannel())));
+                    .format("\"%s\" -%s on %s", quoteModel.getContent(), quoteModel.getAuthor(), DATE_FORMAT
+                            .format(quoteModel.getCreatedDate()), message.getChannel())));
         }
     }
 

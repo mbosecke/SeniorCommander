@@ -1,19 +1,19 @@
 package com.mitchellbosecke.seniorcommander.extension.core.service;
 
-import com.mitchellbosecke.seniorcommander.domain.Community;
-import com.mitchellbosecke.seniorcommander.domain.Quote;
+import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
+import com.mitchellbosecke.seniorcommander.domain.QuoteModel;
 
 /**
  * Created by mitch_000 on 2016-07-10.
  */
 public interface QuoteService extends BaseService {
 
-    Quote addQuote(Community community, String author, String content);
+    QuoteModel addQuote(CommunityModel communityModel, String author, String content);
 
-    Quote findQuote(Community community, long communitySequenceId);
+    QuoteModel findQuote(CommunityModel communityModel, long communitySequenceId);
 
-    Quote findRandomQuote(Community community);
+    QuoteModel findRandomQuote(CommunityModel communityModel);
 
-    Quote findRandomQuote(Community community, String author);
+    QuoteModel findRandomQuote(CommunityModel communityModel, String author);
 
 }

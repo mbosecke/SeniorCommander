@@ -1,7 +1,8 @@
-package com.mitchellbosecke.seniorcommander.timer;
+package com.mitchellbosecke.seniorcommander.extension.core.task;
 
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
+import com.mitchellbosecke.seniorcommander.task.Task;
 
 /**
  * Created by mitch_000 on 2016-07-31.

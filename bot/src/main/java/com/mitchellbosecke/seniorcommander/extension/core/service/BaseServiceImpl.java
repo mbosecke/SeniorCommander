@@ -1,8 +1,8 @@
 package com.mitchellbosecke.seniorcommander.extension.core.service;
 
 import com.mitchellbosecke.seniorcommander.channel.Channel;
-import com.mitchellbosecke.seniorcommander.domain.ChannelConfiguration;
-import com.mitchellbosecke.seniorcommander.domain.Community;
+import com.mitchellbosecke.seniorcommander.domain.ChannelModel;
+import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
 import org.hibernate.SessionFactory;
 
 /**
@@ -38,8 +38,8 @@ public class BaseServiceImpl implements BaseService {
     }
 
     @Override
-    public Community findCommunity(Channel channel) {
-        ChannelConfiguration channelConfig = find(ChannelConfiguration.class, channel.getId());
-        return channelConfig.getCommunity();
+    public CommunityModel findCommunity(Channel channel) {
+        ChannelModel channelModel = find(ChannelModel.class, channel.getId());
+        return channelModel.getCommunityModel();
     }
 }

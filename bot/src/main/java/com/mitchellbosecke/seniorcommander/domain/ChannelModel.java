@@ -8,7 +8,7 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "channel")
-public class ChannelConfiguration {
+public class ChannelModel {
 
     @Id
     @Column
@@ -17,24 +17,24 @@ public class ChannelConfiguration {
 
     @ManyToOne
     @JoinColumn(name = "community_id")
-    private Community community;
+    private CommunityModel communityModel;
 
     @Column
     private String type;
 
-    @OneToMany(mappedBy = "channelConfiguration")
-    private Set<ChannelConfigurationSetting> settings;
+    @OneToMany(mappedBy = "channelModel")
+    private Set<ChannelSettingModel> settings;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "online_channel_user", joinColumns = @JoinColumn(name = "channel_id"), inverseJoinColumns = @JoinColumn(name = "community_user_id"))
-    private Set<CommunityUser> onlineUsers;
+    private Set<CommunityUserModel> onlineUsers;
 
-    public Community getCommunity() {
-        return community;
+    public CommunityModel getCommunityModel() {
+        return communityModel;
     }
 
-    public void setCommunity(Community community) {
-        this.community = community;
+    public void setCommunityModel(CommunityModel communityModel) {
+        this.communityModel = communityModel;
     }
 
     public long getId() {
@@ -53,22 +53,22 @@ public class ChannelConfiguration {
         this.type = type;
     }
 
-    public Set<ChannelConfigurationSetting> getSettings() {
+    public Set<ChannelSettingModel> getSettings() {
         return settings;
     }
 
-    public void setSettings(Set<ChannelConfigurationSetting> settings) {
+    public void setSettings(Set<ChannelSettingModel> settings) {
         this.settings = settings;
     }
 
-    public Set<CommunityUser> getOnlineUsers() {
+    public Set<CommunityUserModel> getOnlineUsers() {
         return onlineUsers;
     }
 
     @Transient
     public String getSetting(String key) {
         String result = null;
-        for (ChannelConfigurationSetting setting : settings) {
+        for (ChannelSettingModel setting : settings) {
             if (key.equalsIgnoreCase(setting.getKey())) {
                 result = setting.getValue();
             }

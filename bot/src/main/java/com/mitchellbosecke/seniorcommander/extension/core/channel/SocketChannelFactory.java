@@ -2,7 +2,7 @@ package com.mitchellbosecke.seniorcommander.extension.core.channel;
 
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.channel.ChannelFactory;
-import com.mitchellbosecke.seniorcommander.domain.ChannelConfiguration;
+import com.mitchellbosecke.seniorcommander.domain.ChannelModel;
 import org.hibernate.Session;
 
 import java.util.ArrayList;
@@ -19,11 +19,11 @@ public class SocketChannelFactory implements ChannelFactory {
     public List<Channel> build(Session session) {
         List<Channel> socketChannels = new ArrayList<>();
 
-        List<ChannelConfiguration> channelConfigurations = session
-                .createQuery("SELECT cc FROM ChannelConfiguration cc WHERE cc.type = 'socket'", ChannelConfiguration.class)
+        List<ChannelModel> channelModels = session
+                .createQuery("SELECT cc FROM ChannelModel cc WHERE cc.type = 'socket'", ChannelModel.class)
                 .getResultList();
 
-        for (ChannelConfiguration configuration : channelConfigurations) {
+        for (ChannelModel configuration : channelModels) {
 
             Integer port = Integer.valueOf(configuration.getSetting(CONFIG_PORT));
 

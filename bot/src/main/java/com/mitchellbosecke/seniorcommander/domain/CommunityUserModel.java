@@ -10,7 +10,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "community_user")
-public class CommunityUser {
+public class CommunityUserModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,7 +19,7 @@ public class CommunityUser {
 
     @ManyToOne
     @JoinColumn(name = "community_id")
-    private Community community;
+    private CommunityModel communityModel;
 
     @Column
     private String name;
@@ -47,12 +47,12 @@ public class CommunityUser {
         this.accessLevel = accessLevel;
     }
 
-    public Community getCommunity() {
-        return community;
+    public CommunityModel getCommunityModel() {
+        return communityModel;
     }
 
-    public void setCommunity(Community community) {
-        this.community = community;
+    public void setCommunityModel(CommunityModel communityModel) {
+        this.communityModel = communityModel;
     }
 
     public long getId() {

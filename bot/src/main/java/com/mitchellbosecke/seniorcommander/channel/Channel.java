@@ -1,6 +1,6 @@
 package com.mitchellbosecke.seniorcommander.channel;
 
-import com.mitchellbosecke.seniorcommander.domain.ChannelConfiguration;
+import com.mitchellbosecke.seniorcommander.domain.ChannelModel;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 
 import java.io.IOException;
@@ -11,7 +11,7 @@ import java.io.IOException;
 public interface Channel {
 
     /**
-     * Gets the ID of the corresponding {@link ChannelConfiguration}
+     * Gets the ID of the corresponding {@link ChannelModel}
      * @return
      */
     long getId();

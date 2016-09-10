@@ -1,8 +1,8 @@
 package com.mitchellbosecke.seniorcommander.extension.core.command;
 
 import com.mitchellbosecke.seniorcommander.CommandHandler;
-import com.mitchellbosecke.seniorcommander.domain.Community;
-import com.mitchellbosecke.seniorcommander.domain.Quote;
+import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
+import com.mitchellbosecke.seniorcommander.domain.QuoteModel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.QuoteService;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
@@ -36,7 +36,7 @@ public class QuoteCrud implements CommandHandler {
     public void execute(Message message) {
 
         ParsedCommand parsed = new CommandParser().parse(message.getContent());
-        Community community = quoteService.findCommunity(message.getChannel());
+        CommunityModel communityModel = quoteService.findCommunity(message.getChannel());
 
         String subCommand = parsed.getComponents().get(0);
 
@@ -45,18 +45,18 @@ public class QuoteCrud implements CommandHandler {
             if (parsed.getQuotedText() == null) {
                 messageQueue.add(Message.response(message, "You are missing the quoted text"));
             } else {
-                Quote result = quoteService.addQuote(community, parsed.getComponents().get(1), parsed.getQuotedText());
+                QuoteModel result = quoteService.addQuote(communityModel, parsed.getComponents().get(1), parsed.getQuotedText());
                 messageQueue.add(Message.response(message, String.format("Quote #%d has been added", result.getCommunitySequence())));
             }
         } else if ("edit".equalsIgnoreCase(subCommand)){
             long id = Long.parseLong(parsed.getComponents().get(1));
-            Quote quote = quoteService.findQuote(community, id);
-            quote.setContent(parsed.getQuotedText());
+            QuoteModel quoteModel = quoteService.findQuote(communityModel, id);
+            quoteModel.setContent(parsed.getQuotedText());
             messageQueue.add(Message.response(message, String.format("Quote #%d has been edited", id)));
         } else if ("delete".equalsIgnoreCase(subCommand)) {
             long id = Long.parseLong(parsed.getComponents().get(1));
-            Quote quote = quoteService.findQuote(community, id);
-            quoteService.delete(quote);
+            QuoteModel quoteModel = quoteService.findQuote(communityModel, id);
+            quoteService.delete(quoteModel);
             messageQueue.add(Message.response(message, String.format("Quote #%d has been deleted", id)));
         }
     }

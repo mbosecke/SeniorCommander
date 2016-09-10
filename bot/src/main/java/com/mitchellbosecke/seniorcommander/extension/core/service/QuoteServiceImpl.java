@@ -1,7 +1,7 @@
 package com.mitchellbosecke.seniorcommander.extension.core.service;
 
-import com.mitchellbosecke.seniorcommander.domain.Community;
-import com.mitchellbosecke.seniorcommander.domain.Quote;
+import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
+import com.mitchellbosecke.seniorcommander.domain.QuoteModel;
 import org.hibernate.SessionFactory;
 
 import javax.persistence.NoResultException;
@@ -17,68 +17,74 @@ public class QuoteServiceImpl extends BaseServiceImpl implements QuoteService {
     }
 
     @Override
-    public Quote addQuote(Community community, String author, String content) {
+    public QuoteModel addQuote(CommunityModel communityModel, String author, String content) {
         Long communitySequence;
 
         communitySequence = sessionFactory.getCurrentSession()
-                .createQuery("SELECT max(q.communitySequence) FROM Quote q WHERE q.community = :community", Long.class)
-                .setParameter("community", community).getSingleResult();
+                .createQuery("SELECT max(q.communitySequence) FROM QuoteModel q WHERE q.communityModel = :community",
+                        Long
+                        .class)
+                .setParameter("community", communityModel).getSingleResult();
 
         communitySequence = communitySequence == null ? 0 : communitySequence;
 
         communitySequence++;
 
-        Quote quote = new Quote();
-        quote.setCommunity(community);
-        quote.setAuthor(author);
-        quote.setContent(content);
-        quote.setCommunitySequence(communitySequence);
-        quote.setCreatedDate(new Date());
-        persist(quote);
-        return quote;
+        QuoteModel quoteModel = new QuoteModel();
+        quoteModel.setCommunityModel(communityModel);
+        quoteModel.setAuthor(author);
+        quoteModel.setContent(content);
+        quoteModel.setCommunitySequence(communitySequence);
+        quoteModel.setCreatedDate(new Date());
+        persist(quoteModel);
+        return quoteModel;
     }
 
     @Override
-    public Quote findQuote(Community community, long communitySequenceId) {
-        Quote quote = null;
+    public QuoteModel findQuote(CommunityModel communityModel, long communitySequenceId) {
+        QuoteModel quoteModel = null;
 
         try {
-            quote = sessionFactory.getCurrentSession()
-                    .createQuery("SELECT q FROM Quote q WHERE q.community = :community AND q.communitySequence = :sequence", Quote.class)
-                    .setParameter("community", community).setParameter("sequence", communitySequenceId)
+            quoteModel = sessionFactory.getCurrentSession()
+                    .createQuery("SELECT q FROM QuoteModel q WHERE q.communityModel = :community AND q" +
+                            ".communitySequence =" +
+                            " :sequence", QuoteModel.class)
+                    .setParameter("community", communityModel).setParameter("sequence", communitySequenceId)
                     .getSingleResult();
         } catch (NoResultException ex) {
         }
 
-        return quote;
+        return quoteModel;
     }
 
     @Override
-    public Quote findRandomQuote(Community community) {
-        Quote quote = null;
+    public QuoteModel findRandomQuote(CommunityModel communityModel) {
+        QuoteModel quoteModel = null;
 
         try {
-            quote = sessionFactory.getCurrentSession()
-                    .createQuery("SELECT q FROM Quote q WHERE q.community = :community ORDER BY rand()", Quote.class)
-                    .setParameter("community", community).setMaxResults(1).getSingleResult();
+            quoteModel = sessionFactory.getCurrentSession()
+                    .createQuery("SELECT q FROM QuoteModel q WHERE q.communityModel = :community ORDER BY rand()",
+                            QuoteModel.class)
+                    .setParameter("community", communityModel).setMaxResults(1).getSingleResult();
         } catch (NoResultException ex) {
         }
 
-        return quote;
+        return quoteModel;
     }
 
     @Override
-    public Quote findRandomQuote(Community community, String author) {
-        Quote quote = null;
+    public QuoteModel findRandomQuote(CommunityModel communityModel, String author) {
+        QuoteModel quoteModel = null;
 
         try {
-            quote = sessionFactory.getCurrentSession()
-                    .createQuery("SELECT q FROM Quote q WHERE q.community = :community AND lower(q.author) = lower(:author) ORDER BY rand()", Quote.class)
-                    .setParameter("community", community).setParameter("author", author).setMaxResults(1)
+            quoteModel = sessionFactory.getCurrentSession()
+                    .createQuery("SELECT q FROM QuoteModel q WHERE q.communityModel = :community AND lower(q.author) " +
+                            "= lower(:author) ORDER BY rand()", QuoteModel.class)
+                    .setParameter("community", communityModel).setParameter("author", author).setMaxResults(1)
                     .getSingleResult();
         } catch (NoResultException ex) {
         }
 
-        return quote;
+        return quoteModel;
     }
 }
