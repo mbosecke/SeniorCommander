@@ -41,7 +41,7 @@ public class CoreExtension implements Extension {
         CommandService commandService = new CommandServiceImpl(sessionFactory);
 
         // handlers
-        eventHandlers.add(new LoggingHandler());
+        eventHandlers.add(new LoggingHandler(userService));
         eventHandlers.add(new OutputHandler(channels));
         eventHandlers.add(new ConversationalHandler(messageQueue));
         eventHandlers.add(new UserChatHandler(userService));

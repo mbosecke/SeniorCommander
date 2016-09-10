@@ -63,6 +63,7 @@ public class DatabaseManager {
             sources.addAnnotatedClass(CommandLog.class);
             sources.addAnnotatedClass(Quote.class);
             sources.addAnnotatedClass(Timer.class);
+            sources.addAnnotatedClass(ChatLog.class);
 
             MetadataBuilder metadataBuilder = sources.getMetadataBuilder();
             metadataBuilder.applyImplicitSchemaName(configuration.getString(CONFIG_SCHEMA));
