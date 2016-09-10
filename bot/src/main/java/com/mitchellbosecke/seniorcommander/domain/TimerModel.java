@@ -31,7 +31,7 @@ public class TimerModel {
     private long interval;
 
     @Column(name = "chat_lines")
-    private long chatLines;
+    private Long chatLines;
 
     @Column
     private boolean enabled;
@@ -76,11 +76,11 @@ public class TimerModel {
         this.interval = interval;
     }
 
-    public long getChatLines() {
+    public Long getChatLines() {
         return chatLines;
     }
 
-    public void setChatLines(long chatLines) {
+    public void setChatLines(Long chatLines) {
         this.chatLines = chatLines;
     }
 

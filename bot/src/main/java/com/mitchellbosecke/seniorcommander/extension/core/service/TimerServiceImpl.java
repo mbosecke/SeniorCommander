@@ -2,7 +2,7 @@ package com.mitchellbosecke.seniorcommander.extension.core.service;
 
 import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
 import com.mitchellbosecke.seniorcommander.domain.TimerModel;
-import com.mitchellbosecke.seniorcommander.extension.core.task.Shout;
+import com.mitchellbosecke.seniorcommander.extension.core.timer.Shout;
 import org.hibernate.SessionFactory;
 
 import javax.persistence.NoResultException;

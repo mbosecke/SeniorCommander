@@ -2,8 +2,6 @@ package com.mitchellbosecke.seniorcommander.extension.core;
 
 import com.mitchellbosecke.seniorcommander.CommandHandler;
 import com.mitchellbosecke.seniorcommander.EventHandler;
-import com.mitchellbosecke.seniorcommander.task.TaskFactory;
-import com.mitchellbosecke.seniorcommander.task.TaskManager;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.channel.ChannelFactory;
 import com.mitchellbosecke.seniorcommander.extension.Extension;
@@ -12,7 +10,10 @@ import com.mitchellbosecke.seniorcommander.extension.core.channel.SocketChannelF
 import com.mitchellbosecke.seniorcommander.extension.core.command.*;
 import com.mitchellbosecke.seniorcommander.extension.core.event.*;
 import com.mitchellbosecke.seniorcommander.extension.core.service.*;
+import com.mitchellbosecke.seniorcommander.extension.core.timer.ShoutTimerFactory;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
+import com.mitchellbosecke.seniorcommander.timer.TimerManager;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import java.util.ArrayList;
@@ -32,8 +33,10 @@ public class CoreExtension implements Extension {
     }
 
     @Override
-    public List<TaskFactory> getTaskFactories() {
-        return null;
+    public void startTimers(Session session, MessageQueue messageQueue, List<Channel> channels,
+                            TimerManager timerManager) {
+        ShoutTimerFactory shoutTimerFactory = new ShoutTimerFactory();
+        shoutTimerFactory.build(session, channels, messageQueue).forEach(timerManager::startTimer);
     }
 
     @Override
@@ -60,7 +63,7 @@ public class CoreExtension implements Extension {
 
     @Override
     public List<CommandHandler> buildCommandHandlers(SessionFactory sessionFactory, MessageQueue messageQueue,
-                                                     TaskManager taskManager) {
+                                                     TimerManager timerManager) {
 
         // service tiers
         CommandService commandService = new CommandServiceImpl(sessionFactory);
@@ -75,7 +78,7 @@ public class CoreExtension implements Extension {
         commandHandlers.add(new CommandCrud(messageQueue, commandService));
         commandHandlers.add(new QuoteCrud(messageQueue, quoteService));
         commandHandlers.add(new RandomQuote(messageQueue, quoteService));
-        commandHandlers.add(new TimerCrud(messageQueue, timerService, taskManager));
+        commandHandlers.add(new TimerCrud(messageQueue, timerService, timerManager));
         return commandHandlers;
     }
 

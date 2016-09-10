@@ -58,22 +58,12 @@ public class Message {
     }
 
     /**
-     * Shouts to all channels.
-     *
-     * @param content
-     * @return
-     */
-    public static Message shout(String content) {
-        return new Message(Type.OUTPUT, null, SeniorCommander.getName(), null, content, false);
-    }
-
-    /**
      * Shouts to a specific channel.
      *
      * @param content
      * @return
      */
-    public static Message shout(String content, Channel channel) {
+    public static Message shout(Channel channel, String content) {
         return new Message(Type.OUTPUT, channel, SeniorCommander.getName(), null, content, false);
     }
 

@@ -84,7 +84,7 @@ public class CommandBroker implements EventHandler {
             CommandHandler commandHandler = commandHandlers.get(commandModel.getImplementation());
             commandHandler.execute(message);
         } else {
-            messageQueue.add(Message.shout(commandModel.getMessage(), message.getChannel()));
+            messageQueue.add(Message.shout(message.getChannel(), commandModel.getMessage()));
         }
 
         // log this use

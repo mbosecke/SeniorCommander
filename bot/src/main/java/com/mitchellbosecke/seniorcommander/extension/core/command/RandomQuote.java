@@ -65,9 +65,9 @@ public class RandomQuote implements CommandHandler {
         if (quoteModel == null) {
             messageQueue.add(Message.response(message, "Quote does not exist"));
         } else {
-            messageQueue.add(Message.shout(String
+            messageQueue.add(Message.shout(message.getChannel(), String
                     .format("\"%s\" -%s on %s", quoteModel.getContent(), quoteModel.getAuthor(), DATE_FORMAT
-                            .format(quoteModel.getCreatedDate()), message.getChannel())));
+                            .format(quoteModel.getCreatedDate()))));
         }
     }
 

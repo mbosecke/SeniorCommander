@@ -5,8 +5,8 @@ import com.mitchellbosecke.seniorcommander.EventHandler;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.channel.ChannelFactory;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
-import com.mitchellbosecke.seniorcommander.task.TaskFactory;
-import com.mitchellbosecke.seniorcommander.task.TaskManager;
+import com.mitchellbosecke.seniorcommander.timer.TimerManager;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import java.util.List;
@@ -21,8 +21,8 @@ public interface Extension {
 
     List<ChannelFactory> getChannelFactories();
 
-    List<TaskFactory> getTaskFactories();
+    void startTimers(Session session, MessageQueue messageQueue, List<Channel> channels, TimerManager timerManager);
 
     List<CommandHandler> buildCommandHandlers(SessionFactory sessionFactory, MessageQueue messageQueue,
-                                              TaskManager taskManager);
+                                              TimerManager timerManager);
 }

@@ -6,7 +6,7 @@ import com.mitchellbosecke.seniorcommander.extension.Extension;
 import com.mitchellbosecke.seniorcommander.extension.core.CoreExtension;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
-import com.mitchellbosecke.seniorcommander.task.TaskManager;
+import com.mitchellbosecke.seniorcommander.timer.TimerManager;
 import com.mitchellbosecke.seniorcommander.utils.DatabaseManager;
 import com.mitchellbosecke.seniorcommander.utils.ExecutorUtils;
 import org.hibernate.Session;
@@ -45,7 +45,7 @@ public class SeniorCommanderImpl implements SeniorCommander {
      */
     private final MessageQueue messageQueue;
 
-    private final TaskManager taskManager;
+    private final TimerManager timerManager;
 
     /**
      * Components created from the extensions
@@ -68,8 +68,8 @@ public class SeniorCommanderImpl implements SeniorCommander {
         // message queue
         messageQueue = new MessageQueue();
 
-        // task manager
-        taskManager = new TaskManager(Executors.newScheduledThreadPool(5), messageQueue);
+        // timer manager
+        timerManager = new TimerManager(Executors.newScheduledThreadPool(5));
 
         // add core extension to list of user-provided extensions
         registerExtensions(extensions);
@@ -95,9 +95,6 @@ public class SeniorCommanderImpl implements SeniorCommander {
                 }
             });
         }
-
-        // run the timers
-        // timers.forEach(timer -> timer.run());
 
         while (true) {
             Message message = messageQueue.readMessage(); // only blocks for a small period of time
@@ -129,6 +126,7 @@ public class SeniorCommanderImpl implements SeniorCommander {
         logger.debug("Shutting down SeniorCommander.");
         running = false;
         channels.forEach(Channel::shutdown);
+        timerManager.shutdown();
         ExecutorUtils.shutdown(channelThreadPool, 10, TimeUnit.SECONDS);
     }
 
@@ -141,6 +139,7 @@ public class SeniorCommanderImpl implements SeniorCommander {
         buildChannels(allExtensions);
         buildCommandHandlers(allExtensions);
         buildEventHandlers(allExtensions);
+        startTimers(allExtensions);
     }
 
     private void buildChannels(List<Extension> extensions) {
@@ -161,9 +160,19 @@ public class SeniorCommanderImpl implements SeniorCommander {
         session.close();
     }
 
+    private void startTimers(List<Extension> extensions) {
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+        for (Extension extension : extensions) {
+            extension.startTimers(session, messageQueue, channels, timerManager);
+        }
+        session.getTransaction().commit();
+        session.close();
+    }
+
     private void buildCommandHandlers(List<Extension> extensions) {
         for (Extension extension : extensions) {
-            commandHandlers.addAll(extension.buildCommandHandlers(sessionFactory, messageQueue, taskManager));
+            commandHandlers.addAll(extension.buildCommandHandlers(sessionFactory, messageQueue, timerManager));
         }
     }
 
