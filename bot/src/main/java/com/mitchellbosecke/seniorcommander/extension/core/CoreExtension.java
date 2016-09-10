@@ -36,7 +36,7 @@ public class CoreExtension implements Extension {
     public void startTimers(Session session, MessageQueue messageQueue, List<Channel> channels,
                             TimerManager timerManager) {
         ShoutTimerFactory shoutTimerFactory = new ShoutTimerFactory();
-        shoutTimerFactory.build(session, channels, messageQueue).forEach(timerManager::startTimer);
+        shoutTimerFactory.build(session, channels, messageQueue).forEach(timerManager::addTimer);
     }
 
     @Override

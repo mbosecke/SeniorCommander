@@ -13,7 +13,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class TimerManager {
 
-    private final Map<Long, ScheduledFuture<?>> ongoingTimers = new ConcurrentHashMap<>();
+    private final Map<Long, Timer> timers = new ConcurrentHashMap<>();
+    private final Map<Long, ScheduledFuture<?>> ongoingTasks = new ConcurrentHashMap<>();
 
     private final ScheduledExecutorService executorService;
 
@@ -21,46 +22,26 @@ public class TimerManager {
         this.executorService = executorService;
     }
 
-    /*
-    public void startTimer(TimerModel timerModel) {
-        if (tasks.containsKey(timerModel.getId())) {
-            if (tasks.get(timerModel.getId()).isCancelled()) {
-                scheduleTimer(timerModel);
-            }
-        } else {
-            scheduleTimer(timerModel);
+    public void addTimer(Timer timer){
+        startTimer(timer);
+        timers.put(timer.getId(), timer);
+    }
+
+    public void disableTimer(long id) {
+        if (ongoingTasks.containsKey(id)) {
+            ongoingTasks.get(id).cancel(false);
         }
     }
-    */
 
-    public void startTimer(Timer timer){
+    public void enableTimer(long id){
+        startTimer(timers.get(id));
+    }
+
+    private void startTimer(Timer timer){
         ScheduledFuture<?> future = executorService
                 .scheduleAtFixedRate(() -> timer.perform(), timer.getInterval(), timer.getInterval(), TimeUnit
                         .SECONDS);
-        ongoingTimers.put(timer.getId(), future);
-    }
-
-    /*
-    private Timer buildTask(TimerModel timerModel) {
-        Timer timer = null;
-        if (timerModel.getImplementation() == null) {
-            timer = new Shout(messageQueue, timerModel.getMessage());
-        }
-        return timer;
-    }
-
-    private void scheduleTimer(TimerModel timerModel) {
-        Timer timer = buildTask(timerModel);
-        ScheduledFuture<?> future = executorService
-                .scheduleAtFixedRate(() -> timer.perform(), timerModel.getInterval(), timerModel.getInterval(), TimeUnit.SECONDS);
-        tasks.put(timerModel.getId(), future);
-    }
-    */
-
-    public void stopTimer(long id) {
-        if (ongoingTimers.containsKey(id)) {
-            ongoingTimers.get(id).cancel(false);
-        }
+        ongoingTasks.put(timer.getId(), future);
     }
 
     public void shutdown(){

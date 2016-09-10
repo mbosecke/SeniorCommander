@@ -21,7 +21,7 @@ public class ShoutTimerFactory {
         List<Shout> shouts = new ArrayList<>();
 
         List<TimerModel> timerModels = session
-                .createQuery("SELECT tm FROM TimerModel tm WHERE tm.implementation = :implementation", TimerModel.class)
+                .createQuery("SELECT tm FROM TimerModel tm WHERE tm.implementation = :implementation AND tm.enabled = true", TimerModel.class)
                 .setParameter("implementation", Shout.class.getName()).getResultList();
 
         for (TimerModel timerModel : timerModels) {
