@@ -4,7 +4,7 @@ import com.mitchellbosecke.seniorcommander.CommandHandler;
 import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
 import com.mitchellbosecke.seniorcommander.domain.TimerModel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.TimerService;
-import com.mitchellbosecke.seniorcommander.extension.core.timer.Shout;
+import com.mitchellbosecke.seniorcommander.extension.core.timer.ShoutTimer;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.timer.TimerManager;
@@ -59,9 +59,9 @@ public class TimerCrud implements CommandHandler {
             } else {
                 TimerModel timerModel = timerService.addTimer(communityModel, parsed
                         .getQuotedText(), getInterval(parsed), getChatLines(parsed));
-                Shout shout = new Shout(timerModel.getId(), timerModel.getInterval(), messageQueue, message
+                ShoutTimer shoutTimer = new ShoutTimer(timerModel.getId(), timerModel.getInterval(), messageQueue, message
                         .getChannel(), timerModel.getMessage());
-                timerManager.addTimer(shout);
+                timerManager.addTimer(shoutTimer);
                 messageQueue.add(Message.response(message, String.format("Timer #%d has been added", timerModel
                         .getCommunitySequence())));
             }

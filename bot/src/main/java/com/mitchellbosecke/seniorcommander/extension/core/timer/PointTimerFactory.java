@@ -3,7 +3,7 @@ package com.mitchellbosecke.seniorcommander.extension.core.timer;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.domain.ChannelModel;
 import com.mitchellbosecke.seniorcommander.domain.TimerModel;
-import com.mitchellbosecke.seniorcommander.message.MessageQueue;
+import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;
 import org.hibernate.Session;
 
 import java.util.ArrayList;
@@ -15,14 +15,14 @@ import java.util.stream.Collectors;
 /**
  * Created by mitch_000 on 2016-09-10.
  */
-public class ShoutTimerFactory {
+public class PointTimerFactory {
 
-    public List<ShoutTimer> build(Session session, List<Channel> channels, MessageQueue messageQueue) {
-        List<ShoutTimer> shoutTimers = new ArrayList<>();
+    public List<PointTimer> build(Session session, List<Channel> channels, UserService userService) {
+        List<PointTimer> pointTimers = new ArrayList<>();
 
         List<TimerModel> timerModels = session
                 .createQuery("SELECT tm FROM TimerModel tm WHERE tm.implementation = :implementation AND tm.enabled = true", TimerModel.class)
-                .setParameter("implementation", ShoutTimer.class.getName()).getResultList();
+                .setParameter("implementation", PointTimer.class.getName()).getResultList();
 
         for (TimerModel timerModel : timerModels) {
 
@@ -30,14 +30,13 @@ public class ShoutTimerFactory {
 
             Set<ChannelModel> communityChannelModels = timerModel.getCommunityModel().getChannelModels();
             for (ChannelModel channelModel : communityChannelModels) {
-                ShoutTimer shoutTimer = new ShoutTimer(timerModel.getId(), timerModel.getInterval(), messageQueue, availableChannels
-                        .get(channelModel.getId()), timerModel.getMessage());
-
-                shoutTimers.add(shoutTimer);
+                PointTimer pointTimer = new PointTimer(timerModel.getId(), timerModel
+                        .getInterval(), userService, availableChannels.get(channelModel.getId()));
+                pointTimers.add(pointTimer);
             }
 
         }
 
-        return shoutTimers;
+        return pointTimers;
     }
 }

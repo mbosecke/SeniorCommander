@@ -2,7 +2,7 @@ package com.mitchellbosecke.seniorcommander.extension.core.service;
 
 import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
 import com.mitchellbosecke.seniorcommander.domain.TimerModel;
-import com.mitchellbosecke.seniorcommander.extension.core.timer.Shout;
+import com.mitchellbosecke.seniorcommander.extension.core.timer.ShoutTimer;
 import org.hibernate.SessionFactory;
 
 import javax.persistence.NoResultException;
@@ -36,7 +36,7 @@ public class TimerServiceImpl extends BaseServiceImpl implements TimerService {
         timerModel.setInterval(interval);
         timerModel.setChatLines(chatLines);
         timerModel.setEnabled(true);
-        timerModel.setImplementation(Shout.class.getName());
+        timerModel.setImplementation(ShoutTimer.class.getName());
         persist(timerModel);
         return timerModel;
     }

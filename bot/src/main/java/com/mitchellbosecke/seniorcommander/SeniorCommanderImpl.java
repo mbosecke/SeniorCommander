@@ -22,7 +22,7 @@ import java.util.concurrent.*;
  */
 public class SeniorCommanderImpl implements SeniorCommander {
 
-    Logger logger = LoggerFactory.getLogger(getClass());
+    private static final Logger logger = LoggerFactory.getLogger(SeniorCommanderImpl.class);
 
     /**
      * Executor service used to run the individual channels
@@ -69,7 +69,7 @@ public class SeniorCommanderImpl implements SeniorCommander {
         messageQueue = new MessageQueue();
 
         // timer manager
-        timerManager = new TimerManager(Executors.newScheduledThreadPool(5));
+        timerManager = new TimerManager(Executors.newScheduledThreadPool(5), sessionFactory);
 
         // add core extension to list of user-provided extensions
         registerExtensions(extensions);

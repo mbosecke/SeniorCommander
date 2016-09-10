@@ -14,4 +14,6 @@ public interface UserService extends BaseService {
 
     CommunityUserModel setUserOffline(Channel channel, String name);
 
+    void giveOnlineUsersPoints(Channel channel, int points);
+
 }

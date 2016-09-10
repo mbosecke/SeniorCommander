@@ -8,7 +8,7 @@ import com.mitchellbosecke.seniorcommander.timer.Timer;
 /**
  * Created by mitch_000 on 2016-07-31.
  */
-public class Shout implements Timer {
+public class ShoutTimer implements Timer {
 
     private final long id;
 
@@ -20,7 +20,7 @@ public class Shout implements Timer {
 
     private final String message;
 
-    public Shout(long id, long interval, MessageQueue messageQueue, Channel channel, String message) {
+    public ShoutTimer(long id, long interval, MessageQueue messageQueue, Channel channel, String message) {
         this.id = id;
         this.interval = interval;
         this.messageQueue = messageQueue;

@@ -10,6 +10,7 @@ import com.mitchellbosecke.seniorcommander.extension.core.channel.SocketChannelF
 import com.mitchellbosecke.seniorcommander.extension.core.command.*;
 import com.mitchellbosecke.seniorcommander.extension.core.event.*;
 import com.mitchellbosecke.seniorcommander.extension.core.service.*;
+import com.mitchellbosecke.seniorcommander.extension.core.timer.PointTimerFactory;
 import com.mitchellbosecke.seniorcommander.extension.core.timer.ShoutTimerFactory;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.timer.TimerManager;
@@ -35,8 +36,10 @@ public class CoreExtension implements Extension {
     @Override
     public void startTimers(Session session, MessageQueue messageQueue, List<Channel> channels,
                             TimerManager timerManager) {
-        ShoutTimerFactory shoutTimerFactory = new ShoutTimerFactory();
-        shoutTimerFactory.build(session, channels, messageQueue).forEach(timerManager::addTimer);
+        UserService userService = new UserServiceImpl(session.getSessionFactory());
+
+        new ShoutTimerFactory().build(session, channels, messageQueue).forEach(timerManager::addTimer);
+        new PointTimerFactory().build(session, channels, userService).forEach(timerManager::addTimer);
     }
 
     @Override

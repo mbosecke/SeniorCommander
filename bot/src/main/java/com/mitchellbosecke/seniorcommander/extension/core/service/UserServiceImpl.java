@@ -85,4 +85,12 @@ public class UserServiceImpl extends BaseServiceImpl implements UserService {
             return null;
         }
     }
+
+    @Override
+    public void giveOnlineUsersPoints(Channel channel, int points) {
+        ChannelModel channelModel = find(ChannelModel.class, channel.getId());
+        for(CommunityUserModel user : channelModel.getOnlineUsers()){
+            user.setPoints(user.getPoints() + points);
+        }
+    }
 }
