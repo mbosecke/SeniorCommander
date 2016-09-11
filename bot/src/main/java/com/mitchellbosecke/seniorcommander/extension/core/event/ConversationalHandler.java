@@ -39,7 +39,7 @@ public class ConversationalHandler implements EventHandler {
         if(Message.Type.USER.equals(message.getType())) {
             if (SeniorCommander.getName().equalsIgnoreCase(message.getRecipient()) && !message.getContent().startsWith("!")) {
 
-                String response = "Can't talk right now.";
+                String response = "Sorry, I can't talk right now.";
 
                 if(bot != null) {
                     ChatterBotSession session = bot.createSession(Locale.CANADA);
