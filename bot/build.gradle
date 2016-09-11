@@ -39,6 +39,9 @@ dependencies {
     // irc
     compile group: 'org.pircbotx', name: 'pircbotx', version: '2.1'
 
+    // cleverbot
+    compile group: 'ca.pjer', name: 'chatter-bot-api', version: '1.4.2'
+
     // logging
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
     compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.21'

@@ -25,6 +25,7 @@
     <orderEntry type="library" name="Gradle: org.hibernate:hibernate-core:5.2.1.Final" level="project" />
     <orderEntry type="library" name="Gradle: org.flywaydb:flyway-core:4.0.3" level="project" />
     <orderEntry type="library" name="Gradle: org.pircbotx:pircbotx:2.1" level="project" />
+    <orderEntry type="library" name="Gradle: ca.pjer:chatter-bot-api:1.4.2" level="project" />
     <orderEntry type="library" name="Gradle: org.slf4j:slf4j-api:1.7.21" level="project" />
     <orderEntry type="library" name="Gradle: org.slf4j:slf4j-simple:1.7.21" level="project" />
     <orderEntry type="library" name="Gradle: junit:junit:4.11" level="project" />
