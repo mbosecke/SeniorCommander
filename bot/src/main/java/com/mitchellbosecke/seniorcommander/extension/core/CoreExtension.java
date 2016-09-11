@@ -12,6 +12,7 @@ import com.mitchellbosecke.seniorcommander.extension.core.event.*;
 import com.mitchellbosecke.seniorcommander.extension.core.service.*;
 import com.mitchellbosecke.seniorcommander.extension.core.timer.PointTimerFactory;
 import com.mitchellbosecke.seniorcommander.extension.core.timer.ShoutTimerFactory;
+import com.mitchellbosecke.seniorcommander.extension.core.timer.TwitchOnlineCheckerFactory;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.timer.TimerManager;
 import org.hibernate.Session;
@@ -40,6 +41,7 @@ public class CoreExtension implements Extension {
 
         new ShoutTimerFactory().build(session, channels, messageQueue).forEach(timerManager::addTimer);
         new PointTimerFactory().build(session, channels, userService).forEach(timerManager::addTimer);
+        new TwitchOnlineCheckerFactory().build(session, channels, userService).forEach(timerManager::addTimer);
     }
 
     @Override

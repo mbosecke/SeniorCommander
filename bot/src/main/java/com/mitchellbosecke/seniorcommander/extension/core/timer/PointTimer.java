@@ -3,11 +3,15 @@ package com.mitchellbosecke.seniorcommander.extension.core.timer;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;
 import com.mitchellbosecke.seniorcommander.timer.Timer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by mitch_000 on 2016-09-10.
  */
 public class PointTimer implements Timer {
+
+    private static final Logger logger = LoggerFactory.getLogger(PointTimer.class);
 
     private final long id;
     private final long interval;
@@ -24,7 +28,14 @@ public class PointTimer implements Timer {
 
     @Override
     public void perform() {
-        userService.giveOnlineUsersPoints(channel, 1);
+
+        if (channel.isOnline()) {
+            logger.debug("Channel is online. [" + channel.getClass().getSimpleName() + "]");
+            userService.giveOnlineUsersPoints(channel, 10);
+        } else {
+            logger.debug("Channel is offline. [" + channel.getClass().getSimpleName() + "]");
+            userService.giveOnlineUsersPoints(channel, 1);
+        }
     }
 
     @Override

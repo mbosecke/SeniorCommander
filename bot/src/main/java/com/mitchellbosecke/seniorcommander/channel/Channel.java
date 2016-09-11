@@ -28,4 +28,6 @@ public interface Channel {
 
     void shutdown();
 
+    boolean isOnline();
+
 }

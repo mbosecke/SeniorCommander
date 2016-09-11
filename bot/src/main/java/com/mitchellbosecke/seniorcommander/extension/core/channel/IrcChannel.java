@@ -51,6 +51,8 @@ public class IrcChannel extends ListenerAdapter implements Channel {
 
     private PircBotX ircClient;
 
+    private volatile boolean online = false;
+
     public IrcChannel(long id, String server, Integer port, String username, String password, String channel) {
         this.id = id;
         this.server = server;
@@ -152,7 +154,7 @@ public class IrcChannel extends ListenerAdapter implements Channel {
         for (User user : users) {
             names.append(user.getNick()).append(",");
         }
-        messageQueue.add(Message.names(this, names.substring(0, names.length()-1)));
+        messageQueue.add(Message.names(this, names.substring(0, names.length() - 1)));
         logger.debug("User list: " + names.toString());
     }
 
@@ -198,5 +200,18 @@ public class IrcChannel extends ListenerAdapter implements Channel {
     @Override
     public long getId() {
         return id;
+    }
+
+    public String getChannel() {
+        return channel;
+    }
+
+    @Override
+    public boolean isOnline() {
+        return online;
+    }
+
+    public void setOnline(boolean online) {
+        this.online = online;
     }
 }

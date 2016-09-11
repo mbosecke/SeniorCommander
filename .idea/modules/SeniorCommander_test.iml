@@ -10,6 +10,15 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="SeniorCommander_main" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../bot/libs/twitch-api-wrapper-0.3-jar-with-dependencies.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
     <orderEntry type="library" name="Gradle: com.typesafe:config:1.3.0" level="project" />
     <orderEntry type="library" name="Gradle: org.postgresql:postgresql:9.4.1208" level="project" />
     <orderEntry type="library" name="Gradle: org.hibernate:hibernate-core:5.2.1.Final" level="project" />

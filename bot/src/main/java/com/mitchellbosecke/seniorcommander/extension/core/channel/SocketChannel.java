@@ -155,6 +155,11 @@ public class SocketChannel implements Channel {
     }
 
     @Override
+    public boolean isOnline() {
+        return false;
+    }
+
+    @Override
     public long getId() {
         return id;
     }
