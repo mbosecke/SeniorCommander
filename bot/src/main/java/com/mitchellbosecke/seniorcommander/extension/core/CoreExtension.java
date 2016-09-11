@@ -36,7 +36,7 @@ public class CoreExtension implements Extension {
     @Override
     public void startTimers(Session session, MessageQueue messageQueue, List<Channel> channels,
                             TimerManager timerManager) {
-        UserService userService = new UserServiceImpl(session.getSessionFactory());
+        UserService userService = new UserService(session.getSessionFactory());
 
         new ShoutTimerFactory().build(session, channels, messageQueue).forEach(timerManager::addTimer);
         new PointTimerFactory().build(session, channels, userService).forEach(timerManager::addTimer);
@@ -49,8 +49,8 @@ public class CoreExtension implements Extension {
         List<EventHandler> eventHandlers = new ArrayList<>();
 
         // service tiers
-        UserService userService = new UserServiceImpl(sessionFactory);
-        CommandService commandService = new CommandServiceImpl(sessionFactory);
+        UserService userService = new UserService(sessionFactory);
+        CommandService commandService = new CommandService(sessionFactory);
 
         // handlers
         eventHandlers.add(new LoggingHandler(userService));
@@ -69,9 +69,9 @@ public class CoreExtension implements Extension {
                                                      TimerManager timerManager) {
 
         // service tiers
-        CommandService commandService = new CommandServiceImpl(sessionFactory);
-        QuoteService quoteService = new QuoteServiceImpl(sessionFactory);
-        TimerService timerService = new TimerServiceImpl(sessionFactory);
+        CommandService commandService = new CommandService(sessionFactory);
+        QuoteService quoteService = new QuoteService(sessionFactory);
+        TimerService timerService = new TimerService(sessionFactory);
 
         // handlers
         List<CommandHandler> commandHandlers = new ArrayList<>();
