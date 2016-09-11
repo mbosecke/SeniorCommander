@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Created by mitch_000 on 2016-07-10.
  */
-public class IrcChannelFactory implements ChannelFactory {
+public class TwitchChannelFactory implements ChannelFactory {
 
 
     private static final String CONFIG_SERVER = "server";
@@ -36,7 +36,7 @@ public class IrcChannelFactory implements ChannelFactory {
             String password = channelModel.getSetting(CONFIG_PASSWORD);
             String channel = channelModel.getSetting(CONFIG_CHANNEL);
 
-            ircChannels.add(new IrcChannel(channelModel.getId(), server, port, username, password, channel));
+            ircChannels.add(new TwitchChannel(channelModel.getId(), server, port, username, password, channel));
         }
 
         return ircChannels;

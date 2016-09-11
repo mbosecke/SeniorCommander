@@ -24,7 +24,7 @@ import java.util.Set;
 /**
  * Created by mitch_000 on 2016-07-03.
  */
-public class IrcChannel extends ListenerAdapter implements Channel {
+public class TwitchChannel extends ListenerAdapter implements Channel {
 
     Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -53,7 +53,7 @@ public class IrcChannel extends ListenerAdapter implements Channel {
 
     private volatile boolean online = false;
 
-    public IrcChannel(long id, String server, Integer port, String username, String password, String channel) {
+    public TwitchChannel(long id, String server, Integer port, String username, String password, String channel) {
         this.id = id;
         this.server = server;
         this.port = port;

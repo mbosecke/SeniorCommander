@@ -3,7 +3,7 @@ package com.mitchellbosecke.seniorcommander.extension.core.timer;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.domain.ChannelModel;
 import com.mitchellbosecke.seniorcommander.domain.TimerModel;
-import com.mitchellbosecke.seniorcommander.extension.core.channel.IrcChannel;
+import com.mitchellbosecke.seniorcommander.extension.core.channel.TwitchChannel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;
 import org.hibernate.Session;
 
@@ -27,14 +27,14 @@ public class TwitchOnlineCheckerFactory {
 
         for (TimerModel timerModel : timerModels) {
 
-            Map<Long, Channel> availableChannels = channels.stream().filter(c -> c instanceof IrcChannel)
+            Map<Long, Channel> availableChannels = channels.stream().filter(c -> c instanceof TwitchChannel)
                     .collect(Collectors.toMap(Channel::getId, c -> c));
 
             Set<ChannelModel> communityChannelModels = timerModel.getCommunityModel().getChannelModels();
             for (ChannelModel channelModel : communityChannelModels) {
                 if (availableChannels.containsKey(channelModel.getId())) {
                     TwitchOnlineChecker onlineChecker = new TwitchOnlineChecker(timerModel.getId(), timerModel
-                            .getInterval(), (IrcChannel) availableChannels.get(channelModel.getId()));
+                            .getInterval(), (TwitchChannel) availableChannels.get(channelModel.getId()));
                     timers.add(onlineChecker);
                 }
             }

@@ -3,7 +3,7 @@ package com.mitchellbosecke.seniorcommander.extension.core.timer;
 import com.mb3364.twitch.api.Twitch;
 import com.mb3364.twitch.api.handlers.StreamResponseHandler;
 import com.mb3364.twitch.api.models.Stream;
-import com.mitchellbosecke.seniorcommander.extension.core.channel.IrcChannel;
+import com.mitchellbosecke.seniorcommander.extension.core.channel.TwitchChannel;
 import com.mitchellbosecke.seniorcommander.timer.Timer;
 import com.typesafe.config.ConfigFactory;
 
@@ -14,9 +14,9 @@ public class TwitchOnlineChecker implements Timer {
 
     private final long id;
     private final long interval;
-    private final IrcChannel channel;
+    private final TwitchChannel channel;
 
-    public TwitchOnlineChecker(long id, long interval, IrcChannel channel) {
+    public TwitchOnlineChecker(long id, long interval, TwitchChannel channel) {
         this.id = id;
         this.interval = interval;
         this.channel = channel;

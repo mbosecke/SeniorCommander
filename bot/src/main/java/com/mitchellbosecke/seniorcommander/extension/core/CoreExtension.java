@@ -5,7 +5,7 @@ import com.mitchellbosecke.seniorcommander.EventHandler;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.channel.ChannelFactory;
 import com.mitchellbosecke.seniorcommander.extension.Extension;
-import com.mitchellbosecke.seniorcommander.extension.core.channel.IrcChannelFactory;
+import com.mitchellbosecke.seniorcommander.extension.core.channel.TwitchChannelFactory;
 import com.mitchellbosecke.seniorcommander.extension.core.channel.SocketChannelFactory;
 import com.mitchellbosecke.seniorcommander.extension.core.command.*;
 import com.mitchellbosecke.seniorcommander.extension.core.event.*;
@@ -29,7 +29,7 @@ public class CoreExtension implements Extension {
     @Override
     public List<ChannelFactory> getChannelFactories() {
         List<ChannelFactory> factories = new ArrayList<>();
-        factories.add(new IrcChannelFactory());
+        factories.add(new TwitchChannelFactory());
         factories.add(new SocketChannelFactory());
         return factories;
     }

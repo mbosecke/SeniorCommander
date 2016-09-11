@@ -3,6 +3,7 @@ package com.mitchellbosecke.seniorcommander.extension.core.timer;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.domain.ChannelModel;
 import com.mitchellbosecke.seniorcommander.domain.TimerModel;
+import com.mitchellbosecke.seniorcommander.extension.core.channel.TwitchChannel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;
 import org.hibernate.Session;
 
@@ -26,13 +27,16 @@ public class PointTimerFactory {
 
         for (TimerModel timerModel : timerModels) {
 
-            Map<Long, Channel> availableChannels = channels.stream().collect(Collectors.toMap(Channel::getId, c -> c));
+            Map<Long, Channel> availableChannels = channels.stream().filter(c -> c instanceof TwitchChannel)
+                    .collect(Collectors.toMap(Channel::getId, c -> c));
 
             Set<ChannelModel> communityChannelModels = timerModel.getCommunityModel().getChannelModels();
             for (ChannelModel channelModel : communityChannelModels) {
-                PointTimer pointTimer = new PointTimer(timerModel.getId(), timerModel
-                        .getInterval(), userService, availableChannels.get(channelModel.getId()));
-                pointTimers.add(pointTimer);
+                if (availableChannels.containsKey(channelModel.getId())) {
+                    PointTimer pointTimer = new PointTimer(timerModel.getId(), timerModel
+                            .getInterval(), userService, availableChannels.get(channelModel.getId()));
+                    pointTimers.add(pointTimer);
+                }
             }
 
         }
