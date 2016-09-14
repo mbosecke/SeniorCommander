@@ -39,6 +39,14 @@ public class CommunityUserModel {
     @Temporal(value = TemporalType.TIMESTAMP)
     private Date lastChatted;
 
+    @Column(name = "first_followed")
+    @Temporal(value = TemporalType.TIMESTAMP)
+    private Date firstFollowed;
+
+    @Column(name = "last_followed")
+    @Temporal(value = TemporalType.TIMESTAMP)
+    private Date lastFollowed;
+
     public AccessLevel getAccessLevel() {
         return accessLevel;
     }
@@ -93,5 +101,21 @@ public class CommunityUserModel {
 
     public void setLastChatted(Date lastChatted) {
         this.lastChatted = lastChatted;
+    }
+
+    public Date getFirstFollowed() {
+        return firstFollowed;
+    }
+
+    public void setFirstFollowed(Date firstFollowed) {
+        this.firstFollowed = firstFollowed;
+    }
+
+    public Date getLastFollowed() {
+        return lastFollowed;
+    }
+
+    public void setLastFollowed(Date lastFollowed) {
+        this.lastFollowed = lastFollowed;
     }
 }

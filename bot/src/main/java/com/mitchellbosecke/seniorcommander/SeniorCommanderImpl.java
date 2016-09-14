@@ -161,13 +161,17 @@ public class SeniorCommanderImpl implements SeniorCommander {
     }
 
     private void startTimers(List<Extension> extensions) {
-        Session session = sessionFactory.openSession();
-        session.beginTransaction();
-        for (Extension extension : extensions) {
-            extension.startTimers(session, messageQueue, channels, timerManager);
+        try {
+            sessionFactory.getCurrentSession().beginTransaction();
+
+            for (Extension extension : extensions) {
+                extension.startTimers(sessionFactory, messageQueue, channels, timerManager);
+            }
+            sessionFactory.getCurrentSession().getTransaction().commit();
+        } catch (Exception ex) {
+            sessionFactory.getCurrentSession().getTransaction().rollback();
+            throw ex;
         }
-        session.getTransaction().commit();
-        session.close();
     }
 
     private void buildCommandHandlers(List<Extension> extensions) {

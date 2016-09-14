@@ -5,17 +5,20 @@ import com.mitchellbosecke.seniorcommander.EventHandler;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.channel.ChannelFactory;
 import com.mitchellbosecke.seniorcommander.extension.Extension;
-import com.mitchellbosecke.seniorcommander.extension.core.channel.TwitchChannelFactory;
 import com.mitchellbosecke.seniorcommander.extension.core.channel.SocketChannelFactory;
+import com.mitchellbosecke.seniorcommander.extension.core.channel.TwitchChannelFactory;
 import com.mitchellbosecke.seniorcommander.extension.core.command.*;
 import com.mitchellbosecke.seniorcommander.extension.core.event.*;
-import com.mitchellbosecke.seniorcommander.extension.core.service.*;
+import com.mitchellbosecke.seniorcommander.extension.core.service.CommandService;
+import com.mitchellbosecke.seniorcommander.extension.core.service.QuoteService;
+import com.mitchellbosecke.seniorcommander.extension.core.service.TimerService;
+import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;
+import com.mitchellbosecke.seniorcommander.extension.core.timer.FollowerTrackerFactory;
 import com.mitchellbosecke.seniorcommander.extension.core.timer.PointTimerFactory;
 import com.mitchellbosecke.seniorcommander.extension.core.timer.ShoutTimerFactory;
 import com.mitchellbosecke.seniorcommander.extension.core.timer.TwitchOnlineCheckerFactory;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.timer.TimerManager;
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import java.util.ArrayList;
@@ -35,13 +38,17 @@ public class CoreExtension implements Extension {
     }
 
     @Override
-    public void startTimers(Session session, MessageQueue messageQueue, List<Channel> channels,
+    public void startTimers(SessionFactory sessionFactory, MessageQueue messageQueue, List<Channel> channels,
                             TimerManager timerManager) {
-        UserService userService = new UserService(session.getSessionFactory());
+        UserService userService = new UserService(sessionFactory);
 
-        new ShoutTimerFactory().build(session, channels, messageQueue).forEach(timerManager::addTimer);
-        new PointTimerFactory().build(session, channels, userService).forEach(timerManager::addTimer);
-        new TwitchOnlineCheckerFactory().build(session, channels, userService).forEach(timerManager::addTimer);
+        new ShoutTimerFactory().build(sessionFactory.getCurrentSession(), channels, messageQueue)
+                .forEach(timerManager::addTimer);
+        new PointTimerFactory().build(sessionFactory.getCurrentSession(), channels, userService)
+                .forEach(timerManager::addTimer);
+        new TwitchOnlineCheckerFactory().build(sessionFactory.getCurrentSession(), channels, userService)
+                .forEach(timerManager::addTimer);
+        new FollowerTrackerFactory().build(sessionFactory, channels, userService).forEach(timerManager::addTimer);
     }
 
     @Override

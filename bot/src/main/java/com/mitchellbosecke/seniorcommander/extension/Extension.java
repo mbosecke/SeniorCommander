@@ -6,7 +6,6 @@ import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.channel.ChannelFactory;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.timer.TimerManager;
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import java.util.List;
@@ -21,7 +20,7 @@ public interface Extension {
 
     List<ChannelFactory> getChannelFactories();
 
-    void startTimers(Session session, MessageQueue messageQueue, List<Channel> channels, TimerManager timerManager);
+    void startTimers(SessionFactory sessionFactory, MessageQueue messageQueue, List<Channel> channels, TimerManager timerManager);
 
     List<CommandHandler> buildCommandHandlers(SessionFactory sessionFactory, MessageQueue messageQueue,
                                               TimerManager timerManager);
