@@ -64,6 +64,7 @@ public class DatabaseManager {
             sources.addAnnotatedClass(QuoteModel.class);
             sources.addAnnotatedClass(TimerModel.class);
             sources.addAnnotatedClass(ChatLogModel.class);
+            sources.addAnnotatedClass(BettingGameModel.class);
 
             MetadataBuilder metadataBuilder = sources.getMetadataBuilder();
             metadataBuilder.applyImplicitSchemaName(configuration.getString(CONFIG_SCHEMA));

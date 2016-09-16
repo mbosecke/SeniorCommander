@@ -18,6 +18,8 @@ public class ParsedCommand {
 
     private Map<String, String> options = new HashMap<>();
 
+    private String originalCommand;
+
     public String getTrigger() {
         return trigger;
     }
@@ -50,9 +52,17 @@ public class ParsedCommand {
         this.options = options;
     }
 
-    public String getOption(String ... keys){
-        for(String key : keys){
-            if(options.containsKey(key)){
+    public String getOriginalCommand() {
+        return originalCommand;
+    }
+
+    public void setOriginalCommand(String originalCommand) {
+        this.originalCommand = originalCommand;
+    }
+
+    public String getOption(String... keys) {
+        for (String key : keys) {
+            if (options.containsKey(key)) {
                 return options.get(key);
             }
         }

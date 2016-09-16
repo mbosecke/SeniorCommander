@@ -9,10 +9,7 @@ import com.mitchellbosecke.seniorcommander.extension.core.channel.SocketChannelF
 import com.mitchellbosecke.seniorcommander.extension.core.channel.TwitchChannelFactory;
 import com.mitchellbosecke.seniorcommander.extension.core.command.*;
 import com.mitchellbosecke.seniorcommander.extension.core.event.*;
-import com.mitchellbosecke.seniorcommander.extension.core.service.CommandService;
-import com.mitchellbosecke.seniorcommander.extension.core.service.QuoteService;
-import com.mitchellbosecke.seniorcommander.extension.core.service.TimerService;
-import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;
+import com.mitchellbosecke.seniorcommander.extension.core.service.*;
 import com.mitchellbosecke.seniorcommander.extension.core.timer.FollowerTrackerFactory;
 import com.mitchellbosecke.seniorcommander.extension.core.timer.PointTimerFactory;
 import com.mitchellbosecke.seniorcommander.extension.core.timer.ShoutTimerFactory;
@@ -81,6 +78,7 @@ public class CoreExtension implements Extension {
         CommandService commandService = new CommandService(sessionFactory);
         QuoteService quoteService = new QuoteService(sessionFactory);
         TimerService timerService = new TimerService(sessionFactory);
+        BettingService bettingService = new BettingService(sessionFactory);
 
         // handlers
         List<CommandHandler> commandHandlers = new ArrayList<>();
@@ -91,6 +89,7 @@ public class CoreExtension implements Extension {
         commandHandlers.add(new QuoteCrud(messageQueue, quoteService));
         commandHandlers.add(new RandomQuote(messageQueue, quoteService));
         commandHandlers.add(new TimerCrud(messageQueue, timerService, timerManager));
+        commandHandlers.add(new Betting(messageQueue, bettingService));
         return commandHandlers;
     }
 
