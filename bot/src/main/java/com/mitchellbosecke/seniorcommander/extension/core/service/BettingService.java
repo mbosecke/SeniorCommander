@@ -23,4 +23,11 @@ public class BettingService extends BaseService {
         return game;
     }
 
+    public void cancelBet(CommunityModel communityModel){
+        BettingGameModel game = communityModel.getBettingGameModel();
+        if(game != null){
+            delete(game);
+        }
+    }
+
 }

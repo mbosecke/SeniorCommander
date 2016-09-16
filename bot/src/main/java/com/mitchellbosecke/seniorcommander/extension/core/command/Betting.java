@@ -1,7 +1,6 @@
 package com.mitchellbosecke.seniorcommander.extension.core.command;
 
 import com.mitchellbosecke.seniorcommander.CommandHandler;
-import com.mitchellbosecke.seniorcommander.domain.BettingGameModel;
 import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.BettingService;
 import com.mitchellbosecke.seniorcommander.message.Message;
@@ -40,19 +39,29 @@ public class Betting implements CommandHandler {
 
         String subCommand = parsed.getComponents().get(0);
 
-        if ("open".equalsIgnoreCase(subCommand)) {
+        if ("open".equalsIgnoreCase(subCommand) || "add".equalsIgnoreCase(subCommand)) {
 
-            Set<String> options = new HashSet<>();
-            boolean first = true;
-            for (String component : parsed.getComponents()) {
-                if (!first) {
-                    options.add(component);
+            if(communityModel.getBettingGameModel() != null){
+                messageQueue.add(Message.response(message, "There is already an active bet."));
+            }else {
+                Set<String> options = new HashSet<>();
+                boolean first = true;
+                for (String component : parsed.getComponents()) {
+                    if (!first) {
+                        options.add(component);
+                    }
+                    first = false;
                 }
-                first = false;
+                if(options.isEmpty()){
+                    messageQueue.add(Message.response(message, "You must provide some options for the bet"));
+                }else {
+                    bettingService.openBet(communityModel, options);
+                    messageQueue.add(Message.shout(message.getChannel(), "A bet has begun!"));
+                }
             }
-            BettingGameModel game = bettingService.openBet(communityModel, options);
-            messageQueue.add(Message.shout(message.getChannel(), "A bet has begun!"));
-
+        }else if ("cancel".equalsIgnoreCase(subCommand)){
+            bettingService.cancelBet(communityModel);
+            messageQueue.add(Message.shout(message.getChannel(), "The bet has been cancelled."));
         }
     }
 

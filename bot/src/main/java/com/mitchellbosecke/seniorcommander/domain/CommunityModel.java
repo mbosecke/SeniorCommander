@@ -18,8 +18,11 @@ public class CommunityModel {
     @Column
     private String name;
 
-    @OneToMany(mappedBy="communityModel")
+    @OneToMany(mappedBy = "communityModel")
     private Set<ChannelModel> channelModels;
+
+    @OneToOne(mappedBy = "communityModel")
+    private BettingGameModel bettingGameModel;
 
     public long getId() {
         return id;
@@ -43,5 +46,13 @@ public class CommunityModel {
 
     public void setChannelModels(Set<ChannelModel> channelModels) {
         this.channelModels = channelModels;
+    }
+
+    public BettingGameModel getBettingGameModel() {
+        return bettingGameModel;
+    }
+
+    public void setBettingGameModel(BettingGameModel bettingGameModel) {
+        this.bettingGameModel = bettingGameModel;
     }
 }
