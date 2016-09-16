@@ -14,8 +14,6 @@ import java.util.List;
  */
 public class OutputHandler implements EventHandler {
 
-    public static final String CONFIG_LURK = "seniorcommander.lurk";
-
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final List<Channel> channels;

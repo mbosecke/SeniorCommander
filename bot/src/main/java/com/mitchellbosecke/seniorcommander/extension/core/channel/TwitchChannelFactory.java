@@ -13,12 +13,12 @@ import java.util.List;
  */
 public class TwitchChannelFactory implements ChannelFactory {
 
-
     private static final String CONFIG_SERVER = "server";
     private static final String CONFIG_PORT = "port";
     private static final String CONFIG_USERNAME = "username";
     private static final String CONFIG_PASSWORD = "password";
     private static final String CONFIG_CHANNEL = "channel";
+    private static final String CONFIG_LURK = "lurk";
 
     @Override
     public List<Channel> build(Session session) {
@@ -28,15 +28,19 @@ public class TwitchChannelFactory implements ChannelFactory {
                 .createQuery("SELECT cm FROM ChannelModel cm WHERE cm.type = 'irc'", ChannelModel.class)
                 .getResultList();
 
-        for(ChannelModel channelModel : channelModels){
+        for (ChannelModel channelModel : channelModels) {
 
             String server = channelModel.getSetting(CONFIG_SERVER);
             Integer port = Integer.valueOf(channelModel.getSetting(CONFIG_PORT));
             String username = channelModel.getSetting(CONFIG_USERNAME);
             String password = channelModel.getSetting(CONFIG_PASSWORD);
             String channel = channelModel.getSetting(CONFIG_CHANNEL);
+            boolean lurk =  Boolean.valueOf(channelModel.getSetting(CONFIG_LURK));
 
-            ircChannels.add(new TwitchChannel(channelModel.getId(), server, port, username, password, channel));
+            TwitchChannel twitchChannel = new TwitchChannel(channelModel.getId(), server, port, username, password, channel);
+            twitchChannel.setLurk(lurk);
+
+            ircChannels.add(twitchChannel);
         }
 
         return ircChannels;

@@ -47,6 +47,8 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
 
     private final String password;
 
+    private volatile boolean lurk = false;
+
     private MessageQueue messageQueue;
 
     private PircBotX ircClient;
@@ -160,28 +162,28 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
 
     @Override
     public void sendMessage(String content) {
-        if (running) {
+        if (running && !lurk) {
             ircClient.sendIRC().message(channel, content);
         }
     }
 
     @Override
     public void sendMessage(String recipient, String content) {
-        if (running) {
+        if (running && !lurk) {
             ircClient.sendIRC().message(channel, "@" + recipient + ", " + content);
         }
     }
 
     @Override
     public void sendWhisper(String recipient, String content) {
-        if (running) {
+        if (running && !lurk) {
             ircClient.sendRaw().rawLine(String.format("PRIVMSG %s :/w %s %s", channel, recipient, content));
         }
     }
 
     @Override
     public void timeout(String user, long duration) {
-        if (running) {
+        if (running&& !lurk) {
             ircClient.sendIRC().message(channel, String.format(".timeout %s %d", user, duration));
         }
     }
@@ -213,5 +215,13 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
 
     public void setOnline(boolean online) {
         this.online = online;
+    }
+
+    public boolean isLurk() {
+        return lurk;
+    }
+
+    public void setLurk(boolean lurk) {
+        this.lurk = lurk;
     }
 }
