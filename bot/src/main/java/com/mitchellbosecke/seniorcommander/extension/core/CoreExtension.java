@@ -78,6 +78,7 @@ public class CoreExtension implements Extension {
         CommandService commandService = new CommandService(sessionFactory);
         QuoteService quoteService = new QuoteService(sessionFactory);
         TimerService timerService = new TimerService(sessionFactory);
+        UserService userService = new UserService(sessionFactory);
         BettingService bettingService = new BettingService(sessionFactory);
 
         // handlers
@@ -89,7 +90,7 @@ public class CoreExtension implements Extension {
         commandHandlers.add(new QuoteCrud(messageQueue, quoteService));
         commandHandlers.add(new RandomQuote(messageQueue, quoteService));
         commandHandlers.add(new TimerCrud(messageQueue, timerService, timerManager));
-        commandHandlers.add(new Betting(messageQueue, bettingService));
+        commandHandlers.add(new Betting(messageQueue, bettingService, userService));
         return commandHandlers;
     }
 

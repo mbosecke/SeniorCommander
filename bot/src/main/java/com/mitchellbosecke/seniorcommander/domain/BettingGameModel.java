@@ -1,6 +1,11 @@
 package com.mitchellbosecke.seniorcommander.domain;
 
+import org.hibernate.annotations.*;
+import org.hibernate.annotations.CascadeType;
+
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.util.Set;
 
 /**
@@ -19,10 +24,9 @@ public class BettingGameModel {
     @JoinColumn(name = "community_id")
     private CommunityModel communityModel;
 
-    @ElementCollection
-    @CollectionTable(name = "betting_option", joinColumns = @JoinColumn(name = "betting_game_id"))
-    @Column(name = "value")
-    private Set<String> options;
+    @OneToMany(mappedBy = "bettingGameModel")
+    @Cascade(CascadeType.ALL)
+    private Set<BettingOptionModel> options;
 
     public long getId() {
         return id;
@@ -40,11 +44,11 @@ public class BettingGameModel {
         this.communityModel = communityModel;
     }
 
-    public Set<String> getOptions() {
+    public Set<BettingOptionModel> getOptions() {
         return options;
     }
 
-    public void setOptions(Set<String> options) {
+    public void setOptions(Set<BettingOptionModel> options) {
         this.options = options;
     }
 }
