@@ -1,6 +1,12 @@
 package com.mitchellbosecke.seniorcommander.domain;
 
+import org.hibernate.annotations.*;
+import org.hibernate.annotations.CascadeType;
+
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import java.util.Set;
 
 /**
  * Created by mitch_000 on 2016-07-12.
@@ -17,6 +23,10 @@ public class BettingOptionModel {
     @ManyToOne
     @JoinColumn(name = "betting_game_id")
     private BettingGameModel bettingGameModel;
+
+    @OneToMany(mappedBy = "bettingOptionModel")
+    @Cascade(CascadeType.ALL)
+    private Set<BetModel> bets;
 
     @Column
     private String value;
@@ -43,5 +53,13 @@ public class BettingOptionModel {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public Set<BetModel> getBets() {
+        return bets;
+    }
+
+    public void setBets(Set<BetModel> bets) {
+        this.bets = bets;
     }
 }

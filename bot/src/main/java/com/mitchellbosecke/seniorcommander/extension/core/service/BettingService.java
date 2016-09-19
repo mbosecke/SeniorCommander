@@ -32,11 +32,39 @@ public class BettingService extends BaseService {
         return game;
     }
 
+    /**
+     * Returns all bets and cancels the bet.
+     *
+     * @param communityModel
+     */
     public void cancelBet(CommunityModel communityModel) {
         BettingGameModel game = communityModel.getBettingGameModel();
         if (game != null) {
+            for (BettingOptionModel option : game.getOptions()) {
+                for (BetModel bet : option.getBets()) {
+                    CommunityUserModel user = bet.getCommunityUserModel();
+                    user.setPoints(user.getPoints() + bet.getAmount());
+                }
+            }
             delete(game);
         }
+    }
+
+    /**
+     * @return A list of winning usernames
+     */
+    public Set<String> closeBet(BettingOptionModel winningOption) {
+        BettingGameModel game = winningOption.getBettingGameModel();
+        Set<String> winners = new HashSet<>();
+        int payout = game.getOptions().size();
+        for (BetModel bet : winningOption.getBets()) {
+            CommunityUserModel user = bet.getCommunityUserModel();
+            int prize = bet.getAmount() * payout;
+            user.setPoints(user.getPoints() + prize);
+            winners.add(user.getName());
+        }
+        delete(game);
+        return winners;
     }
 
     public void placeBet(CommunityUserModel user, BettingOptionModel option, int amount) {
