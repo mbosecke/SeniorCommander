@@ -73,33 +73,70 @@ public class Betting implements CommandHandler {
 
         } else {
             BettingGameModel game = communityModel.getBettingGameModel();
-            if (game != null) {
-                for (BettingOptionModel option : game.getOptions()) {
-                    if (option.getValue().equalsIgnoreCase(subCommand)) {
-                        try {
-                            int amount = Integer.parseInt(parsed.getComponents().get(1));
-                            CommunityUserModel user = userService.findUser(message.getChannel(), message.getSender());
-                            BetModel existingBet = bettingService.getBet(user, game);
-                            if (existingBet != null) {
-                                messageQueue.add(Message.response(message, String
-                                        .format("You've already bet %d on \"%s\"", existingBet.getAmount(), existingBet
-                                                .getBettingOptionModel().getValue())));
-                            } else {
-                                if (user.getPoints() >= amount) {
-                                    bettingService.placeBet(user, option, amount);
-                                    messageQueue.add(Message.response(message, "Your bet has been placed."));
-                                } else {
-                                    messageQueue.add(Message.response(message, "You do not have enough points."));
-                                }
-                            }
-                        } catch (NumberFormatException ex) {
-                            messageQueue.add(Message.response(message, "That's not a number."));
-                        }
+            if (game != null && parsed.getComponents().size() == 2) {
+                boolean betResult = attemptToPlaceBet(game, message, parsed.getComponents().get(0), parsed
+                        .getComponents().get(1));
 
+                if (!betResult) {
+                    // maybe the user reversed the components
+                    betResult = attemptToPlaceBet(game, message, parsed.getComponents().get(1), parsed.getComponents().get(0));
+
+                    if(!betResult){
+                        messageQueue.add(Message.response(message, "Kappa"));
                     }
                 }
             }
         }
+    }
+
+    private boolean attemptToPlaceBet(BettingGameModel game, Message message, String optionString,
+                                      String amountString) {
+
+        boolean parsedOption = false;
+        boolean parsedAmount = false;
+        int amount = -1;
+        BettingOptionModel chosenOption = null;
+
+        try {
+            amount = Integer.parseInt(amountString);
+            parsedAmount = true;
+        } catch (NumberFormatException ex) {
+        }
+
+        for (BettingOptionModel option : game.getOptions()) {
+            if (option.getValue().equalsIgnoreCase(optionString)) {
+                chosenOption = option;
+                parsedOption = true;
+            }
+        }
+
+        if (parsedAmount || parsedOption) {
+            if (!parsedAmount) {
+                messageQueue.add(Message.response(message, "That's not a number. This isn't a joke."));
+            }
+
+            if (!parsedOption) {
+                messageQueue.add(Message.response(message, "That's not an option. Please pay attention."));
+            }
+
+            if (parsedAmount && parsedOption) {
+                CommunityUserModel user = userService.findUser(message.getChannel(), message.getSender());
+                BetModel existingBet = bettingService.getBet(user, game);
+                if (existingBet != null) {
+                    messageQueue.add(Message.response(message, String
+                            .format("You've already bet %d on \"%s\"", existingBet.getAmount(), existingBet
+                                    .getBettingOptionModel().getValue())));
+                } else {
+                    if (user.getPoints() >= amount) {
+                        bettingService.placeBet(user, chosenOption, amount);
+                        messageQueue.add(Message.response(message, "Your bet has been placed."));
+                    } else {
+                        messageQueue.add(Message.response(message, "You don't have enough points. RIP."));
+                    }
+                }
+            }
+        }
+        return parsedAmount || parsedOption;
     }
 
 }
