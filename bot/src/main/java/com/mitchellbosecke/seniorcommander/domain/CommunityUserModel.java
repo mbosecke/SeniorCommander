@@ -51,6 +51,9 @@ public class CommunityUserModel {
     @Temporal(value = TemporalType.TIMESTAMP)
     private Date lastOnline;
 
+    @Column(name = "time_online")
+    private long timeOnline;
+
     public AccessLevel getAccessLevel() {
         return accessLevel;
     }
@@ -129,5 +132,13 @@ public class CommunityUserModel {
 
     public void setLastOnline(Date lastOnline) {
         this.lastOnline = lastOnline;
+    }
+
+    public long getTimeOnline() {
+        return timeOnline;
+    }
+
+    public void setTimeOnline(long timeOnline) {
+        this.timeOnline = timeOnline;
     }
 }

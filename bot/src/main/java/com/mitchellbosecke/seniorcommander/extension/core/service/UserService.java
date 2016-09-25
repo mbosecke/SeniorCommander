@@ -59,6 +59,10 @@ public class UserService extends BaseService {
         if (channelModel.getOnlineUsers().contains(user)) {
             channelModel.getOnlineUsers().remove(user);
         }
+
+        long timeOnline = (new Date().getTime() - user.getLastOnline().getTime()) / 1000;
+        user.setTimeOnline(user.getTimeOnline() + timeOnline);
+
         return user;
     }
 
