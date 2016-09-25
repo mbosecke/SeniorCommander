@@ -27,7 +27,7 @@ public class HttpClient {
 
     public HttpClient(String baseUrl) {
         this.baseUrl = baseUrl;
-        header("User-Agent", "Java-Async-Http");
+        header("User-Agent", "Java-Http");
     }
 
     public HttpClient pathSegment(String pathSegment) {
