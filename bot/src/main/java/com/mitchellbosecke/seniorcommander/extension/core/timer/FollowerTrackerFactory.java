@@ -18,12 +18,12 @@ import java.util.stream.Collectors;
  */
 public class FollowerTrackerFactory {
 
-    public List<FollowerTracker> build(SessionFactory sessionFactory, List<Channel> channels, UserService userService) {
-        List<FollowerTracker> timers = new ArrayList<>();
+    public List<FollowerAudit> build(SessionFactory sessionFactory, List<Channel> channels, UserService userService) {
+        List<FollowerAudit> timers = new ArrayList<>();
 
         List<TimerModel> timerModels = sessionFactory.getCurrentSession()
                 .createQuery("SELECT tm FROM TimerModel tm WHERE tm.implementation = :implementation AND tm.enabled = true", TimerModel.class)
-                .setParameter("implementation", FollowerTracker.class.getName()).getResultList();
+                .setParameter("implementation", FollowerAudit.class.getName()).getResultList();
 
         for (TimerModel timerModel : timerModels) {
 
@@ -33,7 +33,7 @@ public class FollowerTrackerFactory {
             Set<ChannelModel> communityChannelModels = timerModel.getCommunityModel().getChannelModels();
             for (ChannelModel channelModel : communityChannelModels) {
                 if (availableChannels.containsKey(channelModel.getId())) {
-                    FollowerTracker tracker = new FollowerTracker(timerModel.getId(), timerModel
+                    FollowerAudit tracker = new FollowerAudit(timerModel.getId(), timerModel
                             .getInterval(), (TwitchChannel) availableChannels
                             .get(channelModel.getId()), userService, sessionFactory);
                     timers.add(tracker);

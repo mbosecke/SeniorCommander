@@ -33,8 +33,9 @@ dependencies {
     compile group: 'org.hibernate', name: 'hibernate-core', version: '5.2.1.Final'
     compile group: 'org.flywaydb', name: 'flyway-core', version: '4.0.3'
 
-    // twitch
-    compile files('libs/twitch-api-wrapper-0.3-jar-with-dependencies.jar')
+    // json
+    //compile files('libs/twitch-api-wrapper-0.3-jar-with-dependencies.jar')
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.3'
 
     // irc
     compile group: 'org.pircbotx', name: 'pircbotx', version: '2.1'
