@@ -42,6 +42,7 @@ public class UserService extends BaseService {
         if (user == null) {
             user = addUser(communityModel, name);
         }
+        user.setLastOnline(new Date());
         if (!channelModel.getOnlineUsers().contains(user)) {
             channelModel.getOnlineUsers().add(user);
         }
