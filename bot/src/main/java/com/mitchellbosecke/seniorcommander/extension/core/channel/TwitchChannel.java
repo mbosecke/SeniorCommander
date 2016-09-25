@@ -10,10 +10,7 @@ import org.pircbotx.User;
 import org.pircbotx.cap.EnableCapHandler;
 import org.pircbotx.exception.IrcException;
 import org.pircbotx.hooks.ListenerAdapter;
-import org.pircbotx.hooks.events.JoinEvent;
-import org.pircbotx.hooks.events.PartEvent;
-import org.pircbotx.hooks.events.UnknownEvent;
-import org.pircbotx.hooks.events.UserListEvent;
+import org.pircbotx.hooks.events.*;
 import org.pircbotx.hooks.types.GenericMessageEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -138,6 +135,12 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
     }
 
     @Override
+    public void onNotice(NoticeEvent event) throws Exception {
+        logger.trace("Notice event: " + event.getNotice());
+        messageQueue.add(Message.modList(this, event.getNotice()));
+    }
+
+    @Override
     public void onJoin(JoinEvent event) throws Exception {
         logger.trace("Join event: " + event.getUser().getNick());
         messageQueue.add(Message.join(this, event.getUser().getNick()));
@@ -158,6 +161,10 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
         }
         messageQueue.add(Message.names(this, names.substring(0, names.length() - 1)));
         logger.debug("User list: " + names.toString());
+    }
+
+    public void getModList(){
+        ircClient.sendIRC().message(channel, "/mods");
     }
 
     @Override

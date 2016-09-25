@@ -9,7 +9,7 @@ import com.mitchellbosecke.seniorcommander.channel.Channel;
 public class Message {
 
     public enum Type {
-        USER, OUTPUT, MEMBERSHIP_NAMES, MEMBERSHIP_JOIN, MEMBERSHIP_PART
+        USER, OUTPUT, MEMBERSHIP_NAMES, MEMBERSHIP_JOIN, MEMBERSHIP_PART, MOD_LIST
     }
 
     private final Type type;
@@ -105,5 +105,8 @@ public class Message {
         return new Message(Type.MEMBERSHIP_PART, channel, user, null, null, false);
     }
 
+    public static Message modList(Channel channel, String content){
+        return new Message(Type.MOD_LIST, channel, null, null, content, false);
+    }
 }
 

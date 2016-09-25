@@ -10,10 +10,7 @@ import com.mitchellbosecke.seniorcommander.extension.core.channel.TwitchChannelF
 import com.mitchellbosecke.seniorcommander.extension.core.command.*;
 import com.mitchellbosecke.seniorcommander.extension.core.event.*;
 import com.mitchellbosecke.seniorcommander.extension.core.service.*;
-import com.mitchellbosecke.seniorcommander.extension.core.timer.FollowerAuditFactory;
-import com.mitchellbosecke.seniorcommander.extension.core.timer.PointTimerFactory;
-import com.mitchellbosecke.seniorcommander.extension.core.timer.ShoutTimerFactory;
-import com.mitchellbosecke.seniorcommander.extension.core.timer.TwitchOnlineCheckerFactory;
+import com.mitchellbosecke.seniorcommander.extension.core.timer.*;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.timer.TimerManager;
 import org.hibernate.SessionFactory;
@@ -46,6 +43,7 @@ public class CoreExtension implements Extension {
         new TwitchOnlineCheckerFactory().build(sessionFactory.getCurrentSession(), channels, userService)
                 .forEach(timerManager::addTimer);
         new FollowerAuditFactory().build(sessionFactory, channels, userService).forEach(timerManager::addTimer);
+        new ModAuditFactory().build(sessionFactory, channels, userService).forEach(timerManager::addTimer);
     }
 
     @Override
@@ -66,6 +64,7 @@ public class CoreExtension implements Extension {
         eventHandlers.add(new JoinPartHandler(userService));
         eventHandlers.add(new NamesHandler(userService));
         eventHandlers.add(new CommandBroker(messageQueue, commandHandlers, userService, commandService));
+        eventHandlers.add(new ModListHandler(userService));
 
         return eventHandlers;
     }
