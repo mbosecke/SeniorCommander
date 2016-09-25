@@ -10,7 +10,7 @@ import com.mitchellbosecke.seniorcommander.extension.core.channel.TwitchChannelF
 import com.mitchellbosecke.seniorcommander.extension.core.command.*;
 import com.mitchellbosecke.seniorcommander.extension.core.event.*;
 import com.mitchellbosecke.seniorcommander.extension.core.service.*;
-import com.mitchellbosecke.seniorcommander.extension.core.timer.FollowerTrackerFactory;
+import com.mitchellbosecke.seniorcommander.extension.core.timer.FollowerAuditFactory;
 import com.mitchellbosecke.seniorcommander.extension.core.timer.PointTimerFactory;
 import com.mitchellbosecke.seniorcommander.extension.core.timer.ShoutTimerFactory;
 import com.mitchellbosecke.seniorcommander.extension.core.timer.TwitchOnlineCheckerFactory;
@@ -45,7 +45,7 @@ public class CoreExtension implements Extension {
                 .forEach(timerManager::addTimer);
         new TwitchOnlineCheckerFactory().build(sessionFactory.getCurrentSession(), channels, userService)
                 .forEach(timerManager::addTimer);
-        new FollowerTrackerFactory().build(sessionFactory, channels, userService).forEach(timerManager::addTimer);
+        new FollowerAuditFactory().build(sessionFactory, channels, userService).forEach(timerManager::addTimer);
     }
 
     @Override

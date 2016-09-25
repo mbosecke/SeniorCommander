@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 /**
  * Created by mitch_000 on 2016-09-10.
  */
-public class FollowerTrackerFactory {
+public class FollowerAuditFactory {
 
     public List<FollowerAudit> build(SessionFactory sessionFactory, List<Channel> channels, UserService userService) {
         List<FollowerAudit> timers = new ArrayList<>();

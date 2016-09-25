@@ -40,7 +40,13 @@ public class FollowerAudit implements Timer {
     public void perform() {
         logger.debug("Started follow audit.");
 
+        sessionFactory.getCurrentSession()
+                .createQuery("UPDATE CommunityUserModel SET accessLevel = 'USER' WHERE accessLevel = 'FOLLOWER' AND communityModel = :communityModel")
+                .setParameter("communityModel", userService.findCommunity(channel)).executeUpdate();
+
         ChannelFollowsPage page = new TwitchApi().followers(channel.getChannel());
+
+        int count = 0;
         while (!page.getFollows().isEmpty()) {
             for (ChannelFollow follow : page.getFollows()) {
                 CommunityUserModel user = userService.findUser(channel, follow.getUser().getName());
@@ -53,6 +59,10 @@ public class FollowerAudit implements Timer {
 
                 if (!user.getAccessLevel().hasAccess(AccessLevel.FOLLOWER)) {
                     user.setAccessLevel(AccessLevel.FOLLOWER);
+                }
+                if (++count % 20 == 0) {
+                    sessionFactory.getCurrentSession().flush();
+                    sessionFactory.getCurrentSession().clear();
                 }
             }
             page = page.next();

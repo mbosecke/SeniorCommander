@@ -24,7 +24,8 @@ public class TwitchApi {
 
     public ChannelFollowsPage followers(String channel, String cursor) {
         HttpClient client = buildClient();
-        client.pathSegment("channels").pathSegment(cleanChannelName(channel)).pathSegment("follows");
+        client.pathSegment("channels").pathSegment(cleanChannelName(channel)).pathSegment("follows")
+                .param("limit", "100");
         if (cursor != null) {
             client.param("cursor", cursor);
         }
