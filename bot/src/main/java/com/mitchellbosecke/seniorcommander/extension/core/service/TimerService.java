@@ -24,7 +24,7 @@ public class TimerService extends BaseService {
         ChannelModel channelModel = find(ChannelModel.class, channel.getId());
 
         communitySequence = sessionFactory.getCurrentSession()
-                .createQuery("SELECT max(t.communitySequence) FROM TimerModel t WHERE t.communityModel = :community",
+                .createQuery("SELECT max(t.communitySequence) FROM TimerModel t WHERE t.channelModel.communityModel = :community",
                         Long
                                 .class)
                 .setParameter("community", channelModel.getCommunityModel()).getSingleResult();
@@ -50,7 +50,7 @@ public class TimerService extends BaseService {
             return sessionFactory.getCurrentSession()
                     .createQuery("SELECT t " +
                             "FROM TimerModel t " +
-                            "WHERE t.communityModel = :community " +
+                            "WHERE t.channelModel.communityModel = :community " +
                             "AND t.communitySequence = :communitySequence", TimerModel.class)
                     .setParameter("community", communityModel).setParameter("communitySequence", communitySequence)
                     .setMaxResults(1).getSingleResult();

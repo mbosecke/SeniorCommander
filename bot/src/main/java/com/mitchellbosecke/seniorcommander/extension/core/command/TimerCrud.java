@@ -1,9 +1,11 @@
 package com.mitchellbosecke.seniorcommander.extension.core.command;
 
+import com.mitchellbosecke.seniorcommander.AccessLevel;
 import com.mitchellbosecke.seniorcommander.CommandHandler;
 import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
 import com.mitchellbosecke.seniorcommander.domain.TimerModel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.TimerService;
+import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;
 import com.mitchellbosecke.seniorcommander.extension.core.timer.ShoutTimer;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
@@ -35,13 +37,17 @@ public class TimerCrud implements CommandHandler {
 
     private final TimerManager timerManager;
 
+    private final UserService userService;
+
     private String[] intervalOption = {"interval", "in"};
     private String[] chatLinesOption = {"chat-lines", "cl"};
 
-    public TimerCrud(MessageQueue messageQueue, TimerService timerService, TimerManager timerManager) {
+    public TimerCrud(MessageQueue messageQueue, TimerService timerService, TimerManager timerManager,
+                     UserService userService) {
         this.messageQueue = messageQueue;
         this.timerService = timerService;
         this.timerManager = timerManager;
+        this.userService = userService;
     }
 
     @Override
@@ -58,7 +64,7 @@ public class TimerCrud implements CommandHandler {
                 messageQueue.add(Message.response(message, "You are missing the quoted text to be used as output"));
             } else {
                 TimerModel timerModel = timerService.addTimer(message.getChannel(), parsed
-                        .getQuotedText(), getInterval(parsed), getChatLines(parsed));
+                        .getQuotedText(), getInterval(message, parsed), getChatLines(parsed));
                 ShoutTimer shoutTimer = new ShoutTimer(timerModel.getId(), timerModel.getInterval(), message
                         .getChannel(), messageQueue, timerModel.getMessage());
                 timerManager.addTimer(shoutTimer);
@@ -88,12 +94,27 @@ public class TimerCrud implements CommandHandler {
 
     }
 
-    private long getInterval(ParsedCommand parsed) {
+    private long getInterval(Message message, ParsedCommand parsed) {
         String cooldownText = parsed.getOption(intervalOption);
-        long cooldown = cooldownText == null ? 0 : Long.valueOf(cooldownText);
+        long cooldown = 0;
+        if (cooldownText.endsWith("s")) {
 
-        // convert minutes to seconds
-        return cooldown * 60;
+            cooldownText = cooldownText.substring(0, cooldownText.length() - 1);
+
+            if (userService.findUser(message.getChannel(), message.getSender()).getAccessLevel()
+                    .hasAccess(AccessLevel.ADMIN)) {
+                cooldown = Long.valueOf(cooldownText);
+            } else {
+                // convert minutes to seconds
+                cooldown = Long.valueOf(cooldownText) * 60;
+            }
+        } else {
+            // convert minutes to seconds
+            cooldown = Long.valueOf(cooldownText) * 60;
+        }
+
+        return cooldown;
+
     }
 
     private long getChatLines(ParsedCommand parsed) {

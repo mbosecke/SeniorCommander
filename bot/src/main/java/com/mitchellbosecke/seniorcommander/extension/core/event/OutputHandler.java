@@ -41,7 +41,7 @@ public class OutputHandler implements EventHandler {
     }
 
     private void emit(Channel channel, String recipient, String content, boolean whisper) {
-        if (recipient != null) {
+         if (recipient != null) {
             if (whisper) {
                 channel.sendWhisper(recipient, content);
             } else {

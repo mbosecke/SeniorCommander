@@ -50,6 +50,7 @@ public class SeniorCommanderImpl implements SeniorCommander {
     /**
      * Components created from the extensions
      */
+    private List<Extension> extensions = new ArrayList<>();
     private List<Channel> channels = new LinkedList<>();
     private List<EventHandler> eventHandlers = new LinkedList<>();
     private List<CommandHandler> commandHandlers = new LinkedList<>();
@@ -111,9 +112,7 @@ public class SeniorCommanderImpl implements SeniorCommander {
                         logger.error("Error when handling message", ex);
                     }
                 });
-
                 session.getTransaction().commit();
-                session.close();
             }
             if (!running) {
                 break;
@@ -125,9 +124,12 @@ public class SeniorCommanderImpl implements SeniorCommander {
     public void shutdown() {
         logger.debug("Shutting down SeniorCommander.");
         running = false;
-        channels.forEach(Channel::shutdown);
+
         timerManager.shutdown();
+        extensions.forEach(extension -> extension.onShutdown(sessionFactory));
+        channels.forEach(Channel::shutdown);
         ExecutorUtils.shutdown(channelThreadPool, 10, TimeUnit.SECONDS);
+        sessionFactory.close();
     }
 
     private void registerExtensions(List<Extension> extensions) {
@@ -140,24 +142,29 @@ public class SeniorCommanderImpl implements SeniorCommander {
         buildCommandHandlers(allExtensions);
         buildEventHandlers(allExtensions);
         startTimers(allExtensions);
+        this.extensions = allExtensions;
     }
 
     private void buildChannels(List<Extension> extensions) {
-        Session session = sessionFactory.openSession();
-        session.beginTransaction();
 
-        for (Extension extension : extensions) {
+        try {
+            sessionFactory.getCurrentSession().beginTransaction();
 
-            List<ChannelFactory> channelFactories = extension.getChannelFactories();
-            if (channelFactories != null) {
-                channelFactories.forEach(channelFactory -> {
-                    channels.addAll(channelFactory.build(session));
-                });
+            for (Extension extension : extensions) {
+
+                List<ChannelFactory> channelFactories = extension.getChannelFactories();
+                if (channelFactories != null) {
+                    channelFactories.forEach(channelFactory -> {
+                        channels.addAll(channelFactory.build(sessionFactory.getCurrentSession()));
+                    });
+                }
             }
+            ;
+            sessionFactory.getCurrentSession().getTransaction().commit();
+        } catch (Exception ex) {
+            sessionFactory.getCurrentSession().getTransaction().rollback();
+            throw ex;
         }
-
-        session.getTransaction().commit();
-        session.close();
     }
 
     private void startTimers(List<Extension> extensions) {

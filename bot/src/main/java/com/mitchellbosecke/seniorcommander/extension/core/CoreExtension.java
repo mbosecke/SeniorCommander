@@ -13,7 +13,10 @@ import com.mitchellbosecke.seniorcommander.extension.core.service.*;
 import com.mitchellbosecke.seniorcommander.extension.core.timer.*;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.timer.TimerManager;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +25,8 @@ import java.util.List;
  * Created by mitch_000 on 2016-07-05.
  */
 public class CoreExtension implements Extension {
+
+    private static final Logger logger = LoggerFactory.getLogger(CoreExtension.class);
 
     @Override
     public List<ChannelFactory> getChannelFactories() {
@@ -36,7 +41,7 @@ public class CoreExtension implements Extension {
                             TimerManager timerManager) {
 
         UserService userService = new UserService(sessionFactory);
-        
+
         new ShoutTimerFactory(sessionFactory, channels, messageQueue).build().forEach(timerManager::addTimer);
         new PointTimerFactory(sessionFactory, channels, userService).build().forEach(timerManager::addTimer);
         new TwitchOnlineCheckerFactory(sessionFactory, channels).build().forEach(timerManager::addTimer);
@@ -86,9 +91,25 @@ public class CoreExtension implements Extension {
         commandHandlers.add(new CommandCrud(messageQueue, commandService));
         commandHandlers.add(new QuoteCrud(messageQueue, quoteService));
         commandHandlers.add(new RandomQuote(messageQueue, quoteService));
-        commandHandlers.add(new TimerCrud(messageQueue, timerService, timerManager));
+        commandHandlers.add(new TimerCrud(messageQueue, timerService, timerManager, userService));
         commandHandlers.add(new Betting(messageQueue, bettingService, userService));
         return commandHandlers;
     }
 
+    @Override
+    public void onShutdown(SessionFactory sessionFactory) {
+        // do nothing
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            session.beginTransaction();
+
+            int result = session.createNativeQuery("DELETE FROM core.online_channel_user").executeUpdate();
+            logger.debug("Deleted " + result + " records from online_channel_user");
+            session.getTransaction().commit();
+        }catch(Exception ex){
+            logger.debug("Rolling back the deletion from online_channel_user");
+            sessionFactory.getCurrentSession().getTransaction().rollback();
+            throw ex;
+        }
+    }
 }

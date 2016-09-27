@@ -88,6 +88,13 @@ public class TimerManager {
                     .uniqueResult();
             satisfiesChatLineRequirement = chatLines >= model.getChatLines();
 
+            if(satisfiesChatLineRequirement){
+                logger.debug("Satisfies chat lines requirement");
+            }else{
+                long diff = model.getChatLines() - chatLines;
+                logger.debug("Requires " + diff + " more chat lines");
+            }
+
         } else {
             satisfiesChatLineRequirement = true;
         }

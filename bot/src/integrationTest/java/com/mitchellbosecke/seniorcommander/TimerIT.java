@@ -16,23 +16,42 @@ public class TimerIT extends AbstractIT {
 
     @Test
     public void newTimer() throws InterruptedException {
-        addTimer("Hello World", 1);
-        Thread.sleep(30 * 1000);
+        addTimer("Hello World", 10, 0);
+        Thread.sleep(10 * 1000);
+        recv("Hello World");
+    }
+
+    @Test
+    public void ensureUserCantAddTimer() throws InterruptedException {
+        send("user: !timer add \"hello world\" interval=1");
+        expectNoBotOutput(); // would otherwise receive a confirmation response
+    }
+
+
+    @Test
+    public void newTimerWithChatLinesRequirement() throws InterruptedException {
+        int interval = 10;
+        addTimer("Hello World", interval, 1);
+        Thread.sleep(interval * 1000);
+        recv("Hello World"); // first time a timer ignores chat lines
+        Thread.sleep(interval * 1000);
         expectNoBotOutput();
-        Thread.sleep(35 * 1000);
+        send("user: example chat line");
+        Thread.sleep(interval * 1000);
         recv("Hello World");
     }
 
     @Test
     public void disableAndEnableTimer() throws InterruptedException {
-        long id = addTimer("Hello World", 1);
+        int interval = 10;
+        long id = addTimer("Hello World", 10, 0);
         send("moderator: !timer disable " + id);
         recv(String.format("Timer #%d has been disabled", id));
-        Thread.sleep(65 * 1000);
+        Thread.sleep(interval * 1000);
         expectNoBotOutput();
         send("moderator: !timer enable " + id);
         recv(String.format("Timer #%d has been enabled", id));
-        Thread.sleep(65 * 1000);
+        Thread.sleep(interval * 1000);
         recv("Hello World");
     }
 
@@ -42,9 +61,9 @@ public class TimerIT extends AbstractIT {
      *
      * @return
      */
-    private long addTimer(String message, int interval) {
+    private long addTimer(String message, int interval, int chatLines) {
         Pattern pattern = Pattern.compile("Timer #([0-9]{1,2}) has been added");
-        send(String.format("moderator: !timer add \"%s\" interval=%d", message, interval));
+        send(String.format("admin: !timer add \"%s\" interval=%ds chat-lines=%d", message, interval, chatLines));
         String reply = recv(pattern);
         Matcher matcher = pattern.matcher(reply);
         matcher.matches();

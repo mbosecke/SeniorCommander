@@ -15,13 +15,51 @@ import java.util.List;
  */
 public interface Extension {
 
+    /**
+     * Builds and returns all event handlers.
+     *
+     * @param sessionFactory
+     * @param messageQueue
+     * @param channels
+     * @param commandHandlers
+     * @return
+     */
     List<EventHandler> buildEventHandlers(SessionFactory sessionFactory, MessageQueue messageQueue,
                                           List<Channel> channels, List<CommandHandler> commandHandlers);
 
+    /**
+     * Builds and returns channel factories
+     *
+     * @return
+     */
     List<ChannelFactory> getChannelFactories();
 
-    void startTimers(SessionFactory sessionFactory, MessageQueue messageQueue, List<Channel> channels, TimerManager timerManager);
+    /**
+     * Should build and register all timers with the {@link TimerManager}
+     *
+     * @param sessionFactory
+     * @param messageQueue
+     * @param channels
+     * @param timerManager
+     */
+    void startTimers(SessionFactory sessionFactory, MessageQueue messageQueue, List<Channel> channels,
+                     TimerManager timerManager);
 
+    /**
+     * Builds and returns all command handlers.
+     *
+     * @param sessionFactory
+     * @param messageQueue
+     * @param timerManager
+     * @return
+     */
     List<CommandHandler> buildCommandHandlers(SessionFactory sessionFactory, MessageQueue messageQueue,
                                               TimerManager timerManager);
+
+    /**
+     * A hook for the bot shutdown which can be used to perform any cleanup.
+     *
+     * @param sessionFactory
+     */
+    void onShutdown(SessionFactory sessionFactory);
 }
