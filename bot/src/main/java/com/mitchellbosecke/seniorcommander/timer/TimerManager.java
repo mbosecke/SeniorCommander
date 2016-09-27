@@ -1,11 +1,13 @@
 package com.mitchellbosecke.seniorcommander.timer;
 
+import com.mitchellbosecke.seniorcommander.domain.TimerModel;
 import com.mitchellbosecke.seniorcommander.utils.ExecutorUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
@@ -55,15 +57,42 @@ public class TimerManager {
             Session session = sessionFactory.getCurrentSession();
             session.beginTransaction();
             try {
-                timer.perform();
+                TimerModel model = sessionFactory.getCurrentSession().find(TimerModel.class, timer.getId());
+                if (satisfiesChatLineRequirement(model)) {
+                    timer.perform();
+                    model.setLastExecuted(new Date());
+                }
                 session.getTransaction().commit();
-            }catch(Exception ex){
+            } catch (Exception ex) {
                 logger.error(ex.getMessage(), ex);
                 session.getTransaction().rollback();
-            }finally{
+            } finally {
                 session.close();
             }
-        }, initialDelay, timer.getInterval(), TimeUnit.SECONDS); ongoingTasks.put(timer.getId(), future);
+        }, initialDelay, timer.getInterval(), TimeUnit.SECONDS);
+        ongoingTasks.put(timer.getId(), future);
+    }
+
+    private boolean satisfiesChatLineRequirement(TimerModel model) {
+        boolean satisfiesChatLineRequirement = false;
+
+        if (model.getChatLines() != null && model.getChatLines() > 0) {
+            Date dateLastExecuted = model.getLastExecuted();
+
+            if (dateLastExecuted == null) {
+                dateLastExecuted = new Date(0);
+            }
+            Long chatLines = (Long) sessionFactory.getCurrentSession()
+                    .createQuery("SELECT count(*) FROM ChatLogModel clm WHERE clm.date >= :date AND clm.channel.id = :channelId")
+                    .setParameter("date", dateLastExecuted).setParameter("channelId", model.getChannelModel().getId())
+                    .uniqueResult();
+            satisfiesChatLineRequirement = chatLines >= model.getChatLines();
+
+        } else {
+            satisfiesChatLineRequirement = true;
+        }
+
+        return satisfiesChatLineRequirement;
     }
 
     public void shutdown() {

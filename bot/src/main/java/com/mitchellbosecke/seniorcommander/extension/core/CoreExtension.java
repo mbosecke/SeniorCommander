@@ -34,16 +34,14 @@ public class CoreExtension implements Extension {
     @Override
     public void startTimers(SessionFactory sessionFactory, MessageQueue messageQueue, List<Channel> channels,
                             TimerManager timerManager) {
-        UserService userService = new UserService(sessionFactory);
 
-        new ShoutTimerFactory().build(sessionFactory.getCurrentSession(), channels, messageQueue)
-                .forEach(timerManager::addTimer);
-        new PointTimerFactory().build(sessionFactory.getCurrentSession(), channels, userService)
-                .forEach(timerManager::addTimer);
-        new TwitchOnlineCheckerFactory().build(sessionFactory.getCurrentSession(), channels, userService)
-                .forEach(timerManager::addTimer);
-        new FollowerAuditFactory().build(sessionFactory, channels, userService).forEach(timerManager::addTimer);
-        new ModAuditFactory().build(sessionFactory, channels, userService).forEach(timerManager::addTimer);
+        UserService userService = new UserService(sessionFactory);
+        
+        new ShoutTimerFactory(sessionFactory, channels, messageQueue).build().forEach(timerManager::addTimer);
+        new PointTimerFactory(sessionFactory, channels, userService).build().forEach(timerManager::addTimer);
+        new TwitchOnlineCheckerFactory(sessionFactory, channels).build().forEach(timerManager::addTimer);
+        new FollowerAuditFactory(sessionFactory, channels, userService).build().forEach(timerManager::addTimer);
+        new ModAuditFactory(sessionFactory, channels, userService).build().forEach(timerManager::addTimer);
     }
 
     @Override

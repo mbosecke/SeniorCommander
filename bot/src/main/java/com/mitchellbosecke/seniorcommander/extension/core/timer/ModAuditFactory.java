@@ -1,47 +1,35 @@
 package com.mitchellbosecke.seniorcommander.extension.core.timer;
 
 import com.mitchellbosecke.seniorcommander.channel.Channel;
-import com.mitchellbosecke.seniorcommander.domain.ChannelModel;
 import com.mitchellbosecke.seniorcommander.domain.TimerModel;
 import com.mitchellbosecke.seniorcommander.extension.core.channel.TwitchChannel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;
 import org.hibernate.SessionFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Created by mitch_000 on 2016-09-10.
  */
-public class ModAuditFactory {
+public class ModAuditFactory extends AbstractTimerFactory<ModAudit> {
 
-    public List<ModAudit> build(SessionFactory sessionFactory, List<Channel> channels, UserService userService) {
-        List<ModAudit> timers = new ArrayList<>();
+    private final UserService userService;
 
-        List<TimerModel> timerModels = sessionFactory.getCurrentSession()
-                .createQuery("SELECT tm FROM TimerModel tm WHERE tm.implementation = :implementation AND tm.enabled = true", TimerModel.class)
-                .setParameter("implementation", ModAudit.class.getName()).getResultList();
+    public ModAuditFactory(SessionFactory sessionFactory, List<Channel> channels, UserService userService) {
+        super(sessionFactory, channels);
+        this.userService = userService;
+    }
 
-        for (TimerModel timerModel : timerModels) {
+    @Override
+    protected ModAudit constructTimerFromModel(TimerModel timerModel, SessionFactory sessionFactory,
+                                               Map<Long, Channel> channels) {
+        return new ModAudit(timerModel.getId(), timerModel.getInterval(), (TwitchChannel) channels
+                .get(timerModel.getChannelModel().getId()), userService, sessionFactory);
+    }
 
-            Map<Long, Channel> availableChannels = channels.stream().filter(c -> c instanceof TwitchChannel)
-                    .collect(Collectors.toMap(Channel::getId, c -> c));
-
-            Set<ChannelModel> communityChannelModels = timerModel.getCommunityModel().getChannelModels();
-            for (ChannelModel channelModel : communityChannelModels) {
-                if (availableChannels.containsKey(channelModel.getId())) {
-                    ModAudit tracker = new ModAudit(timerModel.getId(), timerModel
-                            .getInterval(), (TwitchChannel) availableChannels
-                            .get(channelModel.getId()), userService, sessionFactory);
-                    timers.add(tracker);
-                }
-            }
-
-        }
-
-        return timers;
+    @Override
+    protected Class<ModAudit> getTimerClass() {
+        return ModAudit.class;
     }
 }

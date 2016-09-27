@@ -169,7 +169,9 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
 
     @Override
     public void sendMessage(String content) {
+        logger.debug("Twitch channel send message 1");
         if (running && !lurk) {
+            logger.debug("Twitch channel sending message 2");
             ircClient.sendIRC().message(channel, content);
         }
     }

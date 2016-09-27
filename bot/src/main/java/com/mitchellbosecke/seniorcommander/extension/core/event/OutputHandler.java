@@ -26,6 +26,7 @@ public class OutputHandler implements EventHandler {
     public void handle(Message message) {
         if (Message.Type.OUTPUT.equals(message.getType())) {
 
+            logger.debug("Output handler: " + message.getContent());
             List<Channel> outputChannels = new ArrayList<>();
             if (message.getChannel() != null) {
                 outputChannels.add(message.getChannel());

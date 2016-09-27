@@ -19,7 +19,7 @@ public class PointTimer implements Timer {
     private final UserService userService;
     private final Channel channel;
 
-    public PointTimer(long id, long interval, UserService userService, Channel channel) {
+    public PointTimer(long id, long interval, Channel channel, UserService userService) {
         this.id = id;
         this.interval = interval;
         this.userService = userService;

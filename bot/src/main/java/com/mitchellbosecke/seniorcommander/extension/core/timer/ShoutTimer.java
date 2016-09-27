@@ -4,11 +4,15 @@ import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.timer.Timer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by mitch_000 on 2016-07-31.
  */
 public class ShoutTimer implements Timer {
+
+    private static final Logger logger = LoggerFactory.getLogger(ShoutTimer.class);
 
     private final long id;
 
@@ -20,7 +24,7 @@ public class ShoutTimer implements Timer {
 
     private final String message;
 
-    public ShoutTimer(long id, long interval, MessageQueue messageQueue, Channel channel, String message) {
+    public ShoutTimer(long id, long interval, Channel channel,MessageQueue messageQueue, String message) {
         this.id = id;
         this.interval = interval;
         this.messageQueue = messageQueue;
@@ -34,6 +38,7 @@ public class ShoutTimer implements Timer {
 
     @Override
     public void perform() {
+        logger.debug("Performing ShoutTimer");
         messageQueue.add(Message.shout(channel, message));
     }
 

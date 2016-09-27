@@ -57,13 +57,13 @@ public class TimerCrud implements CommandHandler {
             if (parsed.getQuotedText() == null) {
                 messageQueue.add(Message.response(message, "You are missing the quoted text to be used as output"));
             } else {
-                TimerModel timerModel = timerService.addTimer(communityModel, parsed
+                TimerModel timerModel = timerService.addTimer(message.getChannel(), parsed
                         .getQuotedText(), getInterval(parsed), getChatLines(parsed));
-                ShoutTimer shoutTimer = new ShoutTimer(timerModel.getId(), timerModel.getInterval(), messageQueue, message
-                        .getChannel(), timerModel.getMessage());
+                ShoutTimer shoutTimer = new ShoutTimer(timerModel.getId(), timerModel.getInterval(), message
+                        .getChannel(), messageQueue, timerModel.getMessage());
                 timerManager.addTimer(shoutTimer);
-                messageQueue.add(Message.response(message, String.format("Timer #%d has been added", timerModel
-                        .getCommunitySequence())));
+                messageQueue.add(Message.response(message, String
+                        .format("Timer #%d has been added", timerModel.getCommunitySequence())));
             }
         } else if ("delete".equalsIgnoreCase(subCommand)) {
             long id = Long.parseLong(parsed.getComponents().get(1));

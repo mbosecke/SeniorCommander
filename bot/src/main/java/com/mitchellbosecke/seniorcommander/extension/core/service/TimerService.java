@@ -1,5 +1,7 @@
 package com.mitchellbosecke.seniorcommander.extension.core.service;
 
+import com.mitchellbosecke.seniorcommander.channel.Channel;
+import com.mitchellbosecke.seniorcommander.domain.ChannelModel;
 import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
 import com.mitchellbosecke.seniorcommander.domain.TimerModel;
 import com.mitchellbosecke.seniorcommander.extension.core.timer.ShoutTimer;
@@ -17,20 +19,21 @@ public class TimerService extends BaseService {
         super(sessionFactory);
     }
 
-    public TimerModel addTimer(CommunityModel communityModel, String message, long interval, long chatLines) {
+    public TimerModel addTimer(Channel channel, String message, long interval, long chatLines) {
         Long communitySequence;
+        ChannelModel channelModel = find(ChannelModel.class, channel.getId());
 
         communitySequence = sessionFactory.getCurrentSession()
                 .createQuery("SELECT max(t.communitySequence) FROM TimerModel t WHERE t.communityModel = :community",
                         Long
                                 .class)
-                .setParameter("community", communityModel).getSingleResult();
+                .setParameter("community", channelModel.getCommunityModel()).getSingleResult();
 
         communitySequence = communitySequence == null ? 0 : communitySequence;
         communitySequence++;
 
         TimerModel timerModel = new TimerModel();
-        timerModel.setCommunityModel(communityModel);
+        timerModel.setChannelModel(channelModel);
         timerModel.setCommunitySequence(communitySequence);
         timerModel.setMessage(message);
         timerModel.setInterval(interval);

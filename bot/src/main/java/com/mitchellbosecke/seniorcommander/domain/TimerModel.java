@@ -1,6 +1,7 @@
 package com.mitchellbosecke.seniorcommander.domain;
 
 import javax.persistence.*;
+import java.util.Date;
 
 /**
  * Created by mitch_000 on 2016-07-31.
@@ -15,8 +16,8 @@ public class TimerModel {
     private long id;
 
     @ManyToOne
-    @JoinColumn(name = "community_id")
-    private CommunityModel communityModel;
+    @JoinColumn(name = "channel_id")
+    private ChannelModel channelModel;
 
     @Column(name = "community_sequence")
     private long communitySequence;
@@ -36,6 +37,10 @@ public class TimerModel {
     @Column
     private boolean enabled;
 
+    @Column(name = "last_executed")
+    @Temporal(value = TemporalType.TIMESTAMP)
+    private Date lastExecuted;
+
     public long getId() {
         return id;
     }
@@ -44,12 +49,12 @@ public class TimerModel {
         this.id = id;
     }
 
-    public CommunityModel getCommunityModel() {
-        return communityModel;
+    public ChannelModel getChannelModel() {
+        return channelModel;
     }
 
-    public void setCommunityModel(CommunityModel communityModel) {
-        this.communityModel = communityModel;
+    public void setChannelModel(ChannelModel channelModel) {
+        this.channelModel = channelModel;
     }
 
     public String getMessage() {
@@ -98,5 +103,13 @@ public class TimerModel {
 
     public void setCommunitySequence(long communitySequence) {
         this.communitySequence = communitySequence;
+    }
+
+    public Date getLastExecuted() {
+        return lastExecuted;
+    }
+
+    public void setLastExecuted(Date lastExecuted) {
+        this.lastExecuted = lastExecuted;
     }
 }
