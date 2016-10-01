@@ -24,6 +24,9 @@ public class CommunityModel {
     @OneToOne(mappedBy = "communityModel")
     private BettingGameModel bettingGameModel;
 
+    @OneToMany(mappedBy = "communityModel")
+    private Set<CommunitySettingModel> settings;
+
     public long getId() {
         return id;
     }
@@ -54,5 +57,24 @@ public class CommunityModel {
 
     public void setBettingGameModel(BettingGameModel bettingGameModel) {
         this.bettingGameModel = bettingGameModel;
+    }
+
+    public Set<CommunitySettingModel> getSettings() {
+        return settings;
+    }
+
+    public void setSettings(Set<CommunitySettingModel> settings) {
+        this.settings = settings;
+    }
+
+    @Transient
+    public String getSetting(String key) {
+        String result = null;
+        for (CommunitySettingModel setting : settings) {
+            if (key.equalsIgnoreCase(setting.getKey())) {
+                result = setting.getValue();
+            }
+        }
+        return result;
     }
 }

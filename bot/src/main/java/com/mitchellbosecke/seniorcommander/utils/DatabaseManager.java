@@ -56,6 +56,7 @@ public class DatabaseManager {
 
             // register all persistent entities
             sources.addAnnotatedClass(CommunityModel.class);
+            sources.addAnnotatedClass(CommunitySettingModel.class);
             sources.addAnnotatedClass(CommunityUserModel.class);
             sources.addAnnotatedClass(ChannelModel.class);
             sources.addAnnotatedClass(ChannelSettingModel.class);
