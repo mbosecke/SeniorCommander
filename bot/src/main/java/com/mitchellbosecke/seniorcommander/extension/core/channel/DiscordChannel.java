@@ -1,5 +1,6 @@
 package com.mitchellbosecke.seniorcommander.extension.core.channel;
 
+import com.mitchellbosecke.seniorcommander.SeniorCommander;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
@@ -8,7 +9,10 @@ import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.EventSubscriber;
-import sx.blah.discord.handle.impl.events.*;
+import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
+import sx.blah.discord.handle.impl.events.ReadyEvent;
+import sx.blah.discord.handle.impl.events.UserJoinEvent;
+import sx.blah.discord.handle.impl.events.UserLeaveEvent;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.DiscordException;
@@ -71,7 +75,7 @@ public class DiscordChannel implements Channel {
     }
 
     @EventSubscriber
-    public void onReady(ReadyEvent event){
+    public void onReady(ReadyEvent event) {
         for (IChannel channel : discordClient.getChannels()) {
             logger.debug("Found discord channel: " + channel.getName());
             if (channel.getGuild().getName().equalsIgnoreCase(guildName) && channel.getName()
@@ -85,20 +89,31 @@ public class DiscordChannel implements Channel {
     @EventSubscriber
     public void onMessage(MessageReceivedEvent event) {
         IMessage message = event.getMessage();
-        if (message.getGuild().getName().equalsIgnoreCase(guildName) && message.getChannel().getName().equalsIgnoreCase(channelName)) {
-            logger.trace("Received message on discord channel: " + message.getContent());
-            messageQueue.add(Message.userInput(this, message.getAuthor().getName(), null, message.getContent(), false));
+        if (message.getGuild().getName().equalsIgnoreCase(guildName) && message.getChannel().getName()
+                .equalsIgnoreCase(channelName)) {
+            String content = message.getContent();
+            String recipient = null;
+
+            // the only mention supported is if they mention the bot at the beginning of their message
+            String botMention = "<@" + discordClient.getOurUser().getID() + ">"; // discords format
+            if (content.startsWith(botMention)) {
+                content = content.replace(botMention, "");
+                recipient = SeniorCommander.getName();
+            }
+            logger.trace("Received message on discord channel: " + content);
+
+            messageQueue.add(Message.userInput(this, message.getAuthor().getName(), recipient, content, false));
         }
     }
 
     @EventSubscriber
-    public void onUserJoinEvent(UserJoinEvent event){
+    public void onUserJoinEvent(UserJoinEvent event) {
         logger.trace("User join event: " + event.getUser().getName());
         messageQueue.add(Message.join(this, event.getUser().getName()));
     }
 
     @EventSubscriber
-    public void onUserLeaveEvent(UserLeaveEvent event){
+    public void onUserLeaveEvent(UserLeaveEvent event) {
         logger.trace("User leave event: " + event.getUser().getName());
         messageQueue.add(Message.part(this, event.getUser().getName()));
     }
