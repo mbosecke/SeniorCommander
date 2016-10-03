@@ -93,6 +93,7 @@ public class CoreExtension implements Extension {
         commandHandlers.add(new RandomQuote(messageQueue, quoteService));
         commandHandlers.add(new TimerCrud(messageQueue, timerService, timerManager, userService));
         commandHandlers.add(new Betting(messageQueue, bettingService, userService));
+        commandHandlers.add(new Points(messageQueue, userService));
         return commandHandlers;
     }
 

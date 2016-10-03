@@ -66,3 +66,6 @@ values (1, '!timer', 0, 'com.mitchellbosecke.seniorcommander.extension.core.comm
 insert into command (community_id, trigger, cooldown, implementation, access_level)
 values (1, '!bet', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.Betting', 'MODERATOR');
 
+insert into command (community_id, trigger, cooldown, implementation, access_level)
+values (1, '!points', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.Points', 'USER');
+
