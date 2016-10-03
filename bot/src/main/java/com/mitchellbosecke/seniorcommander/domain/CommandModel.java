@@ -24,6 +24,9 @@ public class CommandModel {
     private String trigger;
 
     @Column
+    private String alias;
+
+    @Column
     private String message;
 
     @Column
@@ -101,5 +104,13 @@ public class CommandModel {
 
     public void setAccessLevel(AccessLevel accessLevel) {
         this.accessLevel = accessLevel;
+    }
+
+    public String getAlias() {
+        return alias;
+    }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
     }
 }

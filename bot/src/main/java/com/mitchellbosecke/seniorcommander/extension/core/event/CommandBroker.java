@@ -49,7 +49,17 @@ public class CommandBroker implements EventHandler {
             CommandModel commandModel = commandService.findCommand(communityModel, message.getContent());
 
             if (commandModel != null && commandModel.isEnabled()) {
+
                 CommunityUserModel user = userService.findUser(message.getChannel(), message.getSender());
+                if (commandModel.getAlias() != null) {
+                    commandModel = commandService.findCommand(communityModel, commandModel.getAlias());
+                    if (commandModel == null) {
+                        messageQueue.add(Message
+                                .response(message, "command is misconfigured; alias references non-existing command."));
+                        return;
+                    }
+                }
+
                 if (hasPermission(commandModel, user)) {
                     executeAfterCooldown(message, commandModel, user);
                 }
@@ -58,6 +68,9 @@ public class CommandBroker implements EventHandler {
     }
 
     private boolean hasPermission(CommandModel commandModel, CommunityUserModel user) {
+        if (commandModel.getAccessLevel() == null) {
+            return true;
+        }
         return user.getAccessLevel().hasAccess(commandModel.getAccessLevel());
     }
 
