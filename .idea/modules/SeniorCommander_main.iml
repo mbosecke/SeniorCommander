@@ -15,6 +15,7 @@
     <orderEntry type="library" name="Gradle: org.flywaydb:flyway-core:4.0.3" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-databind:2.8.3" level="project" />
     <orderEntry type="library" name="Gradle: org.pircbotx:pircbotx:2.1" level="project" />
+    <orderEntry type="library" name="Gradle: com.github.austinv11:Discord4j:2.6.1" level="project" />
     <orderEntry type="library" name="Gradle: ca.pjer:chatter-bot-api:1.4.2" level="project" />
     <orderEntry type="library" name="Gradle: org.slf4j:slf4j-api:1.7.21" level="project" />
     <orderEntry type="library" name="Gradle: org.slf4j:slf4j-simple:1.7.21" level="project" />
@@ -33,9 +34,29 @@
     <orderEntry type="library" name="Gradle: org.apache.commons:commons-lang3:3.4" level="project" />
     <orderEntry type="library" name="Gradle: commons-codec:commons-codec:1.10" level="project" />
     <orderEntry type="library" name="Gradle: com.google.guava:guava:19.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpcore:4.4.5" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpclient:4.5.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpmime:4.5.2" level="project" />
+    <orderEntry type="library" name="Gradle: commons-io:commons-io:2.5" level="project" />
+    <orderEntry type="library" name="Gradle: org.eclipse.jetty.websocket:websocket-client:9.3.11.v20160721" level="project" />
+    <orderEntry type="library" name="Gradle: net.jodah:typetools:0.4.7" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.7" level="project" />
+    <orderEntry type="library" name="Gradle: net.java.dev.jna:jna:4.2.2" level="project" />
+    <orderEntry type="library" name="Gradle: com.googlecode.soundlibs:mp3spi:1.9.5-2" level="project" />
+    <orderEntry type="library" name="Gradle: org.jcraft:jorbis:0.0.17" level="project" />
+    <orderEntry type="library" name="Gradle: jflac:jflac:1.3" level="project" />
+    <orderEntry type="library" name="Gradle: com.googlecode.soundlibs:tritonus-share:0.3.7-3" level="project" />
+    <orderEntry type="library" name="Gradle: org.tritonus:tritonus-dsp:0.3.6" level="project" />
     <orderEntry type="library" name="Gradle: javax.el:el-api:2.2" level="project" />
     <orderEntry type="library" name="Gradle: org.jboss.spec.javax.interceptor:jboss-interceptors-api_1.1_spec:1.0.0.Beta1" level="project" />
     <orderEntry type="library" name="Gradle: javax.annotation:jsr250-api:1.0" level="project" />
     <orderEntry type="library" name="Gradle: javax.inject:javax.inject:1" level="project" />
+    <orderEntry type="library" name="Gradle: commons-logging:commons-logging:1.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-util:9.3.11.v20160721" level="project" />
+    <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-io:9.3.11.v20160721" level="project" />
+    <orderEntry type="library" name="Gradle: org.eclipse.jetty.websocket:websocket-common:9.3.11.v20160721" level="project" />
+    <orderEntry type="library" name="Gradle: com.googlecode.soundlibs:jlayer:1.0.1-2" level="project" />
+    <orderEntry type="library" name="Gradle: org.eclipse.jetty.websocket:websocket-api:9.3.11.v20160721" level="project" />
+    <orderEntry type="library" name="Gradle: junit:junit:3.8.2" level="project" />
   </component>
 </module>

@@ -1,0 +1,1 @@
+alter table channel_setting alter column value type character varying (200);

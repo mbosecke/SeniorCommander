@@ -5,6 +5,7 @@ import com.mitchellbosecke.seniorcommander.EventHandler;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.channel.ChannelFactory;
 import com.mitchellbosecke.seniorcommander.extension.Extension;
+import com.mitchellbosecke.seniorcommander.extension.core.channel.DiscordChannelFactory;
 import com.mitchellbosecke.seniorcommander.extension.core.channel.SocketChannelFactory;
 import com.mitchellbosecke.seniorcommander.extension.core.channel.TwitchChannelFactory;
 import com.mitchellbosecke.seniorcommander.extension.core.command.*;
@@ -33,6 +34,7 @@ public class CoreExtension implements Extension {
         List<ChannelFactory> factories = new ArrayList<>();
         factories.add(new TwitchChannelFactory());
         factories.add(new SocketChannelFactory());
+        factories.add(new DiscordChannelFactory());
         return factories;
     }
 

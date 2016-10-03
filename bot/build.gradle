@@ -7,6 +7,12 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
+
+    // Repositories for the discord dependency
+    jcenter()
+    maven {
+        url  "https://jitpack.io"
+    }
 }
 
 sourceSets {
@@ -34,11 +40,13 @@ dependencies {
     compile group: 'org.flywaydb', name: 'flyway-core', version: '4.0.3'
 
     // json
-    //compile files('libs/twitch-api-wrapper-0.3-jar-with-dependencies.jar')
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.3'
 
     // irc
     compile group: 'org.pircbotx', name: 'pircbotx', version: '2.1'
+
+    // discord
+    compile group: 'com.github.austinv11', name: 'Discord4j', version: '2.6.1'
 
     // cleverbot
     compile group: 'ca.pjer', name: 'chatter-bot-api', version: '1.4.2'
