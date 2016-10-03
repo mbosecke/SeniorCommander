@@ -97,7 +97,7 @@ public class DiscordChannel implements Channel {
             // the only mention supported is if they mention the bot at the beginning of their message
             String botMention = "<@" + discordClient.getOurUser().getID() + ">"; // discords format
             if (content.startsWith(botMention)) {
-                content = content.replace(botMention, "");
+                content = content.replace(botMention, "").trim();
                 recipient = SeniorCommander.getName();
             }
             logger.trace("Received message on discord channel: " + content);
