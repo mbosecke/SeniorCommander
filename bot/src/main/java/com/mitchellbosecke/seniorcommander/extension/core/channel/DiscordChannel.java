@@ -8,10 +8,8 @@ import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.EventSubscriber;
-import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
-import sx.blah.discord.handle.impl.events.ReadyEvent;
+import sx.blah.discord.handle.impl.events.*;
 import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
@@ -87,11 +85,22 @@ public class DiscordChannel implements Channel {
     @EventSubscriber
     public void onMessage(MessageReceivedEvent event) {
         IMessage message = event.getMessage();
-        IGuild guild = message.getGuild();
-        if(message.getGuild().getName().equalsIgnoreCase(guildName) && message.getChannel().getName().equalsIgnoreCase(channelName)) {
-            logger.debug(String.format("Received message on discord server [%s]", guild.getName()));
+        if (message.getGuild().getName().equalsIgnoreCase(guildName) && message.getChannel().getName().equalsIgnoreCase(channelName)) {
+            logger.trace("Received message on discord channel: " + message.getContent());
             messageQueue.add(Message.userInput(this, message.getAuthor().getName(), null, message.getContent(), false));
         }
+    }
+
+    @EventSubscriber
+    public void onUserJoinEvent(UserJoinEvent event){
+        logger.trace("User join event: " + event.getUser().getName());
+        messageQueue.add(Message.join(this, event.getUser().getName()));
+    }
+
+    @EventSubscriber
+    public void onUserLeaveEvent(UserLeaveEvent event){
+        logger.trace("User leave event: " + event.getUser().getName());
+        messageQueue.add(Message.part(this, event.getUser().getName()));
     }
 
     @Override
@@ -135,7 +144,7 @@ public class DiscordChannel implements Channel {
                 try {
                     discordClient.logout();
                 } catch (RateLimitException | DiscordException e) {
-                    // TODO
+                    throw new RuntimeException(e);
                 }
             }
         }
