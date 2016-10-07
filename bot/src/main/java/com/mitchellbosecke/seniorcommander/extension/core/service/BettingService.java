@@ -53,7 +53,7 @@ public class BettingService extends BaseService {
     /**
      * @return A list of winning usernames
      */
-    public Set<String> closeBet(BettingOptionModel winningOption) {
+    public Set<String> endBet(BettingOptionModel winningOption) {
         BettingGameModel game = winningOption.getBettingGameModel();
         Set<String> winners = new HashSet<>();
         int payout = game.getOptions().size();

@@ -105,29 +105,42 @@ public class Betting implements CommandHandler {
 
             } else if ("close".equalsIgnoreCase(subCommand)) {
                 // close a bet
+                if (communityModel.getBettingGameModel() != null) {
+                    communityModel.getBettingGameModel().setClosed(true);
+                    messageQueue.add(Message.shout(message.getChannel(), "The bet has been closed."));
+                }
+
+            } else if ("winner".equalsIgnoreCase(subCommand)) {
+                // declare the winning option
 
                 if (communityModel.getBettingGameModel() != null) {
-                    String optionString = parsed.getComponents().get(1);
-                    BettingOptionModel winningOption = null;
-                    for (BettingOptionModel option : communityModel.getBettingGameModel().getOptions()) {
-                        if (option.getValue().equals(optionString)) {
-                            winningOption = option;
-                            break;
-                        }
-                    }
-                    if (winningOption == null) {
-                        messageQueue.add(Message.response(message, "Not a valid option."));
+
+                    if (parsed.getComponents().size() < 2) {
+                        messageQueue.add(Message.response(message, "You must specify the winning option"));
                     } else {
-                        Set<String> winners = bettingService.closeBet(winningOption);
-                        if (winners.isEmpty()) {
-                            messageQueue.add(Message
-                                    .shout(message.getChannel(), "The bet has been closed; there were no winners."));
+                        String optionString = parsed.getComponents().get(1);
+                        BettingOptionModel winningOption = null;
+                        for (BettingOptionModel option : communityModel.getBettingGameModel().getOptions()) {
+                            if (option.getValue().equals(optionString)) {
+                                winningOption = option;
+                                break;
+                            }
+                        }
+                        if (winningOption == null) {
+                            messageQueue.add(Message.response(message, "Not a valid option."));
                         } else {
-                            StringBuilder result = new StringBuilder("The bet has been closed and payouts have been rewarded. The winners are: ");
-                            result.append(winners.stream().collect(Collectors.joining(", ")));
-                            messageQueue.add(Message.shout(message.getChannel(), result.toString()));
+                            Set<String> winners = bettingService.endBet(winningOption);
+                            if (winners.isEmpty()) {
+                                messageQueue.add(Message.shout(message
+                                        .getChannel(), "The bet has been closed; there were no winners."));
+                            } else {
+                                StringBuilder result = new StringBuilder("The bet has been closed and payouts have been rewarded. The winners are: ");
+                                result.append(winners.stream().collect(Collectors.joining(", ")));
+                                messageQueue.add(Message.shout(message.getChannel(), result.toString()));
+                            }
                         }
                     }
+
                 } else {
                     messageQueue.add(Message.response(message, "There is no active bet."));
                 }
@@ -136,17 +149,21 @@ public class Betting implements CommandHandler {
 
                 BettingGameModel game = communityModel.getBettingGameModel();
                 if (game != null) {
-                    boolean handledBetPlacement = attemptToPlaceBet(game, message, parsed.getComponents().get(0), parsed
-                            .getComponents().get(1));
-
-                    if (!handledBetPlacement) {
-                        // maybe the user reversed the components
-                        handledBetPlacement = attemptToPlaceBet(game, message, parsed.getComponents().get(1), parsed
-                                .getComponents().get(0));
+                    if (communityModel.getBettingGameModel().isClosed()) {
+                        messageQueue.add(Message.response(message, "The bet has already been closed."));
+                    } else {
+                        boolean handledBetPlacement = attemptToPlaceBet(game, message, parsed.getComponents()
+                                .get(0), parsed.getComponents().get(1));
 
                         if (!handledBetPlacement) {
-                            // the user must have typed gibberish
-                            messageQueue.add(Message.response(message, "Kappa"));
+                            // maybe the user reversed the components
+                            handledBetPlacement = attemptToPlaceBet(game, message, parsed.getComponents().get(1), parsed
+                                    .getComponents().get(0));
+
+                            if (!handledBetPlacement) {
+                                // the user must have typed gibberish
+                                messageQueue.add(Message.response(message, "Kappa"));
+                            }
                         }
                     }
                 } else {

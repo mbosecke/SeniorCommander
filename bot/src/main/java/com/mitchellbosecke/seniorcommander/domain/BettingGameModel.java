@@ -24,6 +24,9 @@ public class BettingGameModel {
     @JoinColumn(name = "community_id")
     private CommunityModel communityModel;
 
+    @Column
+    private boolean closed;
+
     @OneToMany(mappedBy = "bettingGameModel")
     @Cascade(CascadeType.ALL)
     private Set<BettingOptionModel> options;
@@ -50,5 +53,13 @@ public class BettingGameModel {
 
     public void setOptions(Set<BettingOptionModel> options) {
         this.options = options;
+    }
+
+    public boolean isClosed() {
+        return closed;
+    }
+
+    public void setClosed(boolean closed) {
+        this.closed = closed;
     }
 }
