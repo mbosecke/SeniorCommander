@@ -41,6 +41,9 @@ public class TimerModel {
     @Temporal(value = TemporalType.TIMESTAMP)
     private Date lastExecuted;
 
+    @Column
+    private String description;
+
     public long getId() {
         return id;
     }
@@ -111,5 +114,13 @@ public class TimerModel {
 
     public void setLastExecuted(Date lastExecuted) {
         this.lastExecuted = lastExecuted;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

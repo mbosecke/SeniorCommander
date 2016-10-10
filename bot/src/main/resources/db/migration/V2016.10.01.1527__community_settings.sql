@@ -5,7 +5,7 @@ create table community_setting (
   value character varying(50)
 );
 
-ALTER TABLE core.community_setting
+ALTER TABLE community_setting
   ADD CONSTRAINT community_setting_key_uq UNIQUE (community_id, key);
 
 

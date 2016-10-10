@@ -1,4 +1,4 @@
-set search_path = core, public;
+--set search_path = bot, public;
 
 /**
  * Create community and channel
@@ -39,33 +39,38 @@ values (1, 'admin', 0, 'ADMIN', current_date, current_date);
 /**
  * Commands
  */
-insert into command (community_id, trigger, cooldown, implementation, access_level)
-values (1, '!roll', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.Roll', 'USER');
 
-insert into command (community_id, trigger, cooldown, implementation, access_level)
-values (1, '!advice', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.Advice', 'USER');
+-- quote crud
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!quote add', 'com.mitchellbosecke.seniorcommander.extension.core.command.QuoteCrud', true, 'MODERATOR', NULL, 'Add a new quote');
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!quote delete', 'com.mitchellbosecke.seniorcommander.extension.core.command.QuoteCrud', true, 'MODERATOR', NULL, 'Delete an existing quote');
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!quote edit', 'com.mitchellbosecke.seniorcommander.extension.core.command.QuoteCrud', true, 'MODERATOR', NULL, 'Edit an existing quote');
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!quote', 'com.mitchellbosecke.seniorcommander.extension.core.command.RandomQuote', true, 'USER', NULL, 'Retrieve a random quote. Use "!quote author" to retrieve a random quote from a particular person.');
 
-insert into command (community_id, trigger, cooldown, implementation, access_level)
-values (1, '!command', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.CommandCrud', 'MODERATOR');
+-- timer crud
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!timer add', 'com.mitchellbosecke.seniorcommander.extension.core.command.TimerCrud', true, 'MODERATOR', NULL, 'Add a new timer');
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!timer delete', 'com.mitchellbosecke.seniorcommander.extension.core.command.TimerCrud', true, 'MODERATOR', NULL, 'Delete an existing timer');
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!timer enable', 'com.mitchellbosecke.seniorcommander.extension.core.command.TimerCrud', true, 'MODERATOR', NULL, 'Enable an existing timer');
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!timer disable', 'com.mitchellbosecke.seniorcommander.extension.core.command.TimerCrud', true, 'MODERATOR', NULL, 'Disable an existing timer');
 
-insert into command (community_id, trigger, cooldown, implementation, access_level)
-values (1, '!quote', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.RandomQuote', 'USER');
+--betting
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!bet', 'com.mitchellbosecke.seniorcommander.extension.core.command.Betting', true, 'USER', NULL, 'Get information about the active bet');
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!bet open', 'com.mitchellbosecke.seniorcommander.extension.core.command.Betting', true, 'MODERATOR', NULL, 'Open a new bet');
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!bet cancel', 'com.mitchellbosecke.seniorcommander.extension.core.command.Betting', true, 'MODERATOR', NULL, 'Cancel the active bet');
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!bet close', 'com.mitchellbosecke.seniorcommander.extension.core.command.Betting', true, 'MODERATOR', NULL, 'Close the active bet, preventing new bets from being made');
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!bet winner', 'com.mitchellbosecke.seniorcommander.extension.core.command.Betting', true, 'MODERATOR', NULL, 'Declare the winner of the active bet');
 
-insert into command (community_id, trigger, cooldown, implementation, access_level)
-values (1, '!quote delete', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.QuoteCrud', 'MODERATOR');
+-- points
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!points', 'com.mitchellbosecke.seniorcommander.extension.core.command.Points', false, 'USER', NULL, 'Get the number of points that you or another user has');
 
-insert into command (community_id, trigger, cooldown, implementation, access_level)
-values (1, '!quote add', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.QuoteCrud', 'MODERATOR');
+-- command crud
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!command add', 'com.mitchellbosecke.seniorcommander.extension.core.command.CommandCrud', true, 'MODERATOR', NULL, 'Add a new command');
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!command edit', 'com.mitchellbosecke.seniorcommander.extension.core.command.CommandCrud', true, 'MODERATOR', NULL, 'Edit an existing command');
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!command delete', 'com.mitchellbosecke.seniorcommander.extension.core.command.CommandCrud', true, 'MODERATOR', NULL, 'Delete an existing command');
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!command enable', 'com.mitchellbosecke.seniorcommander.extension.core.command.CommandCrud', true, 'MODERATOR', NULL, 'Enable an existing command');
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!command disable', 'com.mitchellbosecke.seniorcommander.extension.core.command.CommandCrud', true, 'MODERATOR', NULL, 'Disable an existing command');
 
-insert into command (community_id, trigger, cooldown, implementation, access_level)
-values (1, '!quote edit', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.QuoteCrud', 'MODERATOR');
-
-insert into command (community_id, trigger, cooldown, implementation, access_level)
-values (1, '!timer', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.TimerCrud', 'MODERATOR');
-
-insert into command (community_id, trigger, cooldown, implementation, access_level)
-values (1, '!bet', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.Betting', 'MODERATOR');
-
-insert into command (community_id, trigger, cooldown, implementation, access_level)
-values (1, '!points', 0, 'com.mitchellbosecke.seniorcommander.extension.core.command.Points', 'USER');
+-- misc
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!roll', 'com.mitchellbosecke.seniorcommander.extension.core.command.Roll', true, 'USER', NULL, 'Roll a die');
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!roulette', 'com.mitchellbosecke.seniorcommander.extension.core.command.Roulette', true, 'USER', NULL, 'Take a risk');
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!advice', 'com.mitchellbosecke.seniorcommander.extension.core.command.Advice', true, 'USER', NULL, 'Get some life advice');
 

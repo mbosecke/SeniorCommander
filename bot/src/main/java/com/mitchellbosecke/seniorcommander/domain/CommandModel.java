@@ -42,6 +42,9 @@ public class CommandModel {
     @Enumerated(EnumType.STRING)
     private AccessLevel accessLevel;
 
+    @Column
+    private String description;
+
     public long getId() {
         return id;
     }
@@ -112,5 +115,13 @@ public class CommandModel {
 
     public void setAlias(String alias) {
         this.alias = alias;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

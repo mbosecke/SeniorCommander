@@ -14,6 +14,7 @@ import com.mitchellbosecke.seniorcommander.extension.core.service.*;
 import com.mitchellbosecke.seniorcommander.extension.core.timer.*;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.timer.TimerManager;
+import com.typesafe.config.ConfigFactory;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
@@ -106,7 +107,8 @@ public class CoreExtension implements Extension {
             Session session = sessionFactory.getCurrentSession();
             session.beginTransaction();
 
-            int result = session.createNativeQuery("DELETE FROM core.online_channel_user").executeUpdate();
+            String schema = ConfigFactory.load().getString("database.schema");
+            int result = session.createNativeQuery("DELETE FROM " + schema + ".online_channel_user").executeUpdate();
             logger.debug("Deleted " + result + " records from online_channel_user");
             session.getTransaction().commit();
         }catch(Exception ex){
