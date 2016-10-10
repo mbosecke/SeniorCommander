@@ -15,13 +15,22 @@ insert into community(id, name) values (1, 'My Twitch Community');
 
 * Configure a twitch channel:
 ```sql
-insert into channel(community_id, type) values (1, 'irc');
+insert into channel(id, community_id, type) values (1, 'irc');
 
 insert into channel_setting(channel_id, key, value) values (1, 'server', 'irc.chat.twitch.tv');
 insert into channel_setting(channel_id, key, value) values (1, 'port', '6667');
 insert into channel_setting(channel_id, key, value) values (1, 'username', 'billy');
 insert into channel_setting(channel_id, key, value) values (1, 'password', 'oauth:1234');
 insert into channel_setting(channel_id, key, value) values (1, 'channel', '#billy');
+```
+
+* Configure a discord channel:
+```sql
+insert into channel(community_id, type) values (1, 'discord');
+
+insert into channel_setting(channel_id, key, value) values (2, 'guild', 'billy');
+insert into channel_setting(channel_id, key, value) values (2, 'channel', 'general');
+insert into channel_setting(channel_id, key, value) values (2, 'token', '?');
 ```
 
 * Add the commands:
