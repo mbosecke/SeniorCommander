@@ -54,6 +54,9 @@ public class CommunityUserModel {
     @Column(name = "time_online")
     private long timeOnline;
 
+    @Column
+    private boolean bot;
+
     public AccessLevel getAccessLevel() {
         return accessLevel;
     }
@@ -140,5 +143,13 @@ public class CommunityUserModel {
 
     public void setTimeOnline(long timeOnline) {
         this.timeOnline = timeOnline;
+    }
+
+    public boolean isBot() {
+        return bot;
+    }
+
+    public void setBot(boolean bot) {
+        this.bot = bot;
     }
 }

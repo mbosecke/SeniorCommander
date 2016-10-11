@@ -1,0 +1,1 @@
+alter table community_user add bot boolean default false not null;

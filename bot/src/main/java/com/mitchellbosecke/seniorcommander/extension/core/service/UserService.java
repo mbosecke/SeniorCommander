@@ -91,7 +91,9 @@ public class UserService extends BaseService {
     public void giveOnlineUsersPoints(Channel channel, int points) {
         ChannelModel channelModel = find(ChannelModel.class, channel.getId());
         for(CommunityUserModel user : channelModel.getOnlineUsers()){
-            user.setPoints(user.getPoints() + points);
+            if(!user.isBot()) {
+                user.setPoints(user.getPoints() + points);
+            }
         }
     }
 }
