@@ -38,7 +38,7 @@ public class PointTimer implements Timer {
         CommunityModel community = userService.findCommunity(channel);
 
         String pointSetting = null;
-        int defaultPoints;
+        int defaultPoints = 0;
 
 
         if (channel.isOnline()) {
@@ -47,11 +47,14 @@ public class PointTimer implements Timer {
             pointSetting = community.getSetting(SETTING_POINTS_ONLINE);
             defaultPoints = DEFAULT_POINT_ONLINE;
 
-        } else {
+        }
+        /*
+        else {
             logger.debug("Channel is offline. [" + channel.getClass().getSimpleName() + "]");
             pointSetting = community.getSetting(SETTING_POINTS_OFFLINE);
             defaultPoints = DEFAULT_POINT_OFFLINE;
         }
+        */
 
         int points = pointSetting == null? defaultPoints : Integer.valueOf(pointSetting);
         userService.giveOnlineUsersPoints(channel, points);
