@@ -1,7 +1,9 @@
 package com.mitchellbosecke.seniorcommander.extension.core.event;
 
-import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.EventHandler;
+import com.mitchellbosecke.seniorcommander.channel.Channel;
+import com.mitchellbosecke.seniorcommander.domain.ChannelModel;
+import com.mitchellbosecke.seniorcommander.extension.core.service.ChannelService;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,8 +20,13 @@ public class OutputHandler implements EventHandler {
 
     private final List<Channel> channels;
 
-    public OutputHandler(List<Channel> channels) {
+    private final ChannelService channelService;
+
+    private final String CONFIG_MUTE = "mute";
+
+    public OutputHandler(List<Channel> channels, ChannelService channelService) {
         this.channels = channels;
+        this.channelService = channelService;
     }
 
     @Override
@@ -41,7 +48,12 @@ public class OutputHandler implements EventHandler {
     }
 
     private void emit(Channel channel, String recipient, String content, boolean whisper) {
-         if (recipient != null) {
+        ChannelModel channelModel = channelService.find(ChannelModel.class, channel.getId());
+        if (Boolean.valueOf(channelModel.getSetting(CONFIG_MUTE))) {
+            return;
+        }
+
+        if (recipient != null) {
             if (whisper) {
                 channel.sendWhisper(recipient, content);
             } else {

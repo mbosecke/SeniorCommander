@@ -61,10 +61,11 @@ public class CoreExtension implements Extension {
         // service tiers
         UserService userService = new UserService(sessionFactory);
         CommandService commandService = new CommandService(sessionFactory);
+        ChannelService channelService = new ChannelService(sessionFactory);
 
         // handlers
         eventHandlers.add(new LoggingHandler(userService));
-        eventHandlers.add(new OutputHandler(channels));
+        eventHandlers.add(new OutputHandler(channels, channelService));
         eventHandlers.add(new ConversationalHandler(messageQueue));
         eventHandlers.add(new UserChatHandler(userService));
         eventHandlers.add(new JoinPartHandler(userService));

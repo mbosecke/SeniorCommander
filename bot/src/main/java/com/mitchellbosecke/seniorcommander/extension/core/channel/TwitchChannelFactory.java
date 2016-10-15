@@ -18,7 +18,6 @@ public class TwitchChannelFactory implements ChannelFactory {
     private static final String CONFIG_USERNAME = "username";
     private static final String CONFIG_PASSWORD = "password";
     private static final String CONFIG_CHANNEL = "channel";
-    private static final String CONFIG_LURK = "lurk";
 
     @Override
     public List<Channel> build(Session session) {
@@ -35,10 +34,8 @@ public class TwitchChannelFactory implements ChannelFactory {
             String username = channelModel.getSetting(CONFIG_USERNAME);
             String password = channelModel.getSetting(CONFIG_PASSWORD);
             String channel = channelModel.getSetting(CONFIG_CHANNEL);
-            boolean lurk =  Boolean.valueOf(channelModel.getSetting(CONFIG_LURK));
 
             TwitchChannel twitchChannel = new TwitchChannel(channelModel.getId(), server, port, username, password, channel);
-            twitchChannel.setLurk(lurk);
 
             ircChannels.add(twitchChannel);
         }
