@@ -51,6 +51,11 @@ public class FollowerAudit implements Timer {
             for (ChannelFollow follow : page.getFollows()) {
                 CommunityUserModel user = userService.findUser(channel, follow.getUser().getName());
 
+                if(user == null){
+                    logger.debug("Adding new user: " + follow.getUser().getName());
+                    user = userService.addUser(userService.findCommunity(channel), follow.getUser().getName());
+                }
+
                 Date followDate = follow.getCreatedAt();
                 if (user.getFirstFollowed() == null) {
                     user.setFirstFollowed(followDate);

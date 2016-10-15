@@ -66,7 +66,7 @@ public class UserService extends BaseService {
         return user;
     }
 
-    private CommunityUserModel addUser(CommunityModel communityModel, String name) {
+    public CommunityUserModel addUser(CommunityModel communityModel, String name) {
         CommunityUserModel user = new CommunityUserModel();
         user.setCommunityModel(communityModel);
         user.setName(name.toLowerCase());

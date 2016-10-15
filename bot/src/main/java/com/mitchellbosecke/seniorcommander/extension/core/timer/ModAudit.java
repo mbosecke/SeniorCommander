@@ -31,7 +31,7 @@ public class ModAudit implements Timer {
 
     @Override
     public void perform() {
-        logger.debug("Started follow audit.");
+        logger.debug("Started mod audit.");
 
         sessionFactory.getCurrentSession()
                 .createQuery("UPDATE CommunityUserModel SET accessLevel = 'USER' WHERE accessLevel = 'MODERATOR' AND communityModel = :communityModel")
