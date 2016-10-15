@@ -15,7 +15,7 @@ insert into community(id, name) values (1, 'My Twitch Community');
 
 * Configure a twitch channel:
 ```sql
-insert into channel(id, community_id, type) values (1, 'irc');
+insert into channel(community_id, type) values (1, 'irc');
 
 insert into channel_setting(channel_id, key, value) values (1, 'server', 'irc.chat.twitch.tv');
 insert into channel_setting(channel_id, key, value) values (1, 'port', '6667');
@@ -77,7 +77,7 @@ INSERT INTO command (community_id, message, cooldown, trigger, implementation, e
 INSERT INTO timer (community_sequence, message, implementation, interval, chat_lines, enabled, channel_id, description) VALUES (1, NULL, 'com.mitchellbosecke.seniorcommander.extension.core.timer.ModAudit', 600, NULL, true, 1, 'Tracks mods of a twitch channel');
 INSERT INTO timer (community_sequence, message, implementation, interval, chat_lines, enabled, channel_id, description) VALUES (2, NULL, 'com.mitchellbosecke.seniorcommander.extension.core.timer.TwitchOnlineChecker', 60, NULL, true,  1, 'Checks if a twitch channel is online');
 INSERT INTO timer (community_sequence, message, implementation, interval, chat_lines, enabled, channel_id, description) VALUES (3, NULL, 'com.mitchellbosecke.seniorcommander.extension.core.timer.PointTimer', 60, NULL, true,1, 'Distributes points to online users');
-INSERT INTO timer (community_sequence, message, implementation, interval, chat_lines, enabled, channel_id, description) VALUES (4, NULL, 'com.mitchellbosecke.seniorcommander.extension.core.timer.FollowerAudit', 300, NULL, true, 1, 'Tracks followers of a twitch channel');
+INSERT INTO timer (community_sequence, message, implementation, interval, chat_lines, enabled, channel_id, description) VALUES (4, NULL, 'com.mitchellbosecke.seniorcommander.extension.core.timer.FollowerAudit', 3600, NULL, true, 1, 'Tracks followers of a twitch channel');
 ```
 * Restart bot. He will join your channel. Add him as a mod.
 
