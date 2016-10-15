@@ -1,9 +1,21 @@
 group 'com.mitchellbosecke'
 version '1.0-SNAPSHOT'
 
-apply plugin: 'java'
+// dependencies for the build script itself (i.e. not the application)
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
+    }
+}
 
-sourceCompatibility = 1.8
+
+apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+//sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
@@ -27,6 +39,19 @@ sourceSets {
 configurations {
     integrationTestCompile.extendsFrom testCompile
     integrationTestRuntime.extendsFrom testRuntime
+}
+
+task integrationTest(type: Test) {
+    testClassesDir = sourceSets.integrationTest.output.classesDir
+    classpath = sourceSets.integrationTest.runtimeClasspath
+}
+
+jar {
+    manifest {
+        attributes("Implementation-Title": "SeniorCommander",
+                "Implementation-Version": version,
+                "Main-Class": "com.mitchellbosecke.seniorcommander.SeniorCommander")
+    }
 }
 
 dependencies {
@@ -59,7 +84,3 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }
 
-task integrationTest(type: Test) {
-    testClassesDir = sourceSets.integrationTest.output.classesDir
-    classpath = sourceSets.integrationTest.runtimeClasspath
-}
