@@ -56,7 +56,7 @@ public class TwitchApi {
     private HttpClient buildClient() {
         HttpClient client = new HttpClient(BASE_URL);
         client.header("ACCEPT", "application/vnd.twitchtv.v" + Integer.toString(VERSION) + "+json");
-        client.header("Client-ID", ConfigFactory.load().getString("twitch.clientId"));
+        client.header("Client-ID", ConfigFactory.load().getConfig("seniorcommander").getString("twitch.clientId"));
         return client;
     }
 

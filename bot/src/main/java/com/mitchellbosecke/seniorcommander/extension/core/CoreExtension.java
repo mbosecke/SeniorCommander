@@ -108,7 +108,7 @@ public class CoreExtension implements Extension {
             Session session = sessionFactory.getCurrentSession();
             session.beginTransaction();
 
-            String schema = ConfigFactory.load().getString("database.schema");
+            String schema = ConfigFactory.load().getConfig("seniorcommander").getString("database.schema");
             int result = session.createNativeQuery("DELETE FROM " + schema + ".online_channel_user").executeUpdate();
             logger.debug("Deleted " + result + " records from online_channel_user");
             session.getTransaction().commit();

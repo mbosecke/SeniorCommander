@@ -52,7 +52,7 @@ public class AbstractIT {
         commander = new SeniorCommanderImpl();
         executorService.submit(() -> commander.run());
 
-        Config config = ConfigFactory.load();
+        Config config = ConfigFactory.load().getConfig("seniorcommander");
 
         // connect to socket channel
         socket = null;

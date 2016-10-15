@@ -29,7 +29,7 @@ public class DatabaseManager {
 
     public DatabaseManager() {
         flyway = new Flyway();
-        Config configuration = ConfigFactory.load();
+        Config configuration = ConfigFactory.load().getConfig("seniorcommander");
         String url = configuration.getString(CONFIG_URL);
         String username = configuration.getString(CONFIG_USERNAME);
         String password = configuration.getString(CONFIG_PASSWORD);
@@ -40,7 +40,7 @@ public class DatabaseManager {
     public SessionFactory getSessionFactory() {
         SessionFactory sessionFactory;
 
-        Config configuration = ConfigFactory.load();
+        Config configuration = ConfigFactory.load().getConfig("seniorcommander");
 
         Properties config = new Properties();
         config.setProperty("hibernate.dialect", configuration.getString(CONFIG_HIBERNATE_DIALECT));
