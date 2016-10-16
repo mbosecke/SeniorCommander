@@ -1,6 +1,13 @@
 application.conf
 
 *.class
+.gradle
+/build/
+
+# Intellij
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/libraries/*.xml
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
