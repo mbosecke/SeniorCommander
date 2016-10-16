@@ -2,7 +2,7 @@ application.conf
 
 *.class
 .gradle
-/build/
+/bot/build/
 
 # Intellij
 .idea/workspace.xml
