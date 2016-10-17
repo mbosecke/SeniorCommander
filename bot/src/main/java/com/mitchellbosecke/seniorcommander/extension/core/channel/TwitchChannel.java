@@ -69,7 +69,7 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
                         .setServerPassword(password).addServer(server, port).addListener(this).setAutoNickChange(false)
                         .setOnJoinWhoEnabled(false).setCapEnabled(true)
                         .addCapHandler(new EnableCapHandler("twitch.tv/commands"))
-                        .addCapHandler(new EnableCapHandler("twitch.tv/membership")).addAutoJoinChannel(channel)
+                        .addCapHandler(new EnableCapHandler("twitch.tv/membership")).addAutoJoinChannel(channel.toLowerCase())
                         .buildConfiguration();
 
                 ircClient = new PircBotX(configuration);
