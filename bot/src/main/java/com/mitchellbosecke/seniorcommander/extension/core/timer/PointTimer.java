@@ -14,10 +14,8 @@ public class PointTimer implements Timer {
 
     private static final Logger logger = LoggerFactory.getLogger(PointTimer.class);
 
-    private static final int DEFAULT_POINT_ONLINE = 10;
-    private static final int DEFAULT_POINT_OFFLINE = 1;
+    private static final int DEFAULT_POINT_ONLINE = 1;
     private static final String SETTING_POINTS_ONLINE = "points.online";
-    private static final String SETTING_POINTS_OFFLINE = "points.offline";
 
     private final long id;
     private final long interval;
@@ -47,17 +45,9 @@ public class PointTimer implements Timer {
             pointSetting = community.getSetting(SETTING_POINTS_ONLINE);
             defaultPoints = DEFAULT_POINT_ONLINE;
 
+            int points = pointSetting == null? defaultPoints : Integer.valueOf(pointSetting);
+            userService.giveOnlineUsersPoints(channel, points);
         }
-        /*
-        else {
-            logger.debug("Channel is offline. [" + channel.getClass().getSimpleName() + "]");
-            pointSetting = community.getSetting(SETTING_POINTS_OFFLINE);
-            defaultPoints = DEFAULT_POINT_OFFLINE;
-        }
-        */
-
-        int points = pointSetting == null? defaultPoints : Integer.valueOf(pointSetting);
-        userService.giveOnlineUsersPoints(channel, points);
     }
 
     @Override
