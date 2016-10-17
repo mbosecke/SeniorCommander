@@ -62,6 +62,10 @@ public class FollowerAudit implements Timer {
                 }
                 user.setLastFollowed(followDate);
 
+                if(followDate != null && followDate.before(user.getFirstSeen())){
+                    user.setFirstSeen(followDate);
+                }
+
                 if (!user.getAccessLevel().hasAccess(AccessLevel.FOLLOWER)) {
                     user.setAccessLevel(AccessLevel.FOLLOWER);
                 }
