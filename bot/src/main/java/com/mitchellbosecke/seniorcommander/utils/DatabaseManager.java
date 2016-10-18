@@ -68,6 +68,8 @@ public class DatabaseManager {
             sources.addAnnotatedClass(BettingGameModel.class);
             sources.addAnnotatedClass(BettingOptionModel.class);
             sources.addAnnotatedClass(BetModel.class);
+            sources.addAnnotatedClass(GiveawayModel.class);
+            sources.addAnnotatedClass(GiveawayEntryModel.class);
 
             MetadataBuilder metadataBuilder = sources.getMetadataBuilder();
             metadataBuilder.applyImplicitSchemaName(configuration.getString(CONFIG_SCHEMA));

@@ -62,6 +62,7 @@ public class CoreExtension implements Extension {
         UserService userService = new UserService(sessionFactory);
         CommandService commandService = new CommandService(sessionFactory);
         ChannelService channelService = new ChannelService(sessionFactory);
+        GiveawayService giveawayService = new GiveawayService(sessionFactory);
 
         // handlers
         eventHandlers.add(new LoggingHandler(userService));
@@ -72,6 +73,7 @@ public class CoreExtension implements Extension {
         eventHandlers.add(new NamesHandler(userService));
         eventHandlers.add(new CommandBroker(messageQueue, commandHandlers, userService, commandService));
         eventHandlers.add(new ModListHandler(userService));
+        eventHandlers.add(new GiveawayKeywordHandler(giveawayService, userService));
 
         return eventHandlers;
     }
@@ -86,6 +88,7 @@ public class CoreExtension implements Extension {
         TimerService timerService = new TimerService(sessionFactory);
         UserService userService = new UserService(sessionFactory);
         BettingService bettingService = new BettingService(sessionFactory);
+        GiveawayService giveawayService = new GiveawayService(sessionFactory);
 
         // handlers
         List<CommandHandler> commandHandlers = new ArrayList<>();
@@ -98,6 +101,8 @@ public class CoreExtension implements Extension {
         commandHandlers.add(new TimerCrud(messageQueue, timerService, timerManager, userService));
         commandHandlers.add(new Betting(messageQueue, bettingService, userService));
         commandHandlers.add(new Points(messageQueue, userService));
+        commandHandlers.add(new Giveaway(messageQueue, giveawayService));
+
         return commandHandlers;
     }
 
