@@ -5,9 +5,10 @@ import com.mitchellbosecke.seniorcommander.domain.CommunityUserModel;
 import com.mitchellbosecke.seniorcommander.extension.core.channel.TwitchChannel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;
 import com.mitchellbosecke.seniorcommander.timer.Timer;
-import com.mitchellbosecke.seniorcommander.twitch.ChannelFollow;
-import com.mitchellbosecke.seniorcommander.twitch.ChannelFollowsPage;
-import com.mitchellbosecke.seniorcommander.twitch.TwitchApi;
+import com.mitchellbosecke.twitchapi.ChannelFollow;
+import com.mitchellbosecke.twitchapi.ChannelFollowsPage;
+import com.mitchellbosecke.twitchapi.TwitchApi;
+import com.typesafe.config.ConfigFactory;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,14 +41,17 @@ public class FollowerAudit implements Timer {
     public void perform() {
         logger.debug("Started follow audit.");
 
+        String twitchClientId = ConfigFactory.load().getConfig("seniorcommander").getString("twitch.clientId");
+        TwitchApi twitchApi = new TwitchApi(twitchClientId);
+
         sessionFactory.getCurrentSession()
                 .createQuery("UPDATE CommunityUserModel SET accessLevel = 'USER' WHERE accessLevel = 'FOLLOWER' AND communityModel = :communityModel")
                 .setParameter("communityModel", userService.findCommunity(channel)).executeUpdate();
 
-        ChannelFollowsPage page = new TwitchApi().followers(channel.getChannel());
+        ChannelFollowsPage page = twitchApi.followers(channel.getChannel());
 
         int count = 0;
-        while (!page.getFollows().isEmpty()) {
+        while (page != null && !page.getFollows().isEmpty()) {
             for (ChannelFollow follow : page.getFollows()) {
                 CommunityUserModel user = userService.findUser(channel, follow.getUser().getName());
 
@@ -74,7 +78,11 @@ public class FollowerAudit implements Timer {
                     sessionFactory.getCurrentSession().clear();
                 }
             }
-            page = page.next();
+            if(page.getCursor() != null){
+                page = twitchApi.followers(channel.getChannel(), page.getCursor());
+            }else{
+                page = null;
+            }
         }
 
     }

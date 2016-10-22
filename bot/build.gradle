@@ -19,6 +19,7 @@ apply plugin: 'com.github.johnrengelman.shadow'
 
 repositories {
     mavenCentral()
+    mavenLocal()
 
     // Repositories for the discord dependency
     jcenter()
@@ -72,6 +73,9 @@ dependencies {
 
     // discord
     compile group: 'com.github.austinv11', name: 'Discord4j', version: '2.6.1'
+
+    // twitch
+    compile group: 'com.mitchellbosecke', name: 'twitchapi', version: '1.0-SNAPSHOT'
 
     // cleverbot
     compile group: 'ca.pjer', name: 'chatter-bot-api', version: '1.4.2'

@@ -2,7 +2,8 @@ package com.mitchellbosecke.seniorcommander.extension.core.timer;
 
 import com.mitchellbosecke.seniorcommander.extension.core.channel.TwitchChannel;
 import com.mitchellbosecke.seniorcommander.timer.Timer;
-import com.mitchellbosecke.seniorcommander.twitch.TwitchApi;
+import com.mitchellbosecke.twitchapi.TwitchApi;
+import com.typesafe.config.ConfigFactory;
 
 /**
  * Created by mitch_000 on 2016-09-10.
@@ -21,7 +22,8 @@ public class TwitchOnlineChecker implements Timer {
 
     @Override
     public void perform() {
-        boolean isOnline = new TwitchApi().stream(channel.getChannel()) != null;
+        String twitchClientId = ConfigFactory.load().getConfig("seniorcommander").getString("twitch.clientId");
+        boolean isOnline = new TwitchApi(twitchClientId).stream(channel.getChannel()) != null;
         channel.setOnline(isOnline);
     }
 
