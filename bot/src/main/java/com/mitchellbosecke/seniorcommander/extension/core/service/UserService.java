@@ -8,7 +8,9 @@ import com.mitchellbosecke.seniorcommander.domain.CommunityUserModel;
 import org.hibernate.SessionFactory;
 
 import javax.persistence.NoResultException;
-import java.util.Date;
+import java.time.Duration;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 /**
  * Created by mitch_000 on 2016-07-10.
@@ -42,7 +44,7 @@ public class UserService extends BaseService {
         if (user == null) {
             user = addUser(communityModel, name);
         }
-        user.setLastOnline(new Date());
+        user.setLastOnline(ZonedDateTime.now(ZoneId.of("UTC")));
         if (!channelModel.getOnlineUsers().contains(user)) {
             channelModel.getOnlineUsers().add(user);
         }
@@ -60,8 +62,8 @@ public class UserService extends BaseService {
             channelModel.getOnlineUsers().remove(user);
         }
 
-        long timeOnline = (new Date().getTime() - user.getLastOnline().getTime()) / 1000;
-        user.setTimeOnline(user.getTimeOnline() + timeOnline);
+        Duration duration = Duration.between(user.getLastOnline(), ZonedDateTime.now(ZoneId.of("UTC")));
+        user.setTimeOnline(user.getTimeOnline() + (duration.toMillis()/1000));
 
         return user;
     }
@@ -70,7 +72,7 @@ public class UserService extends BaseService {
         CommunityUserModel user = new CommunityUserModel();
         user.setCommunityModel(communityModel);
         user.setName(name.toLowerCase());
-        user.setFirstSeen(new Date());
+        user.setFirstSeen(ZonedDateTime.now(ZoneId.of("UTC")));
         user.setAccessLevel(AccessLevel.USER);
         persist(user);
         return user;
@@ -79,10 +81,9 @@ public class UserService extends BaseService {
     private CommunityUserModel findUser(CommunityModel communityModel, String name) {
         try {
             return sessionFactory.getCurrentSession()
-                    .createQuery("SELECT cu FROM CommunityUserModel cu WHERE cu.communityModel = :community AND cu" +
-                            ".name = " +
-                            ":name", CommunityUserModel.class)
-                    .setParameter("community", communityModel).setParameter("name", name.toLowerCase()).getSingleResult();
+                    .createQuery("SELECT cu FROM CommunityUserModel cu WHERE cu.communityModel = :community AND cu" + ".name = " + ":name", CommunityUserModel.class)
+                    .setParameter("community", communityModel).setParameter("name", name.toLowerCase())
+                    .getSingleResult();
         } catch (NoResultException ex) {
             return null;
         }
@@ -90,8 +91,8 @@ public class UserService extends BaseService {
 
     public void giveOnlineUsersPoints(Channel channel, int points) {
         ChannelModel channelModel = find(ChannelModel.class, channel.getId());
-        for(CommunityUserModel user : channelModel.getOnlineUsers()){
-            if(!user.isBot()) {
+        for (CommunityUserModel user : channelModel.getOnlineUsers()) {
+            if (!user.isBot()) {
                 user.setPoints(user.getPoints() + points);
             }
         }

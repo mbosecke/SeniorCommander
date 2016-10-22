@@ -8,7 +8,8 @@ import com.mitchellbosecke.seniorcommander.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 /**
  * Created by mitch_000 on 2016-07-04.
@@ -32,7 +33,7 @@ public class LoggingHandler implements EventHandler {
             log.setMessage(message.getContent());
             log.setChannel(userService.find(ChannelModel.class, message.getChannel().getId()));
             log.setCommunityUserModel(userService.findUser(message.getChannel(), message.getSender()));
-            log.setDate(new Date());
+            log.setDate(ZonedDateTime.now(ZoneId.of("UTC")));
             userService.persist(log);
         }
     }

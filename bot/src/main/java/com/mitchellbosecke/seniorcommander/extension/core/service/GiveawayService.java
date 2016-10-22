@@ -7,6 +7,8 @@ import com.mitchellbosecke.seniorcommander.domain.GiveawayModel;
 import org.hibernate.SessionFactory;
 
 import javax.persistence.NoResultException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.HashSet;
 
@@ -33,7 +35,7 @@ public class GiveawayService extends BaseService {
     public void cancelGiveaway(CommunityModel communityModel) {
         GiveawayModel giveaway = findActiveGiveaway(communityModel);
         if (giveaway != null) {
-            giveaway.setClosed(new Date());
+            giveaway.setClosed(ZonedDateTime.now(ZoneId.of("UTC")));
         }
     }
 
@@ -41,7 +43,7 @@ public class GiveawayService extends BaseService {
      * @return A winner
      */
     public String drawWinner(GiveawayModel giveaway) {
-        giveaway.setClosed(new Date());
+        giveaway.setClosed(ZonedDateTime.now(ZoneId.of("UTC")));
 
         GiveawayEntryModel winningEntry = null;
         try {

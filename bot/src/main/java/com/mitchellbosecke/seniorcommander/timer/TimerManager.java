@@ -7,6 +7,8 @@ import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.Map;
 import java.util.Random;
@@ -60,7 +62,7 @@ public class TimerManager {
                 TimerModel model = sessionFactory.getCurrentSession().find(TimerModel.class, timer.getId());
                 if (satisfiesChatLineRequirement(model)) {
                     timer.perform();
-                    model.setLastExecuted(new Date());
+                    model.setLastExecuted(ZonedDateTime.now(ZoneId.of("UTC")));
                 }
                 session.getTransaction().commit();
             } catch (Exception ex) {
@@ -77,10 +79,10 @@ public class TimerManager {
         boolean satisfiesChatLineRequirement = false;
 
         if (model.getChatLines() != null && model.getChatLines() > 0) {
-            Date dateLastExecuted = model.getLastExecuted();
+            ZonedDateTime dateLastExecuted = model.getLastExecuted();
 
             if (dateLastExecuted == null) {
-                dateLastExecuted = new Date(0);
+                dateLastExecuted = ZonedDateTime.now(ZoneId.of("UTC"));
             }
             Long chatLines = (Long) sessionFactory.getCurrentSession()
                     .createQuery("SELECT count(*) FROM ChatLogModel clm WHERE clm.date >= :date AND clm.channel.id = :channelId")

@@ -2,8 +2,8 @@ package com.mitchellbosecke.seniorcommander.extension.core.event;
 
 import com.mitchellbosecke.seniorcommander.CommandHandler;
 import com.mitchellbosecke.seniorcommander.EventHandler;
-import com.mitchellbosecke.seniorcommander.domain.CommandModel;
 import com.mitchellbosecke.seniorcommander.domain.CommandLogModel;
+import com.mitchellbosecke.seniorcommander.domain.CommandModel;
 import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
 import com.mitchellbosecke.seniorcommander.domain.CommunityUserModel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.CommandService;
@@ -13,7 +13,8 @@ import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -82,7 +83,8 @@ public class CommandBroker implements EventHandler {
                 executeCommand(message, commandModel, user);
             } else {
                 long cooldownMilliseconds = commandModel.getCooldown() * 1000;
-                if (commandLogModel.getLogDate().getTime() + cooldownMilliseconds <= new Date().getTime()) {
+                ZonedDateTime tooSoon = ZonedDateTime.now(ZoneId.of("UTC")).minusMinutes(cooldownMilliseconds * 1000);
+                if (commandLogModel.getLogDate().isBefore(tooSoon)) {
                     executeCommand(message, commandModel, user);
                 }
             }
@@ -104,7 +106,7 @@ public class CommandBroker implements EventHandler {
         CommandLogModel log = new CommandLogModel();
         log.setCommandModel(commandModel);
         log.setCommunityUserModel(user);
-        log.setLogDate(new Date());
+        log.setLogDate(ZonedDateTime.now(ZoneId.of("UTC")));
         userService.persist(log);
     }
 

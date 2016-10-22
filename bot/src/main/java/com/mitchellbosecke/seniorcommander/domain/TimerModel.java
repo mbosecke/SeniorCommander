@@ -1,7 +1,7 @@
 package com.mitchellbosecke.seniorcommander.domain;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 /**
  * Created by mitch_000 on 2016-07-31.
@@ -38,8 +38,7 @@ public class TimerModel {
     private boolean enabled;
 
     @Column(name = "last_executed")
-    @Temporal(value = TemporalType.TIMESTAMP)
-    private Date lastExecuted;
+    private ZonedDateTime lastExecuted;
 
     @Column
     private String description;
@@ -108,11 +107,11 @@ public class TimerModel {
         this.communitySequence = communitySequence;
     }
 
-    public Date getLastExecuted() {
+    public ZonedDateTime getLastExecuted() {
         return lastExecuted;
     }
 
-    public void setLastExecuted(Date lastExecuted) {
+    public void setLastExecuted(ZonedDateTime lastExecuted) {
         this.lastExecuted = lastExecuted;
     }
 

@@ -1,7 +1,7 @@
 package com.mitchellbosecke.seniorcommander.domain;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 /**
  * Created by mitch_000 on 2016-07-12.
@@ -24,8 +24,7 @@ public class CommandLogModel {
     private CommunityUserModel communityUserModel;
 
     @Column(name = "log_date")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date logDate;
+    private ZonedDateTime logDate;
 
     public long getId() {
         return id;
@@ -51,11 +50,11 @@ public class CommandLogModel {
         this.communityUserModel = communityUserModel;
     }
 
-    public Date getLogDate() {
+    public ZonedDateTime getLogDate() {
         return logDate;
     }
 
-    public void setLogDate(Date logDate) {
+    public void setLogDate(ZonedDateTime logDate) {
         this.logDate = logDate;
     }
 }

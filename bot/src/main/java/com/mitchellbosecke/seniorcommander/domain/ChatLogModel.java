@@ -1,7 +1,7 @@
 package com.mitchellbosecke.seniorcommander.domain;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 /**
  * Created by mitch_000 on 2016-09-09.
@@ -27,7 +27,7 @@ public class ChatLogModel {
     private CommunityUserModel communityUserModel;
 
     @Column
-    private Date date;
+    private ZonedDateTime date;
 
     public long getId() {
         return id;
@@ -61,11 +61,11 @@ public class ChatLogModel {
         this.communityUserModel = communityUserModel;
     }
 
-    public Date getDate() {
+    public ZonedDateTime getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(ZonedDateTime date) {
         this.date = date;
     }
 }

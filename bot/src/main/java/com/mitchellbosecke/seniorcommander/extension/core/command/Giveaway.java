@@ -11,7 +11,8 @@ import com.mitchellbosecke.seniorcommander.utils.ParsedCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 /**
  * <p>
@@ -75,7 +76,7 @@ public class Giveaway implements CommandHandler {
             } else if ("close".equalsIgnoreCase(subCommand)) {
                 // close a bet
                 if (existingGiveaway != null) {
-                    existingGiveaway.setClosed(new Date());
+                    existingGiveaway.setClosed(ZonedDateTime.now(ZoneId.of("UTC")));
                     messageQueue.add(Message.shout(message.getChannel(), "The giveaway has been closed."));
                 } else {
                     messageQueue.add(Message.response(message, "There is no active giveaway."));

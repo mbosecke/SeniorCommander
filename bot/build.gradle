@@ -62,7 +62,7 @@ dependencies {
 
     // database
     compile group: 'org.postgresql', name: 'postgresql', version: '9.4.1208'
-    compile group: 'org.hibernate', name: 'hibernate-core', version: '5.2.1.Final'
+    compile group: 'org.hibernate', name: 'hibernate-core', version: '5.2.3.Final'
     compile group: 'org.flywaydb', name: 'flyway-core', version: '4.0.3'
 
     // json

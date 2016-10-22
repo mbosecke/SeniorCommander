@@ -13,7 +13,8 @@ import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 /**
  * Created by mitch_000 on 2016-09-10.
@@ -55,18 +56,18 @@ public class FollowerAudit implements Timer {
             for (ChannelFollow follow : page.getFollows()) {
                 CommunityUserModel user = userService.findUser(channel, follow.getUser().getName());
 
-                if(user == null){
+                if (user == null) {
                     logger.debug("Adding new user: " + follow.getUser().getName());
                     user = userService.addUser(userService.findCommunity(channel), follow.getUser().getName());
                 }
 
-                Date followDate = follow.getCreatedAt();
+                ZonedDateTime followDate = ZonedDateTime.ofInstant(follow.getCreatedAt().toInstant(), ZoneId.of("UTC"));
                 if (user.getFirstFollowed() == null) {
                     user.setFirstFollowed(followDate);
                 }
                 user.setLastFollowed(followDate);
 
-                if(followDate != null && followDate.before(user.getFirstSeen())){
+                if (followDate.isBefore(user.getFirstSeen())) {
                     user.setFirstSeen(followDate);
                 }
 
@@ -78,9 +79,9 @@ public class FollowerAudit implements Timer {
                     sessionFactory.getCurrentSession().clear();
                 }
             }
-            if(page.getCursor() != null){
+            if (page.getCursor() != null) {
                 page = twitchApi.followers(channel.getChannel(), page.getCursor());
-            }else{
+            } else {
                 page = null;
             }
         }

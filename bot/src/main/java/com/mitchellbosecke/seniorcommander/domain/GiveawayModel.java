@@ -4,7 +4,7 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.ZonedDateTime;
 import java.util.Set;
 
 /**
@@ -27,8 +27,7 @@ public class GiveawayModel {
     private String keyword;
 
     @Column
-    @Temporal(value = TemporalType.TIMESTAMP)
-    private Date closed;
+    private ZonedDateTime closed;
 
     @OneToMany(mappedBy = "giveawayModel")
     @Cascade(CascadeType.ALL)
@@ -58,11 +57,11 @@ public class GiveawayModel {
         this.keyword = keyword;
     }
 
-    public Date getClosed() {
+    public ZonedDateTime getClosed() {
         return closed;
     }
 
-    public void setClosed(Date closed) {
+    public void setClosed(ZonedDateTime closed) {
         this.closed = closed;
     }
 

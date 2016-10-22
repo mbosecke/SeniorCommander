@@ -5,7 +5,8 @@ import com.mitchellbosecke.seniorcommander.domain.QuoteModel;
 import org.hibernate.SessionFactory;
 
 import javax.persistence.NoResultException;
-import java.util.Date;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 /**
  * Created by mitch_000 on 2016-07-10.
@@ -34,7 +35,7 @@ public class QuoteService extends BaseService {
         quoteModel.setAuthor(author);
         quoteModel.setContent(content);
         quoteModel.setCommunitySequence(communitySequence);
-        quoteModel.setCreatedDate(new Date());
+        quoteModel.setCreatedDate(ZonedDateTime.now(ZoneId.of("UTC")));
         persist(quoteModel);
         return quoteModel;
     }

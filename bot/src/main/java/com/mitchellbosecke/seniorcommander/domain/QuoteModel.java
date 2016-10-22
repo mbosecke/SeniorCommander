@@ -1,7 +1,7 @@
 package com.mitchellbosecke.seniorcommander.domain;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 /**
  * Created by mitch_000 on 2016-07-17.
@@ -29,8 +29,7 @@ public class QuoteModel {
     private String content;
 
     @Column(name = "created_date")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdDate;
+    private ZonedDateTime createdDate;
 
     public long getId() {
         return id;
@@ -72,11 +71,11 @@ public class QuoteModel {
         this.communitySequence = communitySequence;
     }
 
-    public Date getCreatedDate() {
+    public ZonedDateTime getCreatedDate() {
         return createdDate;
     }
 
-    public void setCreatedDate(Date createdDate) {
+    public void setCreatedDate(ZonedDateTime createdDate) {
         this.createdDate = createdDate;
     }
 }

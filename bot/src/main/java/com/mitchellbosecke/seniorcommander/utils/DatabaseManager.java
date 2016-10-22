@@ -24,6 +24,7 @@ public class DatabaseManager {
 
     private static final String CONFIG_HIBERNATE_DIALECT = "hibernate.dialect";
     private static final String CONFIG_HIBERNATE_DRIVER_CLASS = "hibernate.connection.driver_class";
+    private static final String CONFIG_HIBERNATE_JDBC_TIME_ZONE = "hibernate.jdbc.time_zone";
 
     private Flyway flyway;
 
@@ -49,6 +50,7 @@ public class DatabaseManager {
         config.setProperty("hibernate.connection.username", configuration.getString(CONFIG_USERNAME));
         config.setProperty("hibernate.connection.password", configuration.getString(CONFIG_PASSWORD));
         config.setProperty("hibernate.current_session_context_class", "org.hibernate.context.internal.ThreadLocalSessionContext");
+        config.setProperty("hibernate.jdbc.time_zone", configuration.getString(CONFIG_HIBERNATE_JDBC_TIME_ZONE));
 
         StandardServiceRegistry registry = new StandardServiceRegistryBuilder().applySettings(config).build();
         try {
