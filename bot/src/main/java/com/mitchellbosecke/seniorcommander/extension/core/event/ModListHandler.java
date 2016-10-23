@@ -28,7 +28,7 @@ public class ModListHandler implements EventHandler {
             String[] usernames = message.getContent().substring(message.getContent().indexOf(':') + 1).split(", ");
 
             for(String username : usernames){
-                CommunityUserModel user = userService.findUser(message.getChannel(), username.trim());
+                CommunityUserModel user = userService.findOrCreateUser(message.getChannel(), username.trim());
 
                 if(user != null && !user.getAccessLevel().hasAccess(AccessLevel.MODERATOR)){
                     user.setAccessLevel(AccessLevel.MODERATOR);

@@ -54,12 +54,7 @@ public class FollowerAudit implements Timer {
         int count = 0;
         while (page != null && !page.getFollows().isEmpty()) {
             for (ChannelFollow follow : page.getFollows()) {
-                CommunityUserModel user = userService.findUser(channel, follow.getUser().getName());
-
-                if (user == null) {
-                    logger.debug("Adding new user: " + follow.getUser().getName());
-                    user = userService.addUser(userService.findCommunity(channel), follow.getUser().getName());
-                }
+                CommunityUserModel user = userService.findOrCreateUser(channel, follow.getUser().getName());
 
                 ZonedDateTime followDate = ZonedDateTime.ofInstant(follow.getCreatedAt().toInstant(), ZoneId.of("UTC"));
                 if (user.getFirstFollowed() == null) {

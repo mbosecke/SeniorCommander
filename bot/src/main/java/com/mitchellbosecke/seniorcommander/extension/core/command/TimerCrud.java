@@ -101,7 +101,7 @@ public class TimerCrud implements CommandHandler {
 
             cooldownText = cooldownText.substring(0, cooldownText.length() - 1);
 
-            if (userService.findUser(message.getChannel(), message.getSender()).getAccessLevel()
+            if (userService.findOrCreateUser(message.getChannel(), message.getSender()).getAccessLevel()
                     .hasAccess(AccessLevel.ADMIN)) {
                 cooldown = Long.valueOf(cooldownText);
             } else {

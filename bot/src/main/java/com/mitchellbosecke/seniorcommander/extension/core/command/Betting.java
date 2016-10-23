@@ -47,7 +47,7 @@ public class Betting implements CommandHandler {
 
             BettingGameModel game = communityModel.getBettingGameModel();
             if (game != null) {
-                CommunityUserModel user = userService.findUser(message.getChannel(), message.getSender());
+                CommunityUserModel user = userService.findOrCreateUser(message.getChannel(), message.getSender());
                 BetModel existingBet = bettingService.getBet(user, game);
 
                 StringBuilder description = new StringBuilder();
@@ -212,7 +212,7 @@ public class Betting implements CommandHandler {
             }
 
             if (parsedAmount && parsedOption) {
-                CommunityUserModel user = userService.findUser(message.getChannel(), message.getSender());
+                CommunityUserModel user = userService.findOrCreateUser(message.getChannel(), message.getSender());
                 BetModel existingBet = bettingService.getBet(user, game);
                 if (existingBet != null) {
                     messageQueue.add(Message.response(message, String

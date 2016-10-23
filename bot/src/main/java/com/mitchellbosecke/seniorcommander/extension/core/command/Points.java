@@ -11,6 +11,8 @@ import com.mitchellbosecke.seniorcommander.utils.ParsedCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
+
 /**
  * <p>
  * !points
@@ -44,16 +46,18 @@ public class Points implements CommandHandler {
         pointsName = pointsName == null ? DEFAULT_POINT_PLURAL : pointsName;
 
         if (parsed.getComponents().isEmpty()) {
-            CommunityUserModel user = userService.findUser(message.getChannel(), message.getSender());
+            CommunityUserModel user = userService.findOrCreateUser(message.getChannel(), message.getSender());
             messageQueue.add(Message.response(message, String.format("you have %d %s.", user.getPoints(), pointsName)));
         } else {
-            CommunityUserModel user = userService.findUser(message.getChannel(), parsed.getComponents().get(0));
+            Optional<CommunityUserModel> user = userService
+                    .findExistingUser(message.getChannel(), parsed.getComponents().get(0));
 
-            if (user == null) {
-                messageQueue.add(Message.response(message, "username not found"));
-            } else {
+            if (user.isPresent()) {
                 messageQueue.add(Message.response(message, String
-                        .format("%s has %d %s.", user.getName(), user.getPoints(), pointsName)));
+                        .format("%s has %d %s.", user.get().getName(), user.get().getPoints(), pointsName)));
+
+            } else {
+                messageQueue.add(Message.response(message, "username not found"));
             }
         }
 

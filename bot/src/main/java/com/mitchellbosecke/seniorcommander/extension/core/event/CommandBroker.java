@@ -51,7 +51,7 @@ public class CommandBroker implements EventHandler {
 
             if (commandModel != null && commandModel.isEnabled()) {
 
-                CommunityUserModel user = userService.findUser(message.getChannel(), message.getSender());
+                CommunityUserModel user = userService.findOrCreateUser(message.getChannel(), message.getSender());
                 if (commandModel.getAlias() != null) {
                     commandModel = commandService.findCommand(communityModel, commandModel.getAlias());
                     if (commandModel == null) {

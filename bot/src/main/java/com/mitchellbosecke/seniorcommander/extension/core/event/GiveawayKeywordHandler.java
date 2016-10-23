@@ -32,7 +32,7 @@ public class GiveawayKeywordHandler implements EventHandler {
             Channel channel = message.getChannel();
             GiveawayModel giveaway = giveawayService.findActiveGiveaway(giveawayService.findCommunity(channel));
             if(giveaway != null && giveaway.getKeyword().equalsIgnoreCase(message.getContent())){
-                giveawayService.enterGiveaway(userService.findUser(channel, message.getSender()));
+                giveawayService.enterGiveaway(userService.findOrCreateUser(channel, message.getSender()));
             }
         }
     }

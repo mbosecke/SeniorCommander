@@ -33,7 +33,7 @@ public class LoggingHandler implements EventHandler {
             ChatLogModel log = new ChatLogModel();
             log.setMessage(message.getContent());
             log.setChannel(userService.find(ChannelModel.class, message.getChannel().getId()));
-            log.setCommunityUserModel(userService.findUser(message.getChannel(), message.getSender()));
+            log.setCommunityUserModel(userService.findOrCreateUser(message.getChannel(), message.getSender()));
             log.setDate(ZonedDateTime.now(ZoneId.of("UTC")));
             userService.persist(log);
         }

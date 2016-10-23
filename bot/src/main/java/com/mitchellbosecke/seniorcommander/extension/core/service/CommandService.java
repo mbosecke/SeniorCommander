@@ -37,7 +37,7 @@ public class CommandService extends BaseService {
         CommandModel commandModel = findCommand(communityModel, trigger);
         Session session = sessionFactory.getCurrentSession();
         // commandModel logs
-        session.createQuery("DELETE FROM CommandLogModel cl WHERE cl.command = :command").setParameter("command",
+        session.createQuery("DELETE FROM CommandLogModel cl WHERE cl.commandModel = :command").setParameter("command",
                 commandModel)
                 .executeUpdate();
 
