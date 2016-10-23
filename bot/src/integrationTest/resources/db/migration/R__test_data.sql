@@ -60,7 +60,7 @@ INSERT INTO command (community_id, message, cooldown, trigger, implementation, e
 INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!bet winner', 'com.mitchellbosecke.seniorcommander.extension.core.command.Betting', true, 'MODERATOR', NULL, 'Declare the winner of the active bet');
 
 -- points
-INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!points', 'com.mitchellbosecke.seniorcommander.extension.core.command.Points', false, 'USER', NULL, 'Get the number of points that you or another user has');
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!points', 'com.mitchellbosecke.seniorcommander.extension.core.command.Points', true, 'USER', NULL, 'Get the number of points that you or another user has');
 
 -- command crud
 INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!command add', 'com.mitchellbosecke.seniorcommander.extension.core.command.CommandCrud', true, 'MODERATOR', NULL, 'Add a new command');
