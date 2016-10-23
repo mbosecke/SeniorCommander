@@ -40,27 +40,76 @@ public class Points implements CommandHandler {
     public void execute(Message message) {
         ParsedCommand parsed = new CommandParser().parse(message.getContent());
 
-        CommunityModel community = userService.findCommunity(message.getChannel());
-
-        String pointsName = community.getSetting(SETTING_POINT_PLURAL);
-        pointsName = pointsName == null ? DEFAULT_POINT_PLURAL : pointsName;
+        String pointsName = getPointsName(message);
 
         if (parsed.getComponents().isEmpty()) {
             CommunityUserModel user = userService.findOrCreateUser(message.getChannel(), message.getSender());
             messageQueue.add(Message.response(message, String.format("you have %d %s.", user.getPoints(), pointsName)));
         } else {
-            Optional<CommunityUserModel> user = userService
-                    .findExistingUser(message.getChannel(), parsed.getComponents().get(0));
+            String subCommand = parsed.getComponents().get(0);
 
-            if (user.isPresent()) {
-                messageQueue.add(Message.response(message, String
-                        .format("%s has %d %s.", user.get().getName(), user.get().getPoints(), pointsName)));
-
+            if ("give".equalsIgnoreCase(subCommand)) {
+                attemptToManipulatePoints(true, message, parsed);
+            } else if ("take".equalsIgnoreCase(subCommand)) {
+                attemptToManipulatePoints(false, message, parsed);
             } else {
-                messageQueue.add(Message.response(message, "username not found"));
+
+                Optional<CommunityUserModel> user = userService
+                        .findExistingUser(message.getChannel(), parsed.getComponents().get(0));
+
+                if (user.isPresent()) {
+                    messageQueue.add(Message.response(message, String
+                            .format("%s has %d %s.", user.get().getName(), user.get().getPoints(), pointsName)));
+
+                } else {
+                    messageQueue.add(Message.response(message, "username not found"));
+                }
             }
         }
 
     }
 
+    private void attemptToManipulatePoints(boolean give, Message message, ParsedCommand parsed) {
+        int amountIndex = -1;
+        int amount = -1;
+        try {
+            amount = Integer.parseInt(parsed.getComponents().get(1));
+            amountIndex = 1;
+        } catch (NumberFormatException ex) {
+            try {
+                amount = Integer.parseInt(parsed.getComponents().get(2));
+                amountIndex = 2;
+            } catch (NumberFormatException ex2) {
+            }
+        }
+
+        if (amountIndex > -1) { // we've parsed an amount
+            int nameIndex = amountIndex == 1 ? 2 : 1;
+            String username = parsed.getComponents().get(nameIndex);
+            Optional<CommunityUserModel> optionalUser = userService.findExistingUser(message.getChannel(), username);
+            if (optionalUser.isPresent()) {
+                CommunityUserModel user = optionalUser.get();
+                if (give) {
+                    user.setPoints(user.getPoints() + amount);
+                } else {
+                    user.setPoints(Math.max(0, user.getPoints() - amount));
+                }
+
+                messageQueue.add(Message.response(message, String
+                        .format("%s now has %d %s", username, user.getPoints(), getPointsName(message))));
+            } else {
+                messageQueue.add(Message.response(message, String.format("Username [%s] does not exist", username)));
+            }
+        } else {
+            messageQueue.add(Message.response(message, "Not a valid number"));
+        }
+
+    }
+
+    private String getPointsName(Message message) {
+        CommunityModel community = userService.findCommunity(message.getChannel());
+        String pointsName = community.getSetting(SETTING_POINT_PLURAL);
+        pointsName = pointsName == null ? DEFAULT_POINT_PLURAL : pointsName;
+        return pointsName;
+    }
 }
