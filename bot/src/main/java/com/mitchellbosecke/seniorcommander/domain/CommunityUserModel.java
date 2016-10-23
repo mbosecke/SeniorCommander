@@ -43,6 +43,9 @@ public class CommunityUserModel {
     @Column(name = "last_followed")
     private ZonedDateTime lastFollowed;
 
+    @Column
+    private ZonedDateTime unfollowed;
+
     @Column(name = "last_online")
     private ZonedDateTime lastOnline;
 
@@ -146,5 +149,13 @@ public class CommunityUserModel {
 
     public void setBot(boolean bot) {
         this.bot = bot;
+    }
+
+    public ZonedDateTime getUnfollowed() {
+        return unfollowed;
+    }
+
+    public void setUnfollowed(ZonedDateTime unfollowed) {
+        this.unfollowed = unfollowed;
     }
 }

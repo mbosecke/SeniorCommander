@@ -13,8 +13,11 @@ import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.persistence.NoResultException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by mitch_000 on 2016-09-10.
@@ -45,42 +48,131 @@ public class FollowerAudit implements Timer {
         String twitchClientId = ConfigFactory.load().getConfig("seniorcommander").getString("twitch.clientId");
         TwitchApi twitchApi = new TwitchApi(twitchClientId);
 
-        sessionFactory.getCurrentSession()
-                .createQuery("UPDATE CommunityUserModel SET accessLevel = 'USER' WHERE accessLevel = 'FOLLOWER' AND communityModel = :communityModel")
-                .setParameter("communityModel", userService.findCommunity(channel)).executeUpdate();
+        CommunityUserModel latestFollower = null;
+        try {
+            latestFollower = sessionFactory.getCurrentSession()
+                    .createQuery("SELECT u FROM CommunityUserModel u WHERE u.accessLevel = 'FOLLOWER' AND u.communityModel = :communityModel ORDER BY u.lastFollowed DESC NULLS LAST", CommunityUserModel.class)
+                    .setParameter("communityModel", userService.findCommunity(channel)).setMaxResults(1)
+                    .getSingleResult();
+        } catch (NoResultException ex) {
+        }
+
+        int numberOfFollowers = 0;
+        try {
+            numberOfFollowers = ((Long) sessionFactory.getCurrentSession()
+                    .createQuery("SELECT count(*) FROM CommunityUserModel u WHERE u.accessLevel = 'FOLLOWER' AND u.communityModel = :communityModel")
+                    .setParameter("communityModel", userService.findCommunity(channel)).uniqueResult()).intValue();
+        } catch (NoResultException ex2) {
+        }
 
         ChannelFollowsPage page = twitchApi.followers(channel.getChannel());
+        String latestPageFollower = page.getFollows().isEmpty() ? null : page.getFollows().get(0).getUser().getName();
 
-        int count = 0;
+        if (numberOfFollowers == page
+                .getTotal() && latestFollower != null && latestPageFollower != null && latestFollower.getName()
+                .equalsIgnoreCase(latestPageFollower)) {
+            // no need to perform a full audit
+            logger.debug("Followers haven't changed");
+        } else {
+            performFullAudit(twitchApi, page);
+            logger.debug("Follower audit complete");
+        }
+    }
+
+    private void performFullAudit(TwitchApi twitchApi, ChannelFollowsPage page) {
+        List<ChannelFollow> actualFollowers = new ArrayList<>();
         while (page != null && !page.getFollows().isEmpty()) {
-            for (ChannelFollow follow : page.getFollows()) {
-                CommunityUserModel user = userService.findOrCreateUser(channel, follow.getUser().getName());
+            actualFollowers.addAll(page.getFollows());
 
-                ZonedDateTime followDate = ZonedDateTime.ofInstant(follow.getCreatedAt().toInstant(), ZoneId.of("UTC"));
-                if (user.getFirstFollowed() == null) {
-                    user.setFirstFollowed(followDate);
-                }
-                user.setLastFollowed(followDate);
-
-                if (followDate.isBefore(user.getFirstSeen())) {
-                    user.setFirstSeen(followDate);
-                }
-
-                if (!user.getAccessLevel().hasAccess(AccessLevel.FOLLOWER)) {
-                    user.setAccessLevel(AccessLevel.FOLLOWER);
-                }
-                if (++count % 20 == 0) {
-                    sessionFactory.getCurrentSession().flush();
-                    sessionFactory.getCurrentSession().clear();
-                }
-            }
             if (page.getCursor() != null) {
                 page = twitchApi.followers(channel.getChannel(), page.getCursor());
             } else {
-                page = null;
+                break;
             }
         }
+        // sort by name
+        actualFollowers.sort((o1, o2) -> o1.getUser().getName().compareToIgnoreCase(o2.getUser().getName()));
 
+        // get database followers sorted by name
+        List<String> databaseFollowers = sessionFactory.getCurrentSession()
+                .createQuery("SELECT u.name FROM CommunityUserModel u WHERE u.accessLevel = 'FOLLOWER' AND u.communityModel = :communityModel ORDER BY u.name ASC", String.class)
+                .setParameter("communityModel", userService.findCommunity(channel)).getResultList();
+
+        int actualFollowerIndex = 0;
+        int databaseFollowerIndex = 0;
+
+        if(databaseFollowers.isEmpty()){
+            while (actualFollowerIndex < actualFollowers.size()) {
+                markAsFollower(actualFollowers.get(actualFollowerIndex));
+                actualFollowerIndex++;
+            }
+        }else {
+
+            while (true) {
+                ChannelFollow actualFollower = actualFollowers.get(actualFollowerIndex);
+                String databaseFollower = databaseFollowers.get(databaseFollowerIndex);
+
+                if (actualFollower.getUser().getName().equalsIgnoreCase(databaseFollower)) {
+                    actualFollowerIndex++;
+                    databaseFollowerIndex++;
+                } else if (actualFollower.getUser().getName().compareToIgnoreCase(databaseFollower) == -1) {
+                    markAsFollower(actualFollower);
+                    actualFollowerIndex++;
+                } else {
+                    markAsUnfollowed(databaseFollower);
+                    databaseFollowerIndex++;
+                }
+
+                if (actualFollowerIndex >= actualFollowers.size()) {
+                    // loop through remaining database followers and mark them as unfollowed
+                    while (databaseFollowerIndex < databaseFollowers.size()) {
+                        markAsUnfollowed(databaseFollowers.get(databaseFollowerIndex));
+                        databaseFollowerIndex++;
+                    }
+                    break;
+                } else if (databaseFollowerIndex >= databaseFollowers.size()) {
+                    // loop throw remaining actual followers and mark them as new followers
+                    while (actualFollowerIndex < actualFollowers.size()) {
+                        markAsFollower(actualFollowers.get(actualFollowerIndex));
+                        actualFollowerIndex++;
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    private void markAsFollower(ChannelFollow channelFollow) {
+        CommunityUserModel user = userService.findOrCreateUser(channel, channelFollow.getUser().getName());
+        logger.debug("Marking " + channelFollow.getUser().getName() + " as a follower");
+
+        ZonedDateTime followDate = ZonedDateTime.ofInstant(channelFollow.getCreatedAt().toInstant(), ZoneId.of("UTC"));
+        if (user.getFirstFollowed() == null) {
+            user.setFirstFollowed(followDate);
+        }
+        user.setLastFollowed(followDate);
+
+        if (followDate.isBefore(user.getFirstSeen())) {
+            user.setFirstSeen(followDate);
+        }
+
+        if (!user.getAccessLevel().hasAccess(AccessLevel.FOLLOWER)) {
+            user.setAccessLevel(AccessLevel.FOLLOWER);
+        }
+
+        user.setUnfollowed(null);
+    }
+
+    private void markAsUnfollowed(String username) {
+        CommunityUserModel user = userService.findOrCreateUser(channel, username);
+        logger.debug("Marking " + username + " as unfollowed");
+
+        if (user.getAccessLevel() == AccessLevel.FOLLOWER) {
+            user.setAccessLevel(AccessLevel.USER);
+        }
+
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
+        user.setUnfollowed(now);
     }
 
     @Override
