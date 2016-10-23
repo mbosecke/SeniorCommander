@@ -11,8 +11,8 @@ import com.mitchellbosecke.seniorcommander.utils.ParsedCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 /**
  * <p>
@@ -30,7 +30,7 @@ public class RandomQuote implements CommandHandler {
 
     private final MessageQueue messageQueue;
 
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("MMM d, yyyy");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.CANADA);
 
     public RandomQuote(MessageQueue messageQueue, QuoteService quoteService) {
         this.messageQueue = messageQueue;
