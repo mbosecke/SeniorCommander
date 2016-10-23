@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Optional;
 
 /**
  * <p>
@@ -87,9 +88,13 @@ public class Giveaway implements CommandHandler {
 
                 GiveawayModel mostRecentGiveaway = giveawayService.findMostRecentGiveaway(communityModel);
                 if (mostRecentGiveaway != null) {
-                    String winner = giveawayService.drawWinner(mostRecentGiveaway);
-                    messageQueue.add(Message.response(message, String
-                            .format("The giveaway is closed and a winner has been chosen. The winner is %s.", winner)));
+                    Optional<String> winner = giveawayService.drawWinner(mostRecentGiveaway);
+
+                    if(winner.isPresent()) {
+                        messageQueue.add(Message.response(message, String.format("The giveaway is closed and a winner has been chosen. The winner is %s.", winner.get())));
+                    }else{
+                        messageQueue.add(Message.response(message,"The giveaway is over; there were no entries."));
+                    }
                 } else {
                     messageQueue.add(Message.response(message, "There has never been a giveaway."));
                 }

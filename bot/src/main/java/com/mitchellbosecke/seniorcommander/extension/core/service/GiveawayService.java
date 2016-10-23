@@ -11,6 +11,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Optional;
 
 public class GiveawayService extends BaseService {
 
@@ -42,25 +43,26 @@ public class GiveawayService extends BaseService {
     /**
      * @return A winner
      */
-    public String drawWinner(GiveawayModel giveaway) {
+    public Optional<String> drawWinner(GiveawayModel giveaway) {
         giveaway.setClosed(ZonedDateTime.now(ZoneId.of("UTC")));
 
-        GiveawayEntryModel winningEntry = null;
+        String winner = null;
         try {
+            GiveawayEntryModel winningEntry = null;
             //@formatter:off
             winningEntry = sessionFactory.getCurrentSession()
                     .createQuery("SELECT e " +
                             "FROM GiveawayEntryModel e " +
                             "WHERE e.winner = false " +
-                            "AND e.giveaway = :giveaway", GiveawayEntryModel.class)
+                            "AND e.giveawayModel = :giveaway", GiveawayEntryModel.class)
                     .setParameter("giveaway", giveaway).setMaxResults(1).getSingleResult();
             //@formatter:on
-        } catch (NoResultException ex) {
-            return null;
-        }
 
-        winningEntry.setWinner(true);
-        return winningEntry.getCommunityUserModel().getName();
+            winningEntry.setWinner(true);
+            winner = winningEntry.getCommunityUserModel().getName();
+        } catch (NoResultException ex) {
+        }
+        return Optional.ofNullable(winner);
     }
 
     public void enterGiveaway(CommunityUserModel user) {
