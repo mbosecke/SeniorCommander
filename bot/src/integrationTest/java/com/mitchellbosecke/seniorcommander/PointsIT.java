@@ -61,4 +61,15 @@ public class PointsIT extends AbstractIT {
         recv("user now has 0 points");
     }
 
+    @Test
+    public void unparseablePoints() {
+        send("moderator: !points give user foo");
+        recv("Not a valid number");
+    }
+
+    @Test
+    public void nonExistingUser() {
+        send("moderator: !points give santa 100");
+        recv("Username [santa] does not exist");
+    }
 }
