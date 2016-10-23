@@ -44,7 +44,7 @@ public class TimerIT extends AbstractIT {
     @Test
     public void disableAndEnableTimer() throws InterruptedException {
         int interval = 10;
-        long id = addTimer("Hello World", 10, 0);
+        long id = addTimer("Hello World", interval, 0);
         send("moderator: !timer disable " + id);
         recv(String.format("Timer #%d has been disabled", id));
         Thread.sleep(interval * 1000);
