@@ -59,7 +59,7 @@ public class TimerManager {
             Session session = sessionFactory.getCurrentSession();
             session.beginTransaction();
             try {
-                TimerModel model = sessionFactory.getCurrentSession().find(TimerModel.class, timer.getId());
+                TimerModel model = session.find(TimerModel.class, timer.getId());
                 if (satisfiesChatLineRequirement(model)) {
                     timer.perform();
                     model.setLastExecuted(ZonedDateTime.now(ZoneId.of("UTC")));

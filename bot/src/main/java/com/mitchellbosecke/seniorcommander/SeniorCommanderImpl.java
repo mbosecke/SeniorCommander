@@ -104,15 +104,23 @@ public class SeniorCommanderImpl implements SeniorCommander {
                 Session session = sessionFactory.getCurrentSession();
                 session.beginTransaction();
 
-                eventHandlers.forEach(eventHandler -> {
-                    try {
-                        eventHandler.handle(message);
-                    } catch (Exception ex) {
-                        // we don't want to die! Just log the error.
-                        logger.error("Error when handling message", ex);
-                    }
-                });
-                session.getTransaction().commit();
+                try {
+
+                    eventHandlers.forEach(eventHandler -> {
+                        try {
+                            eventHandler.handle(message);
+                        } catch (Exception ex) {
+                            // we don't want to die! Just log the error.
+                            logger.error("Error when handling message", ex);
+                        }
+                    });
+                    session.getTransaction().commit();
+                } catch (Exception ex) {
+                    session.getTransaction().rollback();
+                    throw ex;
+                } finally {
+                    session.close();
+                }
             }
             if (!running) {
                 break;
@@ -147,37 +155,40 @@ public class SeniorCommanderImpl implements SeniorCommander {
 
     private void buildChannels(List<Extension> extensions) {
 
+        Session session = sessionFactory.getCurrentSession();
         try {
-            sessionFactory.getCurrentSession().beginTransaction();
+            session.beginTransaction();
 
             for (Extension extension : extensions) {
 
                 List<ChannelFactory> channelFactories = extension.getChannelFactories();
                 if (channelFactories != null) {
-                    channelFactories.forEach(channelFactory -> {
-                        channels.addAll(channelFactory.build(sessionFactory.getCurrentSession()));
-                    });
+                    channelFactories.forEach(channelFactory -> channels.addAll(channelFactory.build(session)));
                 }
             }
-            ;
-            sessionFactory.getCurrentSession().getTransaction().commit();
+            session.getTransaction().commit();
         } catch (Exception ex) {
-            sessionFactory.getCurrentSession().getTransaction().rollback();
+            session.getTransaction().rollback();
             throw ex;
+        } finally {
+            session.close();
         }
     }
 
     private void startTimers(List<Extension> extensions) {
+        Session session = sessionFactory.getCurrentSession();
         try {
-            sessionFactory.getCurrentSession().beginTransaction();
+           session.beginTransaction();
 
             for (Extension extension : extensions) {
                 extension.startTimers(sessionFactory, messageQueue, channels, timerManager);
             }
-            sessionFactory.getCurrentSession().getTransaction().commit();
+            session.getTransaction().commit();
         } catch (Exception ex) {
-            sessionFactory.getCurrentSession().getTransaction().rollback();
+            session.getTransaction().rollback();
             throw ex;
+        } finally {
+            session.close();
         }
     }
 

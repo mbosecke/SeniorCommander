@@ -109,8 +109,9 @@ public class CoreExtension implements Extension {
     @Override
     public void onShutdown(SessionFactory sessionFactory) {
         // do nothing
+        Session session = sessionFactory.getCurrentSession();
         try {
-            Session session = sessionFactory.getCurrentSession();
+
             session.beginTransaction();
 
             String schema = ConfigFactory.load().getConfig("seniorcommander").getString("database.schema");
@@ -119,8 +120,9 @@ public class CoreExtension implements Extension {
             session.getTransaction().commit();
         }catch(Exception ex){
             logger.debug("Rolling back the deletion from online_channel_user");
-            sessionFactory.getCurrentSession().getTransaction().rollback();
             throw ex;
+        }finally {
+            session.close();
         }
     }
 }
