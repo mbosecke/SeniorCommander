@@ -82,19 +82,16 @@ public class TimerManager {
             ZonedDateTime dateLastExecuted = model.getLastExecuted();
 
             if (dateLastExecuted == null) {
-                dateLastExecuted = ZonedDateTime.now(ZoneId.of("UTC"));
-            }
-            Long chatLines = (Long) sessionFactory.getCurrentSession()
-                    .createQuery("SELECT count(*) FROM ChatLogModel clm WHERE clm.date >= :date AND clm.channel.id = :channelId")
-                    .setParameter("date", dateLastExecuted).setParameter("channelId", model.getChannelModel().getId())
-                    .uniqueResult();
-            satisfiesChatLineRequirement = chatLines >= model.getChatLines();
+                satisfiesChatLineRequirement = true;
+            }else {
+                Long chatLines = (Long) sessionFactory.getCurrentSession().createQuery("SELECT count(*) FROM ChatLogModel clm WHERE clm.date >= :date AND clm.channel.id = :channelId")
+                        .setParameter("date", dateLastExecuted).setParameter("channelId", model.getChannelModel().getId()).uniqueResult();
+                satisfiesChatLineRequirement = chatLines >= model.getChatLines();
 
-            if(satisfiesChatLineRequirement){
-                logger.debug("Satisfies chat lines requirement");
-            }else{
-                long diff = model.getChatLines() - chatLines;
-                logger.debug("Requires " + diff + " more chat lines");
+                if(!satisfiesChatLineRequirement){
+                    long diff = model.getChatLines() - chatLines;
+                    logger.trace("Requires " + diff + " more chat lines");
+                }
             }
 
         } else {
