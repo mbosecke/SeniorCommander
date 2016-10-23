@@ -99,7 +99,7 @@ public class CommandCrud implements CommandHandler {
     private long getCooldown(Message message, ParsedCommand parsed) {
         String cooldownText = parsed.getOption(cooldownOption);
         long cooldown = 0;
-        if (cooldownText.endsWith("s")) {
+        if (cooldownText != null && cooldownText.endsWith("s")) {
 
             cooldownText = cooldownText.substring(0, cooldownText.length() - 1);
 
