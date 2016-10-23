@@ -17,6 +17,8 @@ import javax.persistence.NoResultException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -51,7 +53,7 @@ public class FollowerAudit implements Timer {
         CommunityUserModel latestFollower = null;
         try {
             latestFollower = sessionFactory.getCurrentSession()
-                    .createQuery("SELECT u FROM CommunityUserModel u WHERE u.accessLevel = 'FOLLOWER' AND u.communityModel = :communityModel ORDER BY u.lastFollowed DESC NULLS LAST", CommunityUserModel.class)
+                    .createQuery("SELECT u FROM CommunityUserModel u WHERE u.lastFollowed IS NOT NULL AND u.unfollowed IS NULL AND u.communityModel = :communityModel ORDER BY u.lastFollowed DESC NULLS LAST", CommunityUserModel.class)
                     .setParameter("communityModel", userService.findCommunity(channel)).setMaxResults(1)
                     .getSingleResult();
         } catch (NoResultException ex) {
@@ -60,7 +62,7 @@ public class FollowerAudit implements Timer {
         int numberOfFollowers = 0;
         try {
             numberOfFollowers = ((Long) sessionFactory.getCurrentSession()
-                    .createQuery("SELECT count(*) FROM CommunityUserModel u WHERE u.accessLevel = 'FOLLOWER' AND u.communityModel = :communityModel")
+                    .createQuery("SELECT count(*) FROM CommunityUserModel u WHERE u.lastFollowed IS NOT NULL AND u.unfollowed IS NULL AND u.communityModel = :communityModel")
                     .setParameter("communityModel", userService.findCommunity(channel)).uniqueResult()).intValue();
         } catch (NoResultException ex2) {
         }
@@ -95,8 +97,11 @@ public class FollowerAudit implements Timer {
 
         // get database followers sorted by name
         List<String> databaseFollowers = sessionFactory.getCurrentSession()
-                .createQuery("SELECT u.name FROM CommunityUserModel u WHERE u.accessLevel = 'FOLLOWER' AND u.communityModel = :communityModel ORDER BY u.name ASC", String.class)
+                .createQuery("SELECT u.name FROM CommunityUserModel u WHERE u.lastFollowed IS NOT NULL AND u.unfollowed IS NULL AND u.communityModel = :communityModel ORDER BY u.name ASC", String.class)
                 .setParameter("communityModel", userService.findCommunity(channel)).getResultList();
+
+        // postgresql ignores underscores when sorting so we need to sort ourselves
+        Collections.sort(databaseFollowers);
 
         int actualFollowerIndex = 0;
         int databaseFollowerIndex = 0;
@@ -115,7 +120,7 @@ public class FollowerAudit implements Timer {
                 if (actualFollower.getUser().getName().equalsIgnoreCase(databaseFollower)) {
                     actualFollowerIndex++;
                     databaseFollowerIndex++;
-                } else if (actualFollower.getUser().getName().compareToIgnoreCase(databaseFollower) == -1) {
+                } else if (actualFollower.getUser().getName().compareToIgnoreCase(databaseFollower) < 0) {
                     markAsFollower(actualFollower);
                     actualFollowerIndex++;
                 } else {
