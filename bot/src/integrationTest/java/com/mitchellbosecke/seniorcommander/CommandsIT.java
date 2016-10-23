@@ -39,13 +39,13 @@ public class CommandsIT extends AbstractIT {
 
     @Test
     public void commandWithCooldown() throws InterruptedException {
-        send("moderator: !command add !foo \"bar\" cooldown=1");
+        send("admin: !command add !foo \"bar\" cooldown=10s");
         recv("Command has been added: !foo");
         send("user: !foo");
         recv("bar");
         send("user: !foo");
         expectNoBotOutput();
-        Thread.sleep(1 * 60 * 1000);
+        Thread.sleep(10 * 1000);
         send("user: !foo");
         recv("bar");
     }

@@ -5,6 +5,7 @@ import com.mitchellbosecke.seniorcommander.CommandHandler;
 import com.mitchellbosecke.seniorcommander.domain.CommandModel;
 import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.CommandService;
+import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.utils.CommandParser;
@@ -29,14 +30,17 @@ public class CommandCrud implements CommandHandler {
 
     private final CommandService commandService;
 
+    private final UserService userService;
+
     private final MessageQueue messageQueue;
 
     private String[] cooldownOption = {"cooldown", "cd"};
     private String[] accessLevel = {"access", "ac"};
 
-    public CommandCrud(MessageQueue messageQueue, CommandService commandService) {
+    public CommandCrud(MessageQueue messageQueue, CommandService commandService, UserService userService) {
         this.messageQueue = messageQueue;
         this.commandService = commandService;
+        this.userService = userService;
     }
 
     @Override
@@ -57,7 +61,7 @@ public class CommandCrud implements CommandHandler {
                     messageQueue.add(Message.response(message, "You are missing the quoted text to be used as output"));
                 } else {
                     commandService.addCommand(communityModel, commandName, parsed
-                            .getQuotedText(), getCooldown(parsed), getAccessLevel(parsed));
+                            .getQuotedText(), getCooldown(message, parsed), getAccessLevel(parsed));
                     messageQueue.add(Message.response(message, "Command has been added: " + commandName));
                 }
             } else {
@@ -74,7 +78,7 @@ public class CommandCrud implements CommandHandler {
             }
 
             if (parsed.getOption(cooldownOption) != null) {
-                commandModel.setCooldown(getCooldown(parsed));
+                commandModel.setCooldown(getCooldown(message, parsed));
             }
 
             if (parsed.getOption(accessLevel) != null) {
@@ -92,12 +96,24 @@ public class CommandCrud implements CommandHandler {
 
     }
 
-    private long getCooldown(ParsedCommand parsed) {
+    private long getCooldown(Message message, ParsedCommand parsed) {
         String cooldownText = parsed.getOption(cooldownOption);
-        long cooldown = cooldownText == null ? 0 : Long.valueOf(cooldownText);
+        long cooldown = 0;
+        if (cooldownText.endsWith("s")) {
 
-        // convert minutes to seconds
-        return cooldown * 60;
+            cooldownText = cooldownText.substring(0, cooldownText.length() - 1);
+
+            if (userService.findOrCreateUser(message.getChannel(), message.getSender()).getAccessLevel()
+                    .hasAccess(AccessLevel.ADMIN)) {
+                cooldown = Long.valueOf(cooldownText);
+            } else {
+                // convert minutes to seconds
+                cooldown = (cooldownText == null? 0 : Long.valueOf(cooldownText)) * 60;
+            }
+        }else {
+            cooldown = (cooldownText == null ? 0 : Long.valueOf(cooldownText)) * 60;
+        }
+        return cooldown;
     }
 
     private AccessLevel getAccessLevel(ParsedCommand parsed) {

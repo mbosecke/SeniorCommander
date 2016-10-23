@@ -95,7 +95,7 @@ public class CoreExtension implements Extension {
         commandHandlers.add(new Roll(messageQueue));
         commandHandlers.add(new Advice(messageQueue));
         commandHandlers.add(new Roulette(messageQueue));
-        commandHandlers.add(new CommandCrud(messageQueue, commandService));
+        commandHandlers.add(new CommandCrud(messageQueue, commandService, userService));
         commandHandlers.add(new QuoteCrud(messageQueue, quoteService));
         commandHandlers.add(new RandomQuote(messageQueue, quoteService));
         commandHandlers.add(new TimerCrud(messageQueue, timerService, timerManager, userService));

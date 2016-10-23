@@ -13,6 +13,7 @@ import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -82,10 +83,14 @@ public class CommandBroker implements EventHandler {
             if (commandLogModel == null) {
                 executeCommand(message, commandModel, user);
             } else {
-                long cooldownMilliseconds = commandModel.getCooldown() * 1000;
-                ZonedDateTime tooSoon = ZonedDateTime.now(ZoneId.of("UTC")).minusMinutes(cooldownMilliseconds * 1000);
+                long cooldownSeconds = commandModel.getCooldown();
+                ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
+                ZonedDateTime tooSoon = now.minusSeconds(cooldownSeconds);
                 if (commandLogModel.getLogDate().isBefore(tooSoon)) {
                     executeCommand(message, commandModel, user);
+                }else{
+                    Duration duration = Duration.between(tooSoon, ZonedDateTime.now(ZoneId.of("UTC")));
+                    logger.debug("Too soon before cooldown period. Wait " + (duration.toMillis() / 1000) + " more seconds");
                 }
             }
         } else {
