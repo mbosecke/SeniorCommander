@@ -100,10 +100,9 @@ public class SeniorCommanderImpl implements SeniorCommander {
         while (true) {
             Message message = messageQueue.readMessage(); // only blocks for a small period of time
             if (message != null) {
-
+                logger.trace("Message from queue: [" + message.getType() + ": " + message.getContent() + "]");
                 Session session = sessionFactory.getCurrentSession();
                 session.beginTransaction();
-
                 try {
 
                     eventHandlers.forEach(eventHandler -> {
@@ -114,9 +113,12 @@ public class SeniorCommanderImpl implements SeniorCommander {
                             logger.error("Error when handling message", ex);
                         }
                     });
+                    logger.trace("Committing primary transaction");
                     session.getTransaction().commit();
                 } catch (Exception ex) {
+                    logger.trace("Rolling back primary transaction");
                     session.getTransaction().rollback();
+
                     throw ex;
                 } finally {
                     session.close();
