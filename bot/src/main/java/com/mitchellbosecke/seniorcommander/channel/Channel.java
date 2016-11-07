@@ -16,6 +16,8 @@ public interface Channel {
      */
     long getId();
 
+    String getBotUsername();
+
     void listen(MessageQueue messageQueue) throws IOException;
 
     void sendMessage(String content);

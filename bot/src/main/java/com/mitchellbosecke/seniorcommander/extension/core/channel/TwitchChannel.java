@@ -93,9 +93,6 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
      */
     @Override
     public void onGenericMessage(GenericMessageEvent event) throws Exception {
-        if (username.equalsIgnoreCase(event.getUser().getNick())) { // ignore messages from this bot
-            return;
-        }
         logger.trace("Received message on IRC Channel: " + event.getMessage());
 
         String[] split = MessageUtils.splitRecipient(event.getMessage());
@@ -106,7 +103,10 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
             recipient = SeniorCommander.getName();
         }
 
-        messageQueue.add(Message.userInput(this, event.getUser().getNick(), recipient, message, false));
+        String sender = event.getUser().getNick();
+        sender = username.equalsIgnoreCase(sender)? SeniorCommander.getName() : sender;
+
+        messageQueue.add(Message.userInput(this, sender, recipient, message, false));
     }
 
     /**
@@ -224,4 +224,8 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
         this.online = online;
     }
 
+    @Override
+    public String getBotUsername() {
+        return username;
+    }
 }

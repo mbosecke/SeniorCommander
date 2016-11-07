@@ -174,4 +174,9 @@ public class DiscordChannel implements Channel {
     public long getId() {
         return id;
     }
+
+    @Override
+    public String getBotUsername() {
+        return discordClient.getOurUser().getName();
+    }
 }

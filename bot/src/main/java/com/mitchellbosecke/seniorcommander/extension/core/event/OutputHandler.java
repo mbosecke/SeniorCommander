@@ -3,11 +3,15 @@ package com.mitchellbosecke.seniorcommander.extension.core.event;
 import com.mitchellbosecke.seniorcommander.EventHandler;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.domain.ChannelModel;
+import com.mitchellbosecke.seniorcommander.domain.ChatLogModel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.ChannelService;
+import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,11 +26,14 @@ public class OutputHandler implements EventHandler {
 
     private final ChannelService channelService;
 
+    private final UserService userService;
+
     private final String CONFIG_MUTE = "mute";
 
-    public OutputHandler(List<Channel> channels, ChannelService channelService) {
+    public OutputHandler(List<Channel> channels, ChannelService channelService, UserService userService) {
         this.channels = channels;
         this.channelService = channelService;
+        this.userService = userService;
     }
 
     @Override
@@ -42,19 +49,24 @@ public class OutputHandler implements EventHandler {
             }
 
             for (Channel channel : outputChannels) {
-                emit(channel, message.getRecipient(), message.getContent(), message.isWhisper());
+                emit(channel, message);
             }
         }
     }
 
-    private void emit(Channel channel, String recipient, String content, boolean whisper) {
+    private void emit(Channel channel, Message message) {
         ChannelModel channelModel = channelService.find(ChannelModel.class, channel.getId());
         if (Boolean.valueOf(channelModel.getSetting(CONFIG_MUTE))) {
             return;
         }
 
+        log(message);
+
+        String recipient = message.getRecipient();
+        String content = message.getContent();
+
         if (recipient != null) {
-            if (whisper) {
+            if (message.isWhisper()) {
                 channel.sendWhisper(recipient, content);
             } else {
                 channel.sendMessage(recipient, content);
@@ -62,5 +74,14 @@ public class OutputHandler implements EventHandler {
         } else {
             channel.sendMessage(content);
         }
+    }
+
+    private void log(Message message){
+        ChatLogModel log = new ChatLogModel();
+        log.setMessage(message.getContent());
+        log.setChannel(userService.find(ChannelModel.class, message.getChannel().getId()));
+        log.setCommunityUserModel(userService.findOrCreateUser(message.getChannel(), message.getChannel().getBotUsername()));
+        log.setDate(ZonedDateTime.now(ZoneId.of("UTC")));
+        userService.persist(log);
     }
 }

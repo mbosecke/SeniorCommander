@@ -1,5 +1,6 @@
 package com.mitchellbosecke.seniorcommander.extension.core.channel;
 
+import com.mitchellbosecke.seniorcommander.SeniorCommander;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
@@ -98,13 +99,13 @@ public class SocketChannel implements Channel {
         }
     }
 
-    private String[] splitSender(String message){
+    private String[] splitSender(String message) {
         String sender;
         Matcher matcher = targetedMessage.matcher(message);
         if (matcher.matches()) {
             sender = matcher.group(1);
             message = matcher.group(2);
-        }else{
+        } else {
             logger.debug(String.format("No sender for message: [%s]", message));
             throw new RuntimeException("No sender for message");
         }
@@ -162,6 +163,11 @@ public class SocketChannel implements Channel {
     @Override
     public long getId() {
         return id;
+    }
+
+    @Override
+    public String getBotUsername() {
+        return SeniorCommander.getName();
     }
 }
 
