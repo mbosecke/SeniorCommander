@@ -201,7 +201,13 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
             if (running) {
                 running = false;
                 logger.debug("IRC Channel shutting down");
-                ircClient.sendIRC().quitServer();
+                try {
+                    ircClient.sendIRC().quitServer();
+                }catch(Exception ex){
+                    logger.error("Exception occurred while shutting down IRC server", ex);
+                    // may throw an exception if the library has already
+                    // registered a shutdown hook and has stopped itself
+                }
             }
         }
     }

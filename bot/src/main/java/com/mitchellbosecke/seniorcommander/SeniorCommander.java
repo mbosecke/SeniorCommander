@@ -22,12 +22,5 @@ public interface SeniorCommander {
     static void main(String[] args) throws IOException {
         SeniorCommander commander = new SeniorCommanderImpl();
         commander.run();
-
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                commander.shutdown();
-            }
-        });
     }
 }

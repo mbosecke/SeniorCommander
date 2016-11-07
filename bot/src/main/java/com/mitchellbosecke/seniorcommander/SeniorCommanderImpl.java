@@ -14,8 +14,14 @@ import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by mitch_000 on 2016-07-04.
@@ -77,6 +83,9 @@ public class SeniorCommanderImpl implements SeniorCommander {
 
         // each channel runs on it's own thread
         channelThreadPool = Executors.newFixedThreadPool(channels.size());
+
+        // setup a shutdown hook
+        Runtime.getRuntime().addShutdownHook(new ShutdownHook(this, Thread.currentThread()));
     }
 
     /**
@@ -85,6 +94,7 @@ public class SeniorCommanderImpl implements SeniorCommander {
      */
     @Override
     public void run() {
+
         // run each channel on it's own thread
         for (Channel channel : channels) {
             channelThreadPool.submit(() -> {
@@ -206,4 +216,28 @@ public class SeniorCommanderImpl implements SeniorCommander {
         }
     }
 
+
+    private static class ShutdownHook extends Thread {
+        private final WeakReference<SeniorCommander> botRef;
+        private final Thread mainThread;
+
+        public ShutdownHook(SeniorCommander bot, Thread mainThread){
+            this.botRef = new WeakReference<>(bot);
+            this.mainThread = mainThread;
+        }
+
+        @Override
+        public void run() {
+            SeniorCommander bot = botRef.get();
+            if(bot != null){
+                bot.shutdown();
+            }
+            try {
+                // wait for the main thread to finish
+                mainThread.join();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 }
