@@ -12,7 +12,7 @@ public interface SeniorCommander {
      * @return
      */
     static String getName() {
-        return SeniorCommander.class.getName();
+        return SeniorCommander.class.getSimpleName();
     }
 
     void run();

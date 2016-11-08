@@ -89,6 +89,7 @@ public class CoreExtension implements Extension {
         UserService userService = new UserService(sessionFactory);
         BettingService bettingService = new BettingService(sessionFactory);
         GiveawayService giveawayService = new GiveawayService(sessionFactory);
+        AuctionService auctionService = new AuctionService(sessionFactory);
 
         // handlers
         List<CommandHandler> commandHandlers = new ArrayList<>();
@@ -102,6 +103,7 @@ public class CoreExtension implements Extension {
         commandHandlers.add(new Betting(messageQueue, bettingService, userService));
         commandHandlers.add(new Points(messageQueue, userService));
         commandHandlers.add(new Giveaway(messageQueue, giveawayService));
+        commandHandlers.add(new Auction(messageQueue, auctionService));
 
         return commandHandlers;
     }
@@ -118,10 +120,10 @@ public class CoreExtension implements Extension {
             int result = session.createNativeQuery("DELETE FROM " + schema + ".online_channel_user").executeUpdate();
             logger.debug("Deleted " + result + " records from online_channel_user");
             session.getTransaction().commit();
-        }catch(Exception ex){
+        } catch (Exception ex) {
             logger.debug("Rolling back the deletion from online_channel_user");
             throw ex;
-        }finally {
+        } finally {
             session.close();
         }
     }
