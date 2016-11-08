@@ -26,10 +26,10 @@ public class Points implements CommandHandler {
 
     private final MessageQueue messageQueue;
 
-    private static final String DEFAULT_POINT_SINGULAR = "point";
-    private static final String DEFAULT_POINT_PLURAL = "points";
-    private static final String SETTING_POINT_SINGULAR = "points.singular";
-    private static final String SETTING_POINT_PLURAL = "points.plural";
+    public static final String DEFAULT_POINT_SINGULAR = "point";
+    public static final String DEFAULT_POINT_PLURAL = "points";
+    public static final String SETTING_POINT_SINGULAR = "points.singular";
+    public static final String SETTING_POINT_PLURAL = "points.plural";
 
     public Points(MessageQueue messageQueue, UserService userService) {
         this.messageQueue = messageQueue;

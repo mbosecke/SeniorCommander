@@ -43,7 +43,7 @@ public class AuctionService extends BaseService {
      */
     public Optional<CommunityUserModel> close(AuctionModel auction) {
         auction.setClosed(ZonedDateTime.now(ZoneId.of("UTC")));
-        return Optional.of(auction.getWinningCommunityUserModel());
+        return Optional.ofNullable(auction.getWinningCommunityUserModel());
     }
 
     public AuctionModel findActiveAuction(CommunityModel communityModel) {
