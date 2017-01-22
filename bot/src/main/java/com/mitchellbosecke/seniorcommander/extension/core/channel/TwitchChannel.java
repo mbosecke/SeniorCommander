@@ -5,6 +5,7 @@ import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.message.MessageUtils;
+import com.mitchellbosecke.seniorcommander.utils.RateLimiter;
 import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.cap.EnableCapHandler;
@@ -50,6 +51,8 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
 
     private volatile boolean online = false;
 
+    private RateLimiter rateLimiter = new RateLimiter(20, 30);
+
     public TwitchChannel(long id, String server, Integer port, String username, String password, String channel) {
         this.id = id;
         this.server = server;
@@ -69,8 +72,8 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
                         .setServerPassword(password).addServer(server, port).addListener(this).setAutoNickChange(false)
                         .setOnJoinWhoEnabled(false).setCapEnabled(true)
                         .addCapHandler(new EnableCapHandler("twitch.tv/commands"))
-                        .addCapHandler(new EnableCapHandler("twitch.tv/membership")).addAutoJoinChannel(channel.toLowerCase())
-                        .buildConfiguration();
+                        .addCapHandler(new EnableCapHandler("twitch.tv/membership"))
+                        .addAutoJoinChannel(channel.toLowerCase()).buildConfiguration();
 
                 ircClient = new PircBotX(configuration);
 
@@ -104,7 +107,7 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
         }
 
         String sender = event.getUser().getNick();
-        sender = username.equalsIgnoreCase(sender)? SeniorCommander.getName() : sender;
+        sender = username.equalsIgnoreCase(sender) ? SeniorCommander.getName() : sender;
 
         messageQueue.add(Message.userInput(this, sender, recipient, message, false));
     }
@@ -161,37 +164,37 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
         logger.debug("User list: " + names.toString());
     }
 
-    public void getModList(){
-        ircClient.sendIRC().message(channel, "/mods");
+    public void getModList() {
+        rateLimiter.submit(() -> ircClient.sendIRC().message(channel, "/mods"));
     }
 
     @Override
     public void sendMessage(String content) {
-        logger.debug("Twitch channel send message 1");
         if (running) {
-            logger.debug("Twitch channel sending message 2");
-            ircClient.sendIRC().message(channel, content);
+            rateLimiter.submit(() -> ircClient.sendIRC().message(channel, content));
         }
     }
 
     @Override
     public void sendMessage(String recipient, String content) {
         if (running) {
-            ircClient.sendIRC().message(channel, "@" + recipient + ", " + content);
+            rateLimiter.submit(() -> ircClient.sendIRC().message(channel, "@" + recipient + ", " + content));
         }
     }
 
     @Override
     public void sendWhisper(String recipient, String content) {
         if (running) {
-            ircClient.sendRaw().rawLine(String.format("PRIVMSG %s :/w %s %s", channel, recipient, content));
+            rateLimiter.submit(() -> ircClient.sendRaw()
+                    .rawLine(String.format("PRIVMSG %s :/w %s %s", channel, recipient, content)));
         }
     }
 
     @Override
     public void timeout(String user, long duration) {
         if (running) {
-            ircClient.sendIRC().message(channel, String.format(".timeout %s %d", user, duration));
+            rateLimiter.submit(() -> ircClient.sendIRC()
+                    .message(channel, String.format(".timeout %s %d", user, duration)));
         }
     }
 
@@ -203,7 +206,7 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
                 logger.debug("IRC Channel shutting down");
                 try {
                     ircClient.sendIRC().quitServer();
-                }catch(Exception ex){
+                } catch (Exception ex) {
                     logger.error("Exception occurred while shutting down IRC server", ex);
                     // may throw an exception if the library has already
                     // registered a shutdown hook and has stopped itself

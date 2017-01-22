@@ -1,10 +1,10 @@
 # SeniorCommander
 
-A chat/moderation bot, primarly focused on twitch.
+A chat/moderation bot, primarily focused on twitch.
 
-# Database Setup
-* Have an available database (empty) and a user that can connect to it.
-* Copy `/src/main/resources/reference.conf` to `/src/main/resources/application.conf` and populate with database settings.
+# Running
+* Have an available database (empty) and a user that can connect to it. PostgreSQL is recommended.
+* Copy `/src/main/resources/reference.conf` to `/src/main/resources/application.conf` and populate with database settings and a Twitch Client ID.
 * Run main method in `SeniorCommander` which will invoke [flyway](https://flywaydb.org/) to create all necessary database tables.
 
 # Channel configuration
