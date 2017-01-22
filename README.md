@@ -67,11 +67,18 @@ INSERT INTO command (community_id, message, cooldown, trigger, implementation, e
 INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!command enable', 'com.mitchellbosecke.seniorcommander.extension.core.command.CommandCrud', true, 'MODERATOR', NULL, 'Enable an existing command');
 INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!command disable', 'com.mitchellbosecke.seniorcommander.extension.core.command.CommandCrud', true, 'MODERATOR', NULL, 'Disable an existing command');
 
---giveaways
+-- giveaways
 INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!giveaway open', 'com.mitchellbosecke.seniorcommander.extension.core.command.Giveaway', true, 'MODERATOR', NULL, 'Open a new giveaway');
 INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!giveaway cancel', 'com.mitchellbosecke.seniorcommander.extension.core.command.Giveaway', true, 'MODERATOR', NULL, 'Cancel the active giveaway');
 INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!giveaway close', 'com.mitchellbosecke.seniorcommander.extension.core.command.Giveaway', true, 'MODERATOR', NULL, 'Close the active giveaway, preventing new entries from being made');
 INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!giveaway draw', 'com.mitchellbosecke.seniorcommander.extension.core.command.Giveaway', true, 'MODERATOR', NULL, 'Declare the winner of the active giveaway');
+
+-- auctions
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!auction open', 'com.mitchellbosecke.seniorcommander.extension.core.command.Auction', true, 'MODERATOR', NULL, 'Open a new auction');
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!auction cancel', 'com.mitchellbosecke.seniorcommander.extension.core.command.Auction', true, 'MODERATOR', NULL, 'Cancel the active auction');
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!auction close', 'com.mitchellbosecke.seniorcommander.extension.core.command.Auction', true, 'MODERATOR', NULL, 'Close the active auction, declaring a winner');
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!bid', 'com.mitchellbosecke.seniorcommander.extension.core.command.Auction', true, 'USER', NULL, 'Make a bid');
+INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!auction', 'com.mitchellbosecke.seniorcommander.extension.core.command.Auction', true, 'USER', NULL, 'General auction information');
 
 -- misc
 INSERT INTO command (community_id, message, cooldown, trigger, implementation, enabled, access_level, alias, description) VALUES (1, NULL, 0, '!roll', 'com.mitchellbosecke.seniorcommander.extension.core.command.Roll', true, 'USER', NULL, 'Roll a die');
