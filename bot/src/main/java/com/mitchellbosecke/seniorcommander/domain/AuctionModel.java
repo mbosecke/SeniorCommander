@@ -32,6 +32,9 @@ public class AuctionModel {
     @Column(name = "winning_bid")
     private Integer winningBid;
 
+    @Column
+    private ZonedDateTime cancelled;
+
     public long getId() {
         return id;
     }
@@ -78,6 +81,14 @@ public class AuctionModel {
 
     public void setWinningBid(Integer winningBid) {
         this.winningBid = winningBid;
+    }
+
+    public ZonedDateTime getCancelled() {
+        return cancelled;
+    }
+
+    public void setCancelled(ZonedDateTime cancelled) {
+        this.cancelled = cancelled;
     }
 }
 

@@ -24,15 +24,26 @@ public class AuctionService extends BaseService {
         return auction;
     }
 
+    public void placeBid(AuctionModel auction, CommunityUserModel user, int amount){
+        returnWinningBid(auction);
+        auction.setWinningBid(amount);
+        auction.setWinningCommunityUserModel(user);
+        user.setPoints(user.getPoints() - amount);
+    }
+
     /**
      * Cancels an auction
      *
-     * @param communityModel
      */
-    public void cancelAuction(CommunityModel communityModel) {
-        AuctionModel auction = findActiveAuction(communityModel);
-        if (auction != null) {
-            auction.setClosed(ZonedDateTime.now(ZoneId.of("UTC")));
+    public void cancelAuction(AuctionModel auction) {
+        auction.setCancelled(ZonedDateTime.now(ZoneId.of("UTC")));
+        returnWinningBid(auction);
+    }
+
+    private void returnWinningBid(AuctionModel auction){
+        if(auction.getWinningCommunityUserModel() != null){
+            CommunityUserModel user = auction.getWinningCommunityUserModel();
+            user.setPoints(user.getPoints() + auction.getWinningBid());
         }
     }
 
@@ -53,6 +64,7 @@ public class AuctionService extends BaseService {
                     .createQuery("SELECT a " +
                             "FROM AuctionModel a " +
                             "WHERE a.closed IS NULL " +
+                            "AND a.cancelled IS NULL " +
                             "AND a.communityModel = :community", AuctionModel.class)
                     .setParameter("community", communityModel).getSingleResult();
             //@formatter:on

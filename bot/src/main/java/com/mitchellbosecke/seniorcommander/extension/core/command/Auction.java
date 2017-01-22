@@ -63,9 +63,7 @@ public class Auction implements CommandHandler {
                                 .format("The current highest bid is %d", existingAuction.getWinningBid())));
                     } else {
 
-                        existingAuction.setWinningBid(amount);
-                        existingAuction.setWinningCommunityUserModel(user);
-                        user.setPoints(user.getPoints() - amount);
+                        auctionService.placeBid(existingAuction, user, amount);
 
                         messageQueue.add(Message.response(message, String
                                 .format("You are the new highest bidder with a bid of %d %s.", amount, getPointsName(message))));
@@ -81,7 +79,9 @@ public class Auction implements CommandHandler {
 
             // provide a description of the bet
             if (parsed.getComponents().isEmpty()) {
-                if (existingAuction.getWinningCommunityUserModel() != null) {
+                if (existingAuction == null) {
+                    messageQueue.add(Message.response(message, "There is no ongoing auction."));
+                } else if (existingAuction.getWinningCommunityUserModel() != null) {
                     messageQueue.add(Message.response(message, String
                             .format("The current auction is for \"%s\" and the highest bidder is currently %s with a bid of %d %s.", existingAuction
                                     .getPrize(), existingAuction.getWinningCommunityUserModel()
@@ -116,7 +116,7 @@ public class Auction implements CommandHandler {
                     // cancel an existing giveaway
 
                     if (existingAuction != null) {
-                        auctionService.cancelAuction(communityModel);
+                        auctionService.cancelAuction(existingAuction);
                         messageQueue.add(Message.shout(message.getChannel(), "The auction has been cancelled."));
                     } else {
                         messageQueue.add(Message.response(message, "There is no active auction."));
