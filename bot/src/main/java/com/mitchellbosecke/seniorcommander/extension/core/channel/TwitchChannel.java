@@ -57,6 +57,8 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
 
     private final ExecutorService reconnectionExecutorService = Executors.newSingleThreadExecutor();
 
+    private static final int RECONNECTION_RATE = 5 * 60 * 1000;
+
     public TwitchChannel(long id, String server, Integer port, String username, String password, String channel) {
         this.id = id;
         this.server = server;
@@ -86,7 +88,7 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
                         connect();
                     }
                 }
-                Thread.sleep(2 * 1000);
+                Thread.sleep(RECONNECTION_RATE);
             }
         });
     }
