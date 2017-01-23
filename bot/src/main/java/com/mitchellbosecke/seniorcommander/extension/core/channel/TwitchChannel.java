@@ -95,8 +95,6 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
     }
 
     private void connect() throws IOException {
-        logger.debug("CONNECTING TO IRC: " + channel);
-
         /*
         We use a signal to determine when the rate limiter allows us to join.
         Unfortunately, we can't put the connection code directly in the runnable
@@ -110,8 +108,6 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
             throw new RuntimeException(e);
         }
 
-
-        logger.debug("CONNECTING TO IRC2: " + channel);
         org.pircbotx.Configuration configuration = new org.pircbotx.Configuration.Builder().setName(username)
                 .setServerPassword(password).addServer(server, port).addListener(this).setAutoNickChange(false)
                 .setOnJoinWhoEnabled(false).setCapEnabled(true)
@@ -121,9 +117,8 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
 
         ircClient = new PircBotX(configuration);
 
-        //logger.debug("Connecting to IRC");
+        logger.debug("Connecting to IRC");
         try {
-            logger.debug("CONNECTING TO IRC3: " + channel);
             ircClient.startBot();
         } catch (IrcException | IOException e) {
             throw new RuntimeException(e);
