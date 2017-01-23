@@ -2,10 +2,11 @@ package com.mitchellbosecke.seniorcommander.extension.core.channel;
 
 import com.mitchellbosecke.seniorcommander.SeniorCommander;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
+import com.mitchellbosecke.seniorcommander.extension.core.CoreExtension;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.message.MessageUtils;
-import com.mitchellbosecke.seniorcommander.utils.RateLimiter;
+import com.mitchellbosecke.seniorcommander.utils.ExecutorUtils;
 import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.cap.EnableCapHandler;
@@ -18,6 +19,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by mitch_000 on 2016-07-03.
@@ -51,7 +55,7 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
 
     private volatile boolean online = false;
 
-    private RateLimiter rateLimiter = new RateLimiter(20, 30);
+    private final ExecutorService reconnectionExecutorService = Executors.newSingleThreadExecutor();
 
     public TwitchChannel(long id, String server, Integer port, String username, String password, String channel) {
         this.id = id;
@@ -67,24 +71,56 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
         synchronized (startupLock) {
             if (running) {
                 this.messageQueue = messageQueue;
-
-                org.pircbotx.Configuration configuration = new org.pircbotx.Configuration.Builder().setName(username)
-                        .setServerPassword(password).addServer(server, port).addListener(this).setAutoNickChange(false)
-                        .setOnJoinWhoEnabled(false).setCapEnabled(true)
-                        .addCapHandler(new EnableCapHandler("twitch.tv/commands"))
-                        .addCapHandler(new EnableCapHandler("twitch.tv/membership"))
-                        .addAutoJoinChannel(channel.toLowerCase()).buildConfiguration();
-
-                ircClient = new PircBotX(configuration);
-
-                logger.debug("IRC channel listening");
-                running = true;
-                try {
-                    ircClient.startBot();
-                } catch (IrcException e) {
-                    throw new RuntimeException(e);
-                }
+                connect();
             }
+            estabishAutomaticReconnection();
+        }
+    }
+
+    private void estabishAutomaticReconnection() {
+        reconnectionExecutorService.submit(() -> {
+            while (true) {
+                synchronized (startupLock) {
+                    if (running && ircClient != null && !ircClient.isConnected()) {
+                        logger.debug("Reconnecting twitch channel");
+                        connect();
+                    }
+                }
+                Thread.sleep(2 * 1000);
+            }
+        });
+    }
+
+    private void connect() throws IOException {
+        CoreExtension.TWITCH_JOIN_RATE_LIMITER.submit(() -> {
+            org.pircbotx.Configuration configuration = new org.pircbotx.Configuration.Builder().setName(username)
+                    .setServerPassword(password).addServer(server, port).addListener(this).setAutoNickChange(false)
+                    .setOnJoinWhoEnabled(false).setCapEnabled(true)
+                    .addCapHandler(new EnableCapHandler("twitch.tv/commands"))
+                    .addCapHandler(new EnableCapHandler("twitch.tv/membership"))
+                    .addAutoJoinChannel(channel.toLowerCase()).setAutoReconnect(false).buildConfiguration();
+
+            ircClient = new PircBotX(configuration);
+
+            logger.debug("Connecting to IRC");
+            try {
+                ircClient.startBot();
+            } catch (IrcException | IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+    }
+
+    private void disconnect() {
+        logger.debug("IRC Channel shutting down");
+        try {
+            ircClient.stopBotReconnect();
+            ircClient.sendIRC().quitServer();
+        } catch (Exception ex) {
+            logger.error("Exception occurred while shutting down IRC server", ex);
+            // may throw an exception if the library has already
+            // registered a shutdown hook and has stopped itself
         }
     }
 
@@ -165,27 +201,28 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
     }
 
     public void getModList() {
-        rateLimiter.submit(() -> ircClient.sendIRC().message(channel, "/mods"));
+        CoreExtension.TWITCH_MESSAGE_RATE_LIMITER.submit(() -> ircClient.sendIRC().message(channel, "/mods"));
     }
 
     @Override
     public void sendMessage(String content) {
         if (running) {
-            rateLimiter.submit(() -> ircClient.sendIRC().message(channel, content));
+            CoreExtension.TWITCH_MESSAGE_RATE_LIMITER.submit(() -> ircClient.sendIRC().message(channel, content));
         }
     }
 
     @Override
     public void sendMessage(String recipient, String content) {
         if (running) {
-            rateLimiter.submit(() -> ircClient.sendIRC().message(channel, "@" + recipient + ", " + content));
+            CoreExtension.TWITCH_MESSAGE_RATE_LIMITER
+                    .submit(() -> ircClient.sendIRC().message(channel, "@" + recipient + ", " + content));
         }
     }
 
     @Override
     public void sendWhisper(String recipient, String content) {
         if (running) {
-            rateLimiter.submit(() -> ircClient.sendRaw()
+            CoreExtension.TWITCH_MESSAGE_RATE_LIMITER.submit(() -> ircClient.sendRaw()
                     .rawLine(String.format("PRIVMSG %s :/w %s %s", channel, recipient, content)));
         }
     }
@@ -193,8 +230,27 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
     @Override
     public void timeout(String user, long duration) {
         if (running) {
-            rateLimiter.submit(() -> ircClient.sendIRC()
+            CoreExtension.TWITCH_MESSAGE_RATE_LIMITER.submit(() -> ircClient.sendIRC()
                     .message(channel, String.format(".timeout %s %d", user, duration)));
+        }
+    }
+
+    @Override
+    public void onDisconnect(DisconnectEvent event) throws Exception {
+        super.onDisconnect(event);
+        if (running) {
+            logger.debug("Disconnected, attempting to reconnect.");
+            //connect(); // attempt to reconnect
+        }
+    }
+
+    @Override
+    public void onConnectAttemptFailed(ConnectAttemptFailedEvent event) throws Exception {
+        super.onConnectAttemptFailed(event);
+        if (running) {
+            logger.debug("Connection attempt failed.");
+            //Thread.sleep(5 * 1000);
+            //connect();
         }
     }
 
@@ -203,14 +259,8 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
         synchronized (startupLock) {
             if (running) {
                 running = false;
-                logger.debug("IRC Channel shutting down");
-                try {
-                    ircClient.sendIRC().quitServer();
-                } catch (Exception ex) {
-                    logger.error("Exception occurred while shutting down IRC server", ex);
-                    // may throw an exception if the library has already
-                    // registered a shutdown hook and has stopped itself
-                }
+                ExecutorUtils.shutdown(reconnectionExecutorService, 2, TimeUnit.SECONDS);
+                disconnect();
             }
         }
     }

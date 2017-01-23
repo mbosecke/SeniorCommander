@@ -28,14 +28,14 @@ public class TwitchChannelFactory implements ChannelFactory {
                 .getResultList();
 
         for (ChannelModel channelModel : channelModels) {
-
             String server = channelModel.getSetting(CONFIG_SERVER);
             Integer port = Integer.valueOf(channelModel.getSetting(CONFIG_PORT));
             String username = channelModel.getSetting(CONFIG_USERNAME);
             String password = channelModel.getSetting(CONFIG_PASSWORD);
             String channel = channelModel.getSetting(CONFIG_CHANNEL);
 
-            TwitchChannel twitchChannel = new TwitchChannel(channelModel.getId(), server, port, username, password, channel);
+            TwitchChannel twitchChannel = new TwitchChannel(channelModel
+                    .getId(), server, port, username, password, channel);
 
             ircChannels.add(twitchChannel);
         }

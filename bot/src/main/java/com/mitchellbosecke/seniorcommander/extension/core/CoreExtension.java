@@ -14,6 +14,7 @@ import com.mitchellbosecke.seniorcommander.extension.core.service.*;
 import com.mitchellbosecke.seniorcommander.extension.core.timer.*;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.timer.TimerManager;
+import com.mitchellbosecke.seniorcommander.utils.RateLimiter;
 import com.typesafe.config.ConfigFactory;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -27,6 +28,17 @@ import java.util.List;
  * Created by mitch_000 on 2016-07-05.
  */
 public class CoreExtension implements Extension {
+
+    /**
+     * The rate limiter used to join/auth with twitch IRC. It's normally 50 joins per 15 seconds but this
+     * includes "AUTHS" which we do for every join so we can only perform 25 per 15 seconds.
+     */
+    public static final RateLimiter TWITCH_JOIN_RATE_LIMITER = new RateLimiter(25, 15);
+
+    /**
+     * The rate limiter used to send messages on Twitch IRC.
+     */
+    public static final RateLimiter TWITCH_MESSAGE_RATE_LIMITER = new RateLimiter(20, 30);
 
     private static final Logger logger = LoggerFactory.getLogger(CoreExtension.class);
 
@@ -117,6 +129,8 @@ public class CoreExtension implements Extension {
             int result = session.createNativeQuery("DELETE FROM " + schema + ".online_channel_user").executeUpdate();
             logger.debug("Deleted " + result + " records from online_channel_user");
             session.getTransaction().commit();
+            CoreExtension.TWITCH_MESSAGE_RATE_LIMITER.shutdown();
+            CoreExtension.TWITCH_JOIN_RATE_LIMITER.shutdown();
         } catch (Exception ex) {
             logger.debug("Rolling back the deletion from online_channel_user");
             session.getTransaction().rollback();
