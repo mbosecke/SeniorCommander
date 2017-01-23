@@ -100,4 +100,6 @@ INSERT INTO timer (community_sequence, message, implementation, interval, chat_l
 update community_user set bot=true where name = 'seniorcommander';
 ```
 
+# Business Flow
+![Flow Chart](documentation/SeniorCommander.pdf)
 
