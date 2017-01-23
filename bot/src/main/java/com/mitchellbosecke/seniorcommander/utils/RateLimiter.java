@@ -47,6 +47,7 @@ public class RateLimiter {
                 try {
                     Runnable job = jobs.poll();
                     if (job != null) {
+                        logger.debug("RATE LIMITER JOB FOUND: " + jobs.size() + ". Tokens: " + tokens.size());
                         long start = System.currentTimeMillis();
                         tokens.take(); // blocks
                         long end = System.currentTimeMillis();
@@ -56,6 +57,7 @@ public class RateLimiter {
                         }
                         tokens.add(new DelayedElement(windowSize * 1000));
                         job.run();
+                        logger.debug("CODE NEVER GETS HERE");
                     } else {
                         Thread.sleep(IDLE_SLEEP);
                     }
@@ -68,6 +70,7 @@ public class RateLimiter {
 
     public void submit(Runnable runnable) {
         jobs.add(runnable);
+        logger.debug("JOB ADDED: " + jobs.size());
     }
 
     public void shutdown() {

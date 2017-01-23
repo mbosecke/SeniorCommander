@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -94,23 +95,41 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
     }
 
     private void connect() throws IOException {
-        CoreExtension.TWITCH_JOIN_RATE_LIMITER.submit(() -> {
-            org.pircbotx.Configuration configuration = new org.pircbotx.Configuration.Builder().setName(username)
-                    .setServerPassword(password).addServer(server, port).addListener(this).setAutoNickChange(false)
-                    .setOnJoinWhoEnabled(false).setCapEnabled(true)
-                    .addCapHandler(new EnableCapHandler("twitch.tv/commands"))
-                    .addCapHandler(new EnableCapHandler("twitch.tv/membership"))
-                    .addAutoJoinChannel(channel.toLowerCase()).setAutoReconnect(false).buildConfiguration();
+        logger.debug("CONNECTING TO IRC: " + channel);
 
-            ircClient = new PircBotX(configuration);
+        /*
+        We use a signal to determine when the rate limiter allows us to join.
+        Unfortunately, we can't put the connection code directly in the runnable
+        because this code blocks and would prevent other channels from connecting.
+         */
+        CountDownLatch signal = new CountDownLatch(1);
+        CoreExtension.TWITCH_JOIN_RATE_LIMITER.submit(signal::countDown);
+        try {
+            signal.await();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
-            logger.debug("Connecting to IRC");
-            try {
-                ircClient.startBot();
-            } catch (IrcException | IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+
+        logger.debug("CONNECTING TO IRC2: " + channel);
+        org.pircbotx.Configuration configuration = new org.pircbotx.Configuration.Builder().setName(username)
+                .setServerPassword(password).addServer(server, port).addListener(this).setAutoNickChange(false)
+                .setOnJoinWhoEnabled(false).setCapEnabled(true)
+                .addCapHandler(new EnableCapHandler("twitch.tv/commands"))
+                .addCapHandler(new EnableCapHandler("twitch.tv/membership")).addAutoJoinChannel(channel.toLowerCase())
+                .setAutoReconnect(false).buildConfiguration();
+
+        ircClient = new PircBotX(configuration);
+
+        //logger.debug("Connecting to IRC");
+        try {
+            logger.debug("CONNECTING TO IRC3: " + channel);
+            ircClient.startBot();
+        } catch (IrcException | IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
 
     }
 
