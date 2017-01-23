@@ -101,5 +101,5 @@ update community_user set bot=true where name = 'seniorcommander';
 ```
 
 # Business Flow
-![Flow Chart](documentation/SeniorCommander.pdf)
+![Flow Chart](bot/documentation/SeniorCommander.png)
 
