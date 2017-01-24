@@ -3,15 +3,12 @@ package com.mitchellbosecke.seniorcommander.extension.core.event;
 import com.mitchellbosecke.seniorcommander.EventHandler;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.domain.ChannelModel;
-import com.mitchellbosecke.seniorcommander.domain.ChatLogModel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.ChannelService;
 import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,8 +57,6 @@ public class OutputHandler implements EventHandler {
             return;
         }
 
-        log(message);
-
         String recipient = message.getRecipient();
         String content = message.getContent();
 
@@ -76,12 +71,4 @@ public class OutputHandler implements EventHandler {
         }
     }
 
-    private void log(Message message){
-        ChatLogModel log = new ChatLogModel();
-        log.setMessage(message.getContent());
-        log.setChannel(userService.find(ChannelModel.class, message.getChannel().getId()));
-        log.setCommunityUserModel(userService.findOrCreateUser(message.getChannel(), message.getChannel().getBotUsername()));
-        log.setDate(ZonedDateTime.now(ZoneId.of("UTC")));
-        userService.persist(log);
-    }
 }

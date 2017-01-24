@@ -1,6 +1,5 @@
 package com.mitchellbosecke.seniorcommander.message;
 
-import com.mitchellbosecke.seniorcommander.SeniorCommander;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 
 /**
@@ -64,7 +63,7 @@ public class Message {
      * @return
      */
     public static Message shout(Channel channel, String content) {
-        return new Message(Type.OUTPUT, channel, SeniorCommander.getName(), null, content, false);
+        return new Message(Type.OUTPUT, channel, channel.getBotUsername(), null, content, false);
     }
 
     /**
@@ -75,8 +74,8 @@ public class Message {
      * @return
      */
     public static Message response(Message originalMessage, String content) {
-        return new Message(Type.OUTPUT, originalMessage.channel, SeniorCommander
-                .getName(), originalMessage.sender, content, originalMessage.whisper);
+        return new Message(Type.OUTPUT, originalMessage.channel, originalMessage.channel
+                .getBotUsername(), originalMessage.sender, content, originalMessage.whisper);
     }
 
     /**

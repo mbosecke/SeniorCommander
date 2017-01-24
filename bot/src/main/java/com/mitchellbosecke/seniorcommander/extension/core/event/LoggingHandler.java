@@ -28,7 +28,7 @@ public class LoggingHandler implements EventHandler {
     public void handle(Message message) {
         logger.debug(String.format("[%s] %s: %s", message.getType(), message.getSender(), message.getContent()));
 
-        if(Message.Type.USER == message.getType()) {
+        if(Message.Type.USER == message.getType() || Message.Type.OUTPUT == message.getType()) {
 
             ChatLogModel log = new ChatLogModel();
             log.setMessage(message.getContent());

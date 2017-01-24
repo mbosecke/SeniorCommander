@@ -158,7 +158,7 @@ public class DiscordChannel implements Channel {
                 logger.debug("Shutting down discord channel.");
                 try {
                     discordClient.logout();
-                } catch (RateLimitException | DiscordException e) {
+                } catch (DiscordException e) {
                     throw new RuntimeException(e);
                 }
             }

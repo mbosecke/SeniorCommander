@@ -35,6 +35,9 @@ values (1, 'owner', 0, 'OWNER', current_date, current_date);
 insert into community_user (community_id, name, points, access_level, first_seen, last_chatted)
 values (1, 'admin', 0, 'ADMIN', current_date, current_date);
 
+insert into community_user (community_id, name, points, access_level, first_seen, last_chatted, bot)
+values (1, 'seniorcommander', 0, 'ADMIN', current_date, current_date, true);
+
 
 /**
  * Commands

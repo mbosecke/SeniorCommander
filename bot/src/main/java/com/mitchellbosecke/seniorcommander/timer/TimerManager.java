@@ -84,8 +84,17 @@ public class TimerManager {
             if (dateLastExecuted == null) {
                 satisfiesChatLineRequirement = true;
             }else {
-                Long chatLines = (Long) sessionFactory.getCurrentSession().createQuery("SELECT count(*) FROM ChatLogModel clm WHERE clm.date > :date AND clm.channel.id = :channelId")
-                        .setParameter("date", dateLastExecuted).setParameter("channelId", model.getChannelModel().getId()).uniqueResult();
+                //@formatter:off
+                Long chatLines = (Long) sessionFactory.getCurrentSession().createQuery("" +
+                        "SELECT count(*) " +
+                        "FROM ChatLogModel clm " +
+                        "WHERE clm.date > :date " +
+                        "AND clm.communityUserModel.bot = false " +
+                        "AND clm.channel.id = :channelId")
+                        .setParameter("date", dateLastExecuted)
+                        .setParameter("channelId", model.getChannelModel().getId())
+                        .uniqueResult();
+                //@formatter:on
                 satisfiesChatLineRequirement = chatLines >= model.getChatLines();
 
                 if(!satisfiesChatLineRequirement){

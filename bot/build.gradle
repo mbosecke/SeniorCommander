@@ -72,7 +72,7 @@ dependencies {
     compile group: 'org.pircbotx', name: 'pircbotx', version: '2.1'
 
     // discord
-    compile group: 'com.github.austinv11', name: 'Discord4j', version: '2.6.1'
+    compile group: 'com.github.austinv11', name: 'Discord4j', version: '2.7.0'
 
     // twitch
     compile group: 'com.mitchellbosecke', name: 'twitchapi', version: '1.0-SNAPSHOT'

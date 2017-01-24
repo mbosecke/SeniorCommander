@@ -159,7 +159,6 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
         }
 
         String sender = event.getUser().getNick();
-        sender = username.equalsIgnoreCase(sender) ? SeniorCommander.getName() : sender;
 
         messageQueue.add(Message.userInput(this, sender, recipient, message, false));
     }
