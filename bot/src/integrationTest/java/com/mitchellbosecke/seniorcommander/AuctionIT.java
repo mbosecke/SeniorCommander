@@ -84,6 +84,7 @@ public class AuctionIT extends AbstractIT {
         send("moderator: !auction cancel");
         recv("The auction has been cancelled.");
         send("user: !auction");
+        recv("There is no ongoing auction.");
         expectNoBotOutput();
     }
 
