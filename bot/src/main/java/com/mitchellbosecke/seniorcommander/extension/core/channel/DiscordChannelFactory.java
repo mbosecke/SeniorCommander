@@ -3,10 +3,9 @@ package com.mitchellbosecke.seniorcommander.extension.core.channel;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.channel.ChannelFactory;
 import com.mitchellbosecke.seniorcommander.domain.ChannelModel;
+import com.mitchellbosecke.seniorcommander.utils.NetworkUtils;
 import org.hibernate.Session;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,13 +22,6 @@ public class DiscordChannelFactory implements ChannelFactory {
     public List<Channel> build(Session session) {
         List<Channel> channels = new ArrayList<>();
 
-        String hostname = null;
-        try {
-            hostname = InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
-        }
-
         //@formatter:off
         List<ChannelModel> channelModels = session
                 .createQuery("" +
@@ -37,7 +29,7 @@ public class DiscordChannelFactory implements ChannelFactory {
                         "FROM ChannelModel cm " +
                         "WHERE cm.type = 'discord' " +
                         "AND cm.communityModel.server = :server", ChannelModel.class)
-                .setParameter("server", hostname)
+                .setParameter("server",  NetworkUtils.getLocalHostname())
                 .getResultList();
         //@formatter:on
 

@@ -3,10 +3,9 @@ package com.mitchellbosecke.seniorcommander.extension.core.timer;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.domain.TimerModel;
 import com.mitchellbosecke.seniorcommander.timer.Timer;
+import com.mitchellbosecke.seniorcommander.utils.NetworkUtils;
 import org.hibernate.SessionFactory;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,13 +27,6 @@ public abstract class AbstractTimerFactory<T extends Timer> {
     public List<T> build() {
         List<T> timers = new ArrayList<>();
 
-        String hostname = null;
-        try {
-            hostname = InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
-        }
-
         //@formatter:off
         List<TimerModel> timerModels = sessionFactory.getCurrentSession()
                 .createQuery("" +
@@ -44,7 +36,7 @@ public abstract class AbstractTimerFactory<T extends Timer> {
                         "AND tm.channelModel.communityModel.server = :server " +
                         "AND tm.enabled = true", TimerModel.class)
                 .setParameter("implementation", getTimerClass().getName())
-                .setParameter("server", hostname)
+                .setParameter("server",  NetworkUtils.getLocalHostname())
                 .getResultList();
         //@formatter:on
 

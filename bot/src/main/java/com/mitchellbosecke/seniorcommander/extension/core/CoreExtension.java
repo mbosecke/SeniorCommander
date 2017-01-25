@@ -14,6 +14,7 @@ import com.mitchellbosecke.seniorcommander.extension.core.service.*;
 import com.mitchellbosecke.seniorcommander.extension.core.timer.*;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.timer.TimerManager;
+import com.mitchellbosecke.seniorcommander.utils.NetworkUtils;
 import com.mitchellbosecke.seniorcommander.utils.RateLimiter;
 import com.typesafe.config.ConfigFactory;
 import org.hibernate.Session;
@@ -126,9 +127,19 @@ public class CoreExtension implements Extension {
         try {
             session.beginTransaction();
             String schema = ConfigFactory.load().getConfig("seniorcommander").getString("database.schema");
-            int result = session.createNativeQuery("DELETE FROM " + schema + ".online_channel_user").executeUpdate();
+            //@formatter:off
+            int result = session.createNativeQuery("" +
+                    "DELETE FROM " + schema + ".online_channel_user ocu " +
+                    "WHERE channel_id IN (" +
+                    "   SELECT c.id " +
+                    "   FROM " + schema + ".channel c " +
+                    "   JOIN " + schema + ".community co ON co.id = c.community_id" +
+                    "   WHERE co.server = '" + NetworkUtils.getLocalHostname() + "' " +
+                    ")").executeUpdate();
+            //@formatter:on
             logger.debug("Deleted " + result + " records from online_channel_user");
             session.getTransaction().commit();
+
             CoreExtension.TWITCH_MESSAGE_RATE_LIMITER.shutdown();
             CoreExtension.TWITCH_JOIN_RATE_LIMITER.shutdown();
         } catch (Exception ex) {
