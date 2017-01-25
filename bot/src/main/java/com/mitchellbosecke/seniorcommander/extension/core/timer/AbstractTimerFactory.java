@@ -5,6 +5,8 @@ import com.mitchellbosecke.seniorcommander.domain.TimerModel;
 import com.mitchellbosecke.seniorcommander.timer.Timer;
 import org.hibernate.SessionFactory;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,9 +28,25 @@ public abstract class AbstractTimerFactory<T extends Timer> {
     public List<T> build() {
         List<T> timers = new ArrayList<>();
 
+        String hostname = null;
+        try {
+            hostname = InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
+
+        //@formatter:off
         List<TimerModel> timerModels = sessionFactory.getCurrentSession()
-                .createQuery("SELECT tm FROM TimerModel tm WHERE tm.implementation = :implementation AND tm.enabled = true", TimerModel.class)
-                .setParameter("implementation", getTimerClass().getName()).getResultList();
+                .createQuery("" +
+                        "SELECT tm " +
+                        "FROM TimerModel tm " +
+                        "WHERE tm.implementation = :implementation " +
+                        "AND tm.channelModel.communityModel.server = :server " +
+                        "AND tm.enabled = true", TimerModel.class)
+                .setParameter("implementation", getTimerClass().getName())
+                .setParameter("server", hostname)
+                .getResultList();
+        //@formatter:on
 
         Map<Long, Channel> channelMap = channels.stream().collect(Collectors.toMap(Channel::getId, c -> c));
 

@@ -27,6 +27,9 @@ public class CommunityModel {
     @OneToMany(mappedBy = "communityModel")
     private Set<CommunitySettingModel> settings;
 
+    @Column
+    private String server;
+
     public long getId() {
         return id;
     }
@@ -65,6 +68,14 @@ public class CommunityModel {
 
     public void setSettings(Set<CommunitySettingModel> settings) {
         this.settings = settings;
+    }
+
+    public String getServer() {
+        return server;
+    }
+
+    public void setServer(String server) {
+        this.server = server;
     }
 
     @Transient
