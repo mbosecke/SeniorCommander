@@ -115,6 +115,7 @@ public class SeniorCommanderImpl implements SeniorCommander {
                 session.beginTransaction();
                 try {
 
+                    logger.debug("Primary transaction beginning [{}]", session.getTransaction().getStatus());
                     eventHandlers.forEach(eventHandler -> {
                         try {
                             eventHandler.handle(message);
@@ -123,10 +124,10 @@ public class SeniorCommanderImpl implements SeniorCommander {
                             logger.error("Error when handling message", ex);
                         }
                     });
-                    logger.trace("Committing primary transaction");
+                    logger.debug("Committing primary transaction");
                     session.getTransaction().commit();
                 } catch (Exception ex) {
-                    logger.trace("Rolling back primary transaction");
+                    logger.debug("Rolling back primary transaction");
                     session.getTransaction().rollback();
 
                     throw ex;

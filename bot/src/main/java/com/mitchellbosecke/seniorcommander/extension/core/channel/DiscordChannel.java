@@ -68,7 +68,7 @@ public class DiscordChannel implements Channel {
                 } catch (DiscordException e) {
                     throw new RuntimeException(e);
                 }
-                logger.debug("Discord channel started");
+                logger.debug("Discord channel started [{}]", channelName);
             }
         }
 
@@ -77,7 +77,7 @@ public class DiscordChannel implements Channel {
     @EventSubscriber
     public void onReady(ReadyEvent event) {
         for (IChannel channel : discordClient.getChannels()) {
-            logger.debug("Found discord channel: " + channel.getName());
+            logger.debug("Found discord channel [{}]", channel.getName());
             if (channel.getGuild().getName().equalsIgnoreCase(guildName) && channel.getName()
                     .equalsIgnoreCase(channelName)) {
                 this.channel = channel;
@@ -100,7 +100,7 @@ public class DiscordChannel implements Channel {
                 content = content.replace(botMention, "").trim();
                 recipient = SeniorCommander.getName();
             }
-            logger.trace("Received message on discord channel: " + content);
+            logger.trace("Received message on discord channel [{}]", content);
 
             messageQueue.add(Message.userInput(this, message.getAuthor().getName(), recipient, content, false));
         }
@@ -108,13 +108,13 @@ public class DiscordChannel implements Channel {
 
     @EventSubscriber
     public void onUserJoinEvent(UserJoinEvent event) {
-        logger.trace("User join event: " + event.getUser().getName());
+        logger.trace("User join event [{}]", event.getUser().getName());
         messageQueue.add(Message.join(this, event.getUser().getName()));
     }
 
     @EventSubscriber
     public void onUserLeaveEvent(UserLeaveEvent event) {
-        logger.trace("User leave event: " + event.getUser().getName());
+        logger.trace("User leave event [{}]", event.getUser().getName());
         messageQueue.add(Message.part(this, event.getUser().getName()));
     }
 

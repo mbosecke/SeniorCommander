@@ -117,22 +117,19 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
 
         ircClient = new PircBotX(configuration);
 
-        logger.debug("Connecting to IRC");
+        logger.debug("Connecting to IRC [{}]", channel);
         try {
             ircClient.startBot();
         } catch (IrcException | IOException e) {
             throw new RuntimeException(e);
         }
-
-
-
     }
 
     private void disconnect() {
-        logger.debug("IRC Channel shutting down");
         try {
             ircClient.stopBotReconnect();
             ircClient.sendIRC().quitServer();
+            logger.debug("IRC channel disconnected");
         } catch (Exception ex) {
             logger.error("Exception occurred while shutting down IRC server", ex);
             // may throw an exception if the library has already
@@ -148,7 +145,7 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
      */
     @Override
     public void onGenericMessage(GenericMessageEvent event) throws Exception {
-        logger.trace("Received message on IRC Channel: " + event.getMessage());
+
 
         String[] split = MessageUtils.splitRecipient(event.getMessage());
         String recipient = split[0];
@@ -159,6 +156,8 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
         }
 
         String sender = event.getUser().getNick();
+
+        logger.debug("Received message on IRC Channel [{}: {}] ", sender, message);
 
         messageQueue.add(Message.userInput(this, sender, recipient, message, false));
     }
@@ -172,35 +171,41 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
     @Override
     public void onUnknown(UnknownEvent event) throws Exception {
         IrcProtocolMessage ircProtocolMessage = new IrcProtocolMessage(event.getLine());
-        if ("WHISPER".equals(ircProtocolMessage.getCommand())) {
-
-            if (username.equalsIgnoreCase(ircProtocolMessage.getNick())) {
-                return;
-            }
-            logger.trace("Received whisper on IRC Channel: " + ircProtocolMessage.getLastParam());
-            messageQueue.add(Message
-                    .userInput(this, ircProtocolMessage.getNick(), SeniorCommander.getName(), ircProtocolMessage
-                            .getLastParam(), true));
-        } else {
-            logger.debug("Received unknown command: " + ircProtocolMessage.getCommand());
+        String command = ircProtocolMessage.getCommand();
+        switch(command){
+            case "WHISPER":
+                if (username.equalsIgnoreCase(ircProtocolMessage.getNick())) {
+                    return;
+                }
+                logger.debug("Received whisper on IRC Channel [{}]", ircProtocolMessage.getLastParam());
+                messageQueue.add(Message
+                        .userInput(this, ircProtocolMessage.getNick(), SeniorCommander.getName(), ircProtocolMessage
+                                .getLastParam(), true));
+                break;
+            case "CAP":
+            case "ROOMSTATE":
+            case "USERSTATE":
+                break;
+            default:
+                logger.debug("Received unknown command [{}]", ircProtocolMessage.getCommand());
         }
     }
 
     @Override
     public void onNotice(NoticeEvent event) throws Exception {
-        logger.trace("Notice event: " + event.getNotice());
+        logger.trace("Notice event [{}] ", event.getNotice());
         messageQueue.add(Message.modList(this, event.getNotice()));
     }
 
     @Override
     public void onJoin(JoinEvent event) throws Exception {
-        logger.trace("Join event: " + event.getUser().getNick());
+        logger.trace("Join event [{}] ", event.getUser().getNick());
         messageQueue.add(Message.join(this, event.getUser().getNick()));
     }
 
     @Override
     public void onPart(PartEvent event) throws Exception {
-        logger.trace("Part event: " + event.getUser().getNick());
+        logger.trace("Part event [{}] ", event.getUser().getNick());
         messageQueue.add(Message.part(this, event.getUser().getNick()));
     }
 
@@ -212,7 +217,7 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
             names.append(user.getNick()).append(",");
         }
         messageQueue.add(Message.names(this, names.substring(0, names.length() - 1)));
-        logger.debug("User list: " + names.toString());
+        logger.debug("User list [{}] ", names.toString());
     }
 
     public void getModList() {
@@ -254,8 +259,7 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
     public void onDisconnect(DisconnectEvent event) throws Exception {
         super.onDisconnect(event);
         if (running) {
-            logger.debug("Disconnected, attempting to reconnect.");
-            //connect(); // attempt to reconnect
+            logger.debug("Disconnected.");
         }
     }
 
@@ -264,8 +268,6 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
         super.onConnectAttemptFailed(event);
         if (running) {
             logger.debug("Connection attempt failed.");
-            //Thread.sleep(5 * 1000);
-            //connect();
         }
     }
 
@@ -274,6 +276,7 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
         synchronized (startupLock) {
             if (running) {
                 running = false;
+                logger.debug("Shutting down.");
                 ExecutorUtils.shutdown(reconnectionExecutorService, 2, TimeUnit.SECONDS);
                 disconnect();
             }

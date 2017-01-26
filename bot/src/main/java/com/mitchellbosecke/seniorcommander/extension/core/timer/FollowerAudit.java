@@ -45,7 +45,7 @@ public class FollowerAudit implements Timer {
 
     @Override
     public void perform() {
-        logger.debug("Started follow audit.");
+        logger.trace("Started follow audit.");
 
         String twitchClientId = ConfigFactory.load().getConfig("seniorcommander").getString("twitch.clientId");
         TwitchApi twitchApi = new TwitchApi(twitchClientId);
@@ -74,10 +74,10 @@ public class FollowerAudit implements Timer {
                 .getTotal() && latestFollower != null && latestPageFollower != null && latestFollower.getName()
                 .equalsIgnoreCase(latestPageFollower)) {
             // no need to perform a full audit
-            logger.debug("Followers haven't changed");
+            logger.trace("Followers haven't changed");
         } else {
             performFullAudit(twitchApi, page);
-            logger.debug("Follower audit complete");
+            logger.trace("Follower audit complete");
         }
     }
 
@@ -96,9 +96,17 @@ public class FollowerAudit implements Timer {
         actualFollowers.sort((o1, o2) -> o1.getUser().getName().compareToIgnoreCase(o2.getUser().getName()));
 
         // get database followers sorted by name
+        //@formatter:off
         List<String> databaseFollowers = sessionFactory.getCurrentSession()
-                .createQuery("SELECT u.name FROM CommunityUserModel u WHERE u.lastFollowed IS NOT NULL AND u.unfollowed IS NULL AND u.communityModel = :communityModel ORDER BY u.name ASC", String.class)
+                .createQuery("" +
+                        "SELECT u.name " +
+                        "FROM CommunityUserModel u " +
+                        "WHERE u.lastFollowed IS NOT NULL " +
+                        "AND u.unfollowed IS NULL " +
+                        "AND u.communityModel = :communityModel " +
+                        "ORDER BY u.name ASC", String.class)
                 .setParameter("communityModel", userService.findCommunity(channel)).getResultList();
+        //@formatter:on
 
         // postgresql ignores underscores when sorting so we need to sort ourselves
         Collections.sort(databaseFollowers);

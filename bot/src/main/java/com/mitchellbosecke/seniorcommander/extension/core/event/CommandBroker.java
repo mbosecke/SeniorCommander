@@ -87,6 +87,7 @@ public class CommandBroker implements EventHandler {
                 ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
                 ZonedDateTime tooSoon = now.minusSeconds(cooldownSeconds);
                 if (commandLogModel.getLogDate().isBefore(tooSoon)) {
+                    logger.debug("Command executed [{}]", commandModel.getTrigger());
                     executeCommand(message, commandModel, user);
                 }else{
                     Duration duration = Duration.between(tooSoon, ZonedDateTime.now(ZoneId.of("UTC")));

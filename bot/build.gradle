@@ -82,7 +82,9 @@ dependencies {
 
     // logging
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
-    compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.21'
+    compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.21'
+    //compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.21'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.7'
 
     // testing
     testCompile group: 'junit', name: 'junit', version: '4.11'
