@@ -127,7 +127,7 @@ public class SeniorCommanderImpl implements SeniorCommander {
                     logger.debug("Committing primary transaction");
                     session.getTransaction().commit();
                 } catch (Exception ex) {
-                    logger.debug("Rolling back primary transaction");
+                    logger.error("Rolling back primary transaction");
                     session.getTransaction().rollback();
 
                     throw ex;
