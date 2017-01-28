@@ -13,6 +13,7 @@ import com.mitchellbosecke.seniorcommander.extension.core.event.*;
 import com.mitchellbosecke.seniorcommander.extension.core.service.*;
 import com.mitchellbosecke.seniorcommander.extension.core.timer.*;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
+import com.mitchellbosecke.seniorcommander.timer.Timer;
 import com.mitchellbosecke.seniorcommander.timer.TimerManager;
 import com.mitchellbosecke.seniorcommander.utils.NetworkUtils;
 import com.mitchellbosecke.seniorcommander.utils.RateLimiter;
@@ -44,25 +45,28 @@ public class CoreExtension implements Extension {
     private static final Logger logger = LoggerFactory.getLogger(CoreExtension.class);
 
     @Override
-    public List<ChannelFactory> getChannelFactories() {
+    public List<Channel> buildChannels(Session session) {
         List<ChannelFactory> factories = new ArrayList<>();
         factories.add(new TwitchChannelFactory());
         factories.add(new SocketChannelFactory());
         factories.add(new DiscordChannelFactory());
-        return factories;
+
+        List<Channel> channels = new ArrayList<>();
+        factories.forEach(f -> channels.addAll(f.build(session)));
+        return channels;
     }
 
     @Override
-    public void startTimers(SessionFactory sessionFactory, MessageQueue messageQueue, List<Channel> channels,
-                            TimerManager timerManager) {
+    public List<Timer> buildTimers(SessionFactory sessionFactory, MessageQueue messageQueue, List<Channel> channels) {
 
         UserService userService = new UserService(sessionFactory);
-
-        new ShoutTimerFactory(sessionFactory, channels, messageQueue).build().forEach(timerManager::addTimer);
-        new PointTimerFactory(sessionFactory, channels, userService).build().forEach(timerManager::addTimer);
-        new TwitchOnlineCheckerFactory(sessionFactory, channels).build().forEach(timerManager::addTimer);
-        new FollowerAuditFactory(sessionFactory, channels, userService).build().forEach(timerManager::addTimer);
-        new ModAuditFactory(sessionFactory, channels, userService).build().forEach(timerManager::addTimer);
+        List<Timer> timers = new ArrayList<>();
+        new ShoutTimerFactory(sessionFactory, channels, messageQueue).build().forEach(timers::add);
+        new PointTimerFactory(sessionFactory, channels, userService).build().forEach(timers::add);
+        new TwitchOnlineCheckerFactory(sessionFactory, channels).build().forEach(timers::add);
+        new FollowerAuditFactory(sessionFactory, channels, userService).build().forEach(timers::add);
+        new ModAuditFactory(sessionFactory, channels, userService).build().forEach(timers::add);
+        return timers;
     }
 
     @Override

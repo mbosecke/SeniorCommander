@@ -3,9 +3,10 @@ package com.mitchellbosecke.seniorcommander.extension;
 import com.mitchellbosecke.seniorcommander.CommandHandler;
 import com.mitchellbosecke.seniorcommander.EventHandler;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
-import com.mitchellbosecke.seniorcommander.channel.ChannelFactory;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
+import com.mitchellbosecke.seniorcommander.timer.Timer;
 import com.mitchellbosecke.seniorcommander.timer.TimerManager;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import java.util.List;
@@ -32,18 +33,16 @@ public interface Extension {
      *
      * @return
      */
-    List<ChannelFactory> getChannelFactories();
+    List<Channel> buildChannels(Session session);
 
     /**
-     * Should build and register all timers with the {@link TimerManager}
+     * Builds and returns timers
      *
      * @param sessionFactory
      * @param messageQueue
      * @param channels
-     * @param timerManager
      */
-    void startTimers(SessionFactory sessionFactory, MessageQueue messageQueue, List<Channel> channels,
-                     TimerManager timerManager);
+    List<Timer> buildTimers(SessionFactory sessionFactory, MessageQueue messageQueue, List<Channel> channels);
 
     /**
      * Builds and returns all command handlers.
