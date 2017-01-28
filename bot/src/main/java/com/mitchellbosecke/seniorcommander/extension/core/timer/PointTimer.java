@@ -39,7 +39,7 @@ public class PointTimer implements Timer {
         int defaultPoints = 0;
 
 
-        if (channel.isOnline()) {
+        if (channel.isCommunityOnline()) {
             logger.debug("Channel is online. [" + channel.getClass().getSimpleName() + "]");
 
             pointSetting = community.getSetting(SETTING_POINTS_ONLINE);

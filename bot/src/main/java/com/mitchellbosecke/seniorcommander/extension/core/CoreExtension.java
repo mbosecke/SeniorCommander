@@ -123,6 +123,7 @@ public class CoreExtension implements Extension {
 
     @Override
     public void onShutdown(SessionFactory sessionFactory) {
+        logger.debug("shutting down core extension");
         Session session = sessionFactory.getCurrentSession();
         try {
             session.beginTransaction();

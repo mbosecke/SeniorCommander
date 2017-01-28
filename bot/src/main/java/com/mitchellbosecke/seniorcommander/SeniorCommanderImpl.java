@@ -41,6 +41,8 @@ public class SeniorCommanderImpl implements SeniorCommander {
      */
     private volatile boolean running = true;
 
+    private Object startupLock = new Object();
+
     /**
      * Global session factory
      */
@@ -95,62 +97,71 @@ public class SeniorCommanderImpl implements SeniorCommander {
     @Override
     public void run() {
 
-        // run each channel on it's own thread
-        for (Channel channel : channels) {
-            channelThreadPool.submit(() -> {
-                try {
-                    channel.listen(messageQueue);
-                } catch (Exception e) {
-                    logger.debug("Exception in channel: " + e.getMessage());
-                    throw new RuntimeException(e);
-                }
-            });
-        }
-
-        while (true) {
-            Message message = messageQueue.readMessage(); // only blocks for a small period of time
-            if (message != null) {
-                logger.trace("Message from queue: [" + message.getType() + ": " + message.getContent() + "]");
-                Session session = sessionFactory.getCurrentSession();
-                session.beginTransaction();
-                try {
-
-                    logger.debug("Primary transaction beginning [{}]", session.getTransaction().getStatus());
-                    eventHandlers.forEach(eventHandler -> {
+        synchronized(startupLock){
+            if(running){
+                // run each channel on it's own thread
+                for (Channel channel : channels) {
+                    channelThreadPool.submit(() -> {
                         try {
-                            eventHandler.handle(message);
-                        } catch (Exception ex) {
-                            // we don't want to die! Just log the error.
-                            logger.error("Error when handling message", ex);
+                            channel.listen(messageQueue);
+                        } catch (Exception e) {
+                            logger.debug("Exception in channel: " + e.getMessage());
+                            throw new RuntimeException(e);
                         }
                     });
-                    logger.debug("Committing primary transaction");
-                    session.getTransaction().commit();
-                } catch (Exception ex) {
-                    logger.error("Rolling back primary transaction");
-                    session.getTransaction().rollback();
-
-                    throw ex;
-                } finally {
-                    session.close();
                 }
             }
-            if (!running) {
-                break;
+        }
+
+        while (running) {
+            Message message = messageQueue.readMessage(); // only blocks for a small period of time
+
+            synchronized(startupLock){
+                if (message != null && running) {
+                    logger.trace("Message from queue: [" + message.getType() + ": " + message.getContent() + "]");
+                    Session session = sessionFactory.getCurrentSession();
+                    session.beginTransaction();
+                    try {
+
+                        logger.debug("Primary transaction beginning [{}]", session.getTransaction().getStatus());
+                        eventHandlers.forEach(eventHandler -> {
+                            try {
+                                eventHandler.handle(message);
+                            } catch (Exception ex) {
+                                // we don't want to die! Just log the error.
+                                logger.error("Error when handling message", ex);
+                            }
+                        });
+                        logger.debug("Committing primary transaction");
+                        session.getTransaction().commit();
+                    } catch (Exception ex) {
+                        logger.error("Rolling back primary transaction");
+                        session.getTransaction().rollback();
+
+                        throw ex;
+                    } finally {
+                        session.close();
+                    }
+                }
             }
+
         }
     }
 
     @Override
     public void shutdown() {
         logger.debug("Shutting down SeniorCommander.");
-        running = false;
+        synchronized(startupLock) {
+            if(running) {
+                running = false;
 
-        timerManager.shutdown();
-        extensions.forEach(extension -> extension.onShutdown(sessionFactory));
-        channels.forEach(Channel::shutdown);
-        ExecutorUtils.shutdown(channelThreadPool, 10, TimeUnit.SECONDS);
-        sessionFactory.close();
+                timerManager.shutdown();
+                extensions.forEach(extension -> extension.onShutdown(sessionFactory));
+                channels.forEach(Channel::shutdown);
+                ExecutorUtils.shutdown(channelThreadPool, 10, TimeUnit.SECONDS);
+                sessionFactory.close();
+            }
+        }
     }
 
     private void registerExtensions(List<Extension> extensions) {
@@ -216,6 +227,7 @@ public class SeniorCommanderImpl implements SeniorCommander {
             eventHandlers.addAll(extension.buildEventHandlers(sessionFactory, messageQueue, channels, commandHandlers));
         }
     }
+
 
 
     private static class ShutdownHook extends Thread {

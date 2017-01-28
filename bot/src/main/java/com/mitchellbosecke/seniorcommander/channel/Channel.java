@@ -12,6 +12,7 @@ public interface Channel {
 
     /**
      * Gets the ID of the corresponding {@link ChannelModel}
+     *
      * @return
      */
     long getId();
@@ -30,6 +31,12 @@ public interface Channel {
 
     void shutdown();
 
-    boolean isOnline();
+    /**
+     * Returns true if the community is "active" on this channel. Ex. for the twitch channel
+     * it returns true if the streamer is currently streaming, otherwise false.
+     *
+     * @return
+     */
+    boolean isCommunityOnline();
 
 }

@@ -166,7 +166,7 @@ public class DiscordChannel implements Channel {
     }
 
     @Override
-    public boolean isOnline() {
+    public boolean isCommunityOnline() {
         return false;
     }
 

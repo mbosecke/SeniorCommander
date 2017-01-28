@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -60,19 +61,35 @@ public class SocketChannel implements Channel {
         synchronized (startupLock) {
             if (running) {
                 serverSocket = new ServerSocket(port);
-
-                // block until a client connects
-                Socket clientSocket = serverSocket.accept();
-                clientSocket.setSoTimeout(READ_TIMEOUT);
-
-                output = new PrintWriter(clientSocket.getOutputStream(), true);
-                input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                logger.debug("Socket channel started");
             }
         }
 
+        while (running) {
+
+            Socket clientSocket;
+            // block until a client connects
+            try {
+                clientSocket = serverSocket.accept();
+            } catch (SocketException ex) {
+                // socket has been closed
+                break;
+            }
+            logger.debug("Socket channel connection established");
+            clientSocket.setSoTimeout(READ_TIMEOUT);
+
+            output = new PrintWriter(clientSocket.getOutputStream(), true);
+            input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
+            handleConnection(messageQueue, input, output);
+        }
+
+    }
+
+    private void handleConnection(MessageQueue messageQueue, BufferedReader input,
+                                  PrintWriter output) throws IOException {
         if (input != null) {
 
+            // indefinite connection until channel is explicitly shutdown
             while (true) {
                 String inputLine = null;
 
@@ -156,7 +173,7 @@ public class SocketChannel implements Channel {
     }
 
     @Override
-    public boolean isOnline() {
+    public boolean isCommunityOnline() {
         return false;
     }
 
