@@ -1,7 +1,7 @@
 package com.mitchellbosecke.seniorcommander.extension.core.service;
 
 import com.mitchellbosecke.seniorcommander.domain.*;
-import org.hibernate.SessionFactory;
+import com.mitchellbosecke.seniorcommander.utils.TransactionManager;
 
 import javax.persistence.NoResultException;
 import java.util.HashSet;
@@ -11,10 +11,6 @@ import java.util.Set;
  * Created by mitch_000 on 2016-07-10.
  */
 public class BettingService extends BaseService {
-
-    public BettingService(SessionFactory sessionFactory) {
-        super(sessionFactory);
-    }
 
     public BettingGameModel openBet(CommunityModel communityModel, Set<String> options) {
         BettingGameModel game = new BettingGameModel();
@@ -84,8 +80,9 @@ public class BettingService extends BaseService {
     public BetModel getBet(CommunityUserModel user, BettingGameModel game) {
         try {
             //@formatter:off
-            return sessionFactory.getCurrentSession()
-                    .createQuery("SELECT bet " +
+            return TransactionManager.getCurrentSession()
+                    .createQuery("" +
+                            "SELECT bet " +
                             "FROM BetModel bet " +
                             "WHERE bet.communityUserModel = :user", BetModel.class)
                     .setParameter("user", user).getSingleResult();

@@ -4,20 +4,15 @@ import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
 import com.mitchellbosecke.seniorcommander.domain.CommunityUserModel;
 import com.mitchellbosecke.seniorcommander.domain.GiveawayEntryModel;
 import com.mitchellbosecke.seniorcommander.domain.GiveawayModel;
-import org.hibernate.SessionFactory;
+import com.mitchellbosecke.seniorcommander.utils.TransactionManager;
 
 import javax.persistence.NoResultException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
 
 public class GiveawayService extends BaseService {
-
-    public GiveawayService(SessionFactory sessionFactory) {
-        super(sessionFactory);
-    }
 
     public GiveawayModel openGiveaway(CommunityModel communityModel, String keyword) {
         GiveawayModel giveaway = new GiveawayModel();
@@ -50,7 +45,7 @@ public class GiveawayService extends BaseService {
         try {
             GiveawayEntryModel winningEntry = null;
             //@formatter:off
-            winningEntry = sessionFactory.getCurrentSession()
+            winningEntry = TransactionManager.getCurrentSession()
                     .createQuery("SELECT e " +
                             "FROM GiveawayEntryModel e " +
                             "WHERE e.winner = false " +
@@ -85,7 +80,7 @@ public class GiveawayService extends BaseService {
     private GiveawayEntryModel findGiveawayEntry(GiveawayModel giveaway, CommunityUserModel user) {
         try {
             //@formatter:off
-            return sessionFactory.getCurrentSession()
+            return TransactionManager.getCurrentSession()
                     .createQuery("SELECT e " +
                             "FROM GiveawayEntryModel e " +
                             "WHERE e.giveawayModel = :giveaway " +
@@ -100,7 +95,7 @@ public class GiveawayService extends BaseService {
     public GiveawayModel findActiveGiveaway(CommunityModel communityModel) {
         try {
             //@formatter:off
-            return sessionFactory.getCurrentSession()
+            return TransactionManager.getCurrentSession()
                     .createQuery("SELECT g " +
                             "FROM GiveawayModel g " +
                             "WHERE g.closed IS NULL " +
@@ -115,7 +110,7 @@ public class GiveawayService extends BaseService {
     public GiveawayModel findMostRecentGiveaway(CommunityModel communityModel) {
         try {
             //@formatter:off
-            return sessionFactory.getCurrentSession()
+            return TransactionManager.getCurrentSession()
                     .createQuery("SELECT g " +
                             "FROM GiveawayModel g " +
                             "WHERE g.communityModel = :community " +

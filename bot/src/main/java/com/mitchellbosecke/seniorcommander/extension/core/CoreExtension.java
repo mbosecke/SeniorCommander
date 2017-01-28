@@ -17,9 +17,8 @@ import com.mitchellbosecke.seniorcommander.timer.Timer;
 import com.mitchellbosecke.seniorcommander.timer.TimerManager;
 import com.mitchellbosecke.seniorcommander.utils.NetworkUtils;
 import com.mitchellbosecke.seniorcommander.utils.RateLimiter;
+import com.mitchellbosecke.seniorcommander.utils.TransactionManager;
 import com.typesafe.config.ConfigFactory;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,41 +44,41 @@ public class CoreExtension implements Extension {
     private static final Logger logger = LoggerFactory.getLogger(CoreExtension.class);
 
     @Override
-    public List<Channel> buildChannels(Session session) {
+    public List<Channel> buildChannels() {
         List<ChannelFactory> factories = new ArrayList<>();
         factories.add(new TwitchChannelFactory());
         factories.add(new SocketChannelFactory());
         factories.add(new DiscordChannelFactory());
 
         List<Channel> channels = new ArrayList<>();
-        factories.forEach(f -> channels.addAll(f.build(session)));
+        factories.forEach(f -> channels.addAll(f.build()));
         return channels;
     }
 
     @Override
-    public List<Timer> buildTimers(SessionFactory sessionFactory, MessageQueue messageQueue, List<Channel> channels) {
+    public List<Timer> buildTimers(MessageQueue messageQueue, List<Channel> channels) {
 
-        UserService userService = new UserService(sessionFactory);
+        UserService userService = new UserService();
         List<Timer> timers = new ArrayList<>();
-        new ShoutTimerFactory(sessionFactory, channels, messageQueue).build().forEach(timers::add);
-        new PointTimerFactory(sessionFactory, channels, userService).build().forEach(timers::add);
-        new TwitchOnlineCheckerFactory(sessionFactory, channels).build().forEach(timers::add);
-        new FollowerAuditFactory(sessionFactory, channels, userService).build().forEach(timers::add);
-        new ModAuditFactory(sessionFactory, channels, userService).build().forEach(timers::add);
+        new ShoutTimerFactory(channels, messageQueue).build().forEach(timers::add);
+        new PointTimerFactory(channels, userService).build().forEach(timers::add);
+        new TwitchOnlineCheckerFactory(channels).build().forEach(timers::add);
+        new FollowerAuditFactory(channels, userService).build().forEach(timers::add);
+        new ModAuditFactory(channels, userService).build().forEach(timers::add);
         return timers;
     }
 
     @Override
-    public List<EventHandler> buildEventHandlers(SessionFactory sessionFactory, MessageQueue messageQueue,
-                                                 List<Channel> channels, List<CommandHandler> commandHandlers) {
+    public List<EventHandler> buildEventHandlers(MessageQueue messageQueue, List<Channel> channels,
+                                                 List<CommandHandler> commandHandlers) {
 
         List<EventHandler> eventHandlers = new ArrayList<>();
 
         // service tiers
-        UserService userService = new UserService(sessionFactory);
-        CommandService commandService = new CommandService(sessionFactory);
-        ChannelService channelService = new ChannelService(sessionFactory);
-        GiveawayService giveawayService = new GiveawayService(sessionFactory);
+        UserService userService = new UserService();
+        CommandService commandService = new CommandService();
+        ChannelService channelService = new ChannelService();
+        GiveawayService giveawayService = new GiveawayService();
 
         // handlers
         eventHandlers.add(new LoggingHandler(userService));
@@ -96,17 +95,16 @@ public class CoreExtension implements Extension {
     }
 
     @Override
-    public List<CommandHandler> buildCommandHandlers(SessionFactory sessionFactory, MessageQueue messageQueue,
-                                                     TimerManager timerManager) {
+    public List<CommandHandler> buildCommandHandlers(MessageQueue messageQueue, TimerManager timerManager) {
 
         // service tiers
-        CommandService commandService = new CommandService(sessionFactory);
-        QuoteService quoteService = new QuoteService(sessionFactory);
-        TimerService timerService = new TimerService(sessionFactory);
-        UserService userService = new UserService(sessionFactory);
-        BettingService bettingService = new BettingService(sessionFactory);
-        GiveawayService giveawayService = new GiveawayService(sessionFactory);
-        AuctionService auctionService = new AuctionService(sessionFactory);
+        CommandService commandService = new CommandService();
+        QuoteService quoteService = new QuoteService();
+        TimerService timerService = new TimerService();
+        UserService userService = new UserService();
+        BettingService bettingService = new BettingService();
+        GiveawayService giveawayService = new GiveawayService();
+        AuctionService auctionService = new AuctionService();
 
         // handlers
         List<CommandHandler> commandHandlers = new ArrayList<>();
@@ -126,11 +124,10 @@ public class CoreExtension implements Extension {
     }
 
     @Override
-    public void onShutdown(SessionFactory sessionFactory) {
+    public void onShutdown() {
         logger.debug("shutting down core extension");
-        Session session = sessionFactory.getCurrentSession();
-        try {
-            session.beginTransaction();
+        TransactionManager.runInTransaction(session -> {
+
             String schema = ConfigFactory.load().getConfig("seniorcommander").getString("database.schema");
             //@formatter:off
             int result = session.createNativeQuery("" +
@@ -143,16 +140,10 @@ public class CoreExtension implements Extension {
                     ")").executeUpdate();
             //@formatter:on
             logger.debug("Deleted " + result + " records from online_channel_user");
-            session.getTransaction().commit();
 
             CoreExtension.TWITCH_MESSAGE_RATE_LIMITER.shutdown();
             CoreExtension.TWITCH_JOIN_RATE_LIMITER.shutdown();
-        } catch (Exception ex) {
-            logger.debug("Rolling back the deletion from online_channel_user");
-            session.getTransaction().rollback();
-            throw ex;
-        } finally {
-            session.close();
-        }
+
+        });
     }
 }

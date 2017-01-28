@@ -4,7 +4,7 @@ import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.channel.ChannelFactory;
 import com.mitchellbosecke.seniorcommander.domain.ChannelModel;
 import com.mitchellbosecke.seniorcommander.utils.NetworkUtils;
-import org.hibernate.Session;
+import com.mitchellbosecke.seniorcommander.utils.TransactionManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,11 +19,11 @@ public class DiscordChannelFactory implements ChannelFactory {
     private static final String CONFIG_CHANNEL = "channel";
 
     @Override
-    public List<Channel> build(Session session) {
+    public List<Channel> build() {
         List<Channel> channels = new ArrayList<>();
 
         //@formatter:off
-        List<ChannelModel> channelModels = session
+        List<ChannelModel> channelModels =  TransactionManager.getCurrentSession()
                 .createQuery("" +
                         "SELECT cm " +
                         "FROM ChannelModel cm " +
@@ -39,7 +39,7 @@ public class DiscordChannelFactory implements ChannelFactory {
             String guild = channelModel.getSetting(CONFIG_GUILD);
             String channel = channelModel.getSetting(CONFIG_CHANNEL);
 
-            DiscordChannel discordChannel  = new DiscordChannel(channelModel.getId(), token, guild, channel);
+            DiscordChannel discordChannel = new DiscordChannel(channelModel.getId(), token, guild, channel);
 
             channels.add(discordChannel);
         }

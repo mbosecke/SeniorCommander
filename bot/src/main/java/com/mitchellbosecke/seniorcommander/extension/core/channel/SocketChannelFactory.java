@@ -3,7 +3,7 @@ package com.mitchellbosecke.seniorcommander.extension.core.channel;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.channel.ChannelFactory;
 import com.mitchellbosecke.seniorcommander.domain.ChannelModel;
-import org.hibernate.Session;
+import com.mitchellbosecke.seniorcommander.utils.TransactionManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,10 +16,10 @@ public class SocketChannelFactory implements ChannelFactory {
     private static final String CONFIG_PORT = "port";
 
     @Override
-    public List<Channel> build(Session session) {
+    public List<Channel> build() {
         List<Channel> socketChannels = new ArrayList<>();
 
-        List<ChannelModel> channelModels = session
+        List<ChannelModel> channelModels = TransactionManager.getCurrentSession()
                 .createQuery("SELECT cc FROM ChannelModel cc WHERE cc.type = 'socket'", ChannelModel.class)
                 .getResultList();
 

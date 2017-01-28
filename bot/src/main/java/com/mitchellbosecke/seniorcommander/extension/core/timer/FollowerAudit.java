@@ -5,11 +5,11 @@ import com.mitchellbosecke.seniorcommander.domain.CommunityUserModel;
 import com.mitchellbosecke.seniorcommander.extension.core.channel.TwitchChannel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;
 import com.mitchellbosecke.seniorcommander.timer.Timer;
+import com.mitchellbosecke.seniorcommander.utils.TransactionManager;
 import com.mitchellbosecke.twitchapi.ChannelFollow;
 import com.mitchellbosecke.twitchapi.ChannelFollowsPage;
 import com.mitchellbosecke.twitchapi.TwitchApi;
 import com.typesafe.config.ConfigFactory;
-import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +17,6 @@ import javax.persistence.NoResultException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,15 +31,12 @@ public class FollowerAudit implements Timer {
     private final long interval;
     private final TwitchChannel channel;
     private final UserService userService;
-    private final SessionFactory sessionFactory;
 
-    public FollowerAudit(long id, long interval, TwitchChannel channel, UserService userService,
-                         SessionFactory sessionFactory) {
+    public FollowerAudit(long id, long interval, TwitchChannel channel, UserService userService) {
         this.id = id;
         this.interval = interval;
         this.channel = channel;
         this.userService = userService;
-        this.sessionFactory = sessionFactory;
     }
 
     @Override
@@ -52,18 +48,31 @@ public class FollowerAudit implements Timer {
 
         CommunityUserModel latestFollower = null;
         try {
-            latestFollower = sessionFactory.getCurrentSession()
-                    .createQuery("SELECT u FROM CommunityUserModel u WHERE u.lastFollowed IS NOT NULL AND u.unfollowed IS NULL AND u.communityModel = :communityModel ORDER BY u.lastFollowed DESC NULLS LAST", CommunityUserModel.class)
+            //@formatter:off
+            latestFollower = TransactionManager.getCurrentSession()
+                    .createQuery("SELECT u " +
+                            "FROM CommunityUserModel u " +
+                            "WHERE u.lastFollowed IS NOT NULL " +
+                            "AND u.unfollowed IS NULL " +
+                            "AND u.communityModel = :communityModel " +
+                            "ORDER BY u.lastFollowed DESC NULLS LAST", CommunityUserModel.class)
                     .setParameter("communityModel", userService.findCommunity(channel)).setMaxResults(1)
                     .getSingleResult();
+            //@formatter:on
         } catch (NoResultException ex) {
         }
 
         int numberOfFollowers = 0;
         try {
-            numberOfFollowers = ((Long) sessionFactory.getCurrentSession()
-                    .createQuery("SELECT count(*) FROM CommunityUserModel u WHERE u.lastFollowed IS NOT NULL AND u.unfollowed IS NULL AND u.communityModel = :communityModel")
+            //@formatter:off
+            numberOfFollowers = ((Long) TransactionManager.getCurrentSession()
+                    .createQuery("SELECT count(*) " +
+                            "FROM CommunityUserModel u " +
+                            "WHERE u.lastFollowed IS NOT NULL " +
+                            "AND u.unfollowed IS NULL " +
+                            "AND u.communityModel = :communityModel")
                     .setParameter("communityModel", userService.findCommunity(channel)).uniqueResult()).intValue();
+            //@formatter:on
         } catch (NoResultException ex2) {
         }
 
@@ -97,7 +106,7 @@ public class FollowerAudit implements Timer {
 
         // get database followers sorted by name
         //@formatter:off
-        List<String> databaseFollowers = sessionFactory.getCurrentSession()
+        List<String> databaseFollowers = TransactionManager.getCurrentSession()
                 .createQuery("" +
                         "SELECT u.name " +
                         "FROM CommunityUserModel u " +

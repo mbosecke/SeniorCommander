@@ -5,7 +5,7 @@ import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.domain.ChannelModel;
 import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
 import com.mitchellbosecke.seniorcommander.domain.CommunityUserModel;
-import org.hibernate.SessionFactory;
+import com.mitchellbosecke.seniorcommander.utils.TransactionManager;
 
 import javax.persistence.NoResultException;
 import java.time.Duration;
@@ -17,10 +17,6 @@ import java.util.Optional;
  * Created by mitch_000 on 2016-07-10.
  */
 public class UserService extends BaseService {
-
-    public UserService(SessionFactory sessionFactory) {
-        super(sessionFactory);
-    }
 
     public CommunityUserModel findOrCreateUser(Channel channel, String name) {
         CommunityUserModel user;
@@ -50,7 +46,7 @@ public class UserService extends BaseService {
     private CommunityUserModel findUser(Channel channel, String name) throws NoResultException {
         CommunityModel communityModel = findCommunity(channel);
         //@formatter:off
-        return sessionFactory.getCurrentSession()
+        return TransactionManager.getCurrentSession()
                 .createQuery("SELECT cu " +
                         "FROM CommunityUserModel cu " +
                         "WHERE cu.communityModel = :community " +

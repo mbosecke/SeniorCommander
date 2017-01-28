@@ -3,7 +3,7 @@ package com.mitchellbosecke.seniorcommander.extension.core.service;
 import com.mitchellbosecke.seniorcommander.domain.AuctionModel;
 import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
 import com.mitchellbosecke.seniorcommander.domain.CommunityUserModel;
-import org.hibernate.SessionFactory;
+import com.mitchellbosecke.seniorcommander.utils.TransactionManager;
 
 import javax.persistence.NoResultException;
 import java.time.ZoneId;
@@ -11,10 +11,6 @@ import java.time.ZonedDateTime;
 import java.util.Optional;
 
 public class AuctionService extends BaseService {
-
-    public AuctionService(SessionFactory sessionFactory) {
-        super(sessionFactory);
-    }
 
     public AuctionModel openAuction(CommunityModel communityModel, String prize) {
         AuctionModel auction = new AuctionModel();
@@ -60,7 +56,7 @@ public class AuctionService extends BaseService {
     public AuctionModel findActiveAuction(CommunityModel communityModel) {
         try {
             //@formatter:off
-            return sessionFactory.getCurrentSession()
+            return TransactionManager.getCurrentSession()
                     .createQuery("SELECT a " +
                             "FROM AuctionModel a " +
                             "WHERE a.closed IS NULL " +

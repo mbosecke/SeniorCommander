@@ -4,7 +4,7 @@ import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.domain.TimerModel;
 import com.mitchellbosecke.seniorcommander.timer.Timer;
 import com.mitchellbosecke.seniorcommander.utils.NetworkUtils;
-import org.hibernate.SessionFactory;
+import com.mitchellbosecke.seniorcommander.utils.TransactionManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,11 +16,9 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractTimerFactory<T extends Timer> {
 
-    private final SessionFactory sessionFactory;
     private final List<Channel> channels;
 
-    public AbstractTimerFactory(SessionFactory sessionFactory, List<Channel> channels) {
-        this.sessionFactory = sessionFactory;
+    public AbstractTimerFactory(List<Channel> channels) {
         this.channels = channels;
     }
 
@@ -28,7 +26,7 @@ public abstract class AbstractTimerFactory<T extends Timer> {
         List<T> timers = new ArrayList<>();
 
         //@formatter:off
-        List<TimerModel> timerModels = sessionFactory.getCurrentSession()
+        List<TimerModel> timerModels = TransactionManager.getCurrentSession()
                 .createQuery("" +
                         "SELECT tm " +
                         "FROM TimerModel tm " +
@@ -43,13 +41,12 @@ public abstract class AbstractTimerFactory<T extends Timer> {
         Map<Long, Channel> channelMap = channels.stream().collect(Collectors.toMap(Channel::getId, c -> c));
 
         for (TimerModel timerModel : timerModels) {
-            timers.add(constructTimerFromModel(timerModel, sessionFactory, channelMap));
+            timers.add(constructTimerFromModel(timerModel, channelMap));
         }
         return timers;
     }
 
-    protected abstract T constructTimerFromModel(TimerModel timerModel, SessionFactory sessionFactory,
-                                                 Map<Long, Channel> channels);
+    protected abstract T constructTimerFromModel(TimerModel timerModel, Map<Long, Channel> channels);
 
     protected abstract Class<T> getTimerClass();
 }

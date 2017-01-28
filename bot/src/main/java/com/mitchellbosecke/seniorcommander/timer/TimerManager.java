@@ -2,6 +2,7 @@ package com.mitchellbosecke.seniorcommander.timer;
 
 import com.mitchellbosecke.seniorcommander.domain.TimerModel;
 import com.mitchellbosecke.seniorcommander.utils.ExecutorUtils;
+import com.mitchellbosecke.seniorcommander.utils.TransactionManager;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
@@ -28,11 +29,9 @@ public class TimerManager {
     private final Map<Long, ScheduledFuture<?>> ongoingTasks = new ConcurrentHashMap<>();
 
     private final ScheduledExecutorService executorService;
-    private final SessionFactory sessionFactory;
 
-    public TimerManager(ScheduledExecutorService executorService, SessionFactory sessionFactory) {
+    public TimerManager(ScheduledExecutorService executorService) {
         this.executorService = executorService;
-        this.sessionFactory = sessionFactory;
     }
 
     public void addTimer(Timer timer) {
@@ -55,27 +54,21 @@ public class TimerManager {
         // random initial delay to spread out timers
         long initialDelay = new Random().nextInt(Math.toIntExact(timer.getInterval()));
 
-        ScheduledFuture<?> future = executorService.scheduleAtFixedRate(() -> {
-            Session session = sessionFactory.getCurrentSession();
-            session.beginTransaction();
-            try {
-                TimerModel model = session.find(TimerModel.class, timer.getId());
-                if (satisfiesChatLineRequirement(model)) {
-                    timer.perform();
-                    model.setLastExecuted(ZonedDateTime.now(ZoneId.of("UTC")));
-                }
-                session.getTransaction().commit();
-            } catch (Exception ex) {
-                logger.error(ex.getMessage(), ex);
-                session.getTransaction().rollback();
-            } finally {
-                session.close();
-            }
-        }, initialDelay, timer.getInterval(), TimeUnit.SECONDS);
+        ScheduledFuture<?> future = executorService.scheduleAtFixedRate(() ->
+
+                        TransactionManager.runInTransaction(session -> {
+                            TimerModel model = session.find(TimerModel.class, timer.getId());
+                            if (satisfiesChatLineRequirement(session, model)) {
+                                timer.perform();
+                                model.setLastExecuted(ZonedDateTime.now(ZoneId.of("UTC")));
+                            }
+                        })
+
+                , initialDelay, timer.getInterval(), TimeUnit.SECONDS);
         ongoingTasks.put(timer.getId(), future);
     }
 
-    private boolean satisfiesChatLineRequirement(TimerModel model) {
+    private boolean satisfiesChatLineRequirement(Session session, TimerModel model) {
         boolean satisfiesChatLineRequirement = false;
 
         if (model.getChatLines() != null && model.getChatLines() > 0) {
@@ -83,9 +76,9 @@ public class TimerManager {
 
             if (dateLastExecuted == null) {
                 satisfiesChatLineRequirement = true;
-            }else {
+            } else {
                 //@formatter:off
-                Long chatLines = (Long) sessionFactory.getCurrentSession().createQuery("" +
+                Long chatLines = (Long) session.createQuery("" +
                         "SELECT count(*) " +
                         "FROM ChatLogModel clm " +
                         "WHERE clm.date > :date " +
@@ -97,7 +90,7 @@ public class TimerManager {
                 //@formatter:on
                 satisfiesChatLineRequirement = chatLines >= model.getChatLines();
 
-                if(!satisfiesChatLineRequirement){
+                if (!satisfiesChatLineRequirement) {
                     long diff = model.getChatLines() - chatLines;
                     logger.trace("Requires " + diff + " more chat lines");
                 }

@@ -1,7 +1,5 @@
 package com.mitchellbosecke.seniorcommander.channel;
 
-import org.hibernate.Session;
-
 import java.util.List;
 
 /**
@@ -9,6 +7,6 @@ import java.util.List;
  */
 public interface ChannelFactory {
 
-    List<Channel> build(Session session);
+    List<Channel> build();
 
 }

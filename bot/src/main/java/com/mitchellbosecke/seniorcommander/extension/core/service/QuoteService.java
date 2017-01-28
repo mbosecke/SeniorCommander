@@ -2,7 +2,7 @@ package com.mitchellbosecke.seniorcommander.extension.core.service;
 
 import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
 import com.mitchellbosecke.seniorcommander.domain.QuoteModel;
-import org.hibernate.SessionFactory;
+import com.mitchellbosecke.seniorcommander.utils.TransactionManager;
 
 import javax.persistence.NoResultException;
 import java.time.ZoneId;
@@ -13,17 +13,11 @@ import java.time.ZonedDateTime;
  */
 public class QuoteService extends BaseService {
 
-    public QuoteService(SessionFactory sessionFactory) {
-        super(sessionFactory);
-    }
-
     public QuoteModel addQuote(CommunityModel communityModel, String author, String content) {
         Long communitySequence;
 
-        communitySequence = sessionFactory.getCurrentSession()
-                .createQuery("SELECT max(q.communitySequence) FROM QuoteModel q WHERE q.communityModel = :community",
-                        Long
-                                .class)
+        communitySequence = TransactionManager.getCurrentSession()
+                .createQuery("SELECT max(q.communitySequence) FROM QuoteModel q WHERE q.communityModel = :community", Long.class)
                 .setParameter("community", communityModel).getSingleResult();
 
         communitySequence = communitySequence == null ? 0 : communitySequence;
@@ -44,12 +38,16 @@ public class QuoteService extends BaseService {
         QuoteModel quoteModel = null;
 
         try {
-            quoteModel = sessionFactory.getCurrentSession()
-                    .createQuery("SELECT q FROM QuoteModel q WHERE q.communityModel = :community AND q" +
-                            ".communitySequence =" +
-                            " :sequence", QuoteModel.class)
+            //@formatter:off
+            quoteModel = TransactionManager.getCurrentSession()
+                    .createQuery("" +
+                            "SELECT q " +
+                            "FROM QuoteModel q " +
+                            "WHERE q.communityModel = :community " +
+                            "AND q.communitySequence = :sequence", QuoteModel.class)
                     .setParameter("community", communityModel).setParameter("sequence", communitySequenceId)
                     .getSingleResult();
+            //@formatter:on
         } catch (NoResultException ex) {
         }
 
@@ -60,10 +58,16 @@ public class QuoteService extends BaseService {
         QuoteModel quoteModel = null;
 
         try {
-            quoteModel = sessionFactory.getCurrentSession()
-                    .createQuery("SELECT q FROM QuoteModel q WHERE q.communityModel = :community ORDER BY rand()",
+            //@formatter:off
+            quoteModel = TransactionManager.getCurrentSession()
+                    .createQuery("" +
+                                    "SELECT q " +
+                                    "FROM QuoteModel q " +
+                                    "WHERE q.communityModel = :community " +
+                                    "ORDER BY rand()",
                             QuoteModel.class)
                     .setParameter("community", communityModel).setMaxResults(1).getSingleResult();
+            //@formatter:on
         } catch (NoResultException ex) {
         }
 
@@ -74,11 +78,16 @@ public class QuoteService extends BaseService {
         QuoteModel quoteModel = null;
 
         try {
-            quoteModel = sessionFactory.getCurrentSession()
-                    .createQuery("SELECT q FROM QuoteModel q WHERE q.communityModel = :community AND lower(q.author) " +
-                            "= lower(:author) ORDER BY rand()", QuoteModel.class)
+            //@formatter:off
+            quoteModel = TransactionManager.getCurrentSession()
+                    .createQuery("SELECT q " +
+                            "FROM QuoteModel q " +
+                            "WHERE q.communityModel = :community " +
+                            "AND lower(q.author) = lower(:author) " +
+                            "ORDER BY rand()", QuoteModel.class)
                     .setParameter("community", communityModel).setParameter("author", author).setMaxResults(1)
                     .getSingleResult();
+            //@formatter:on
         } catch (NoResultException ex) {
         }
 

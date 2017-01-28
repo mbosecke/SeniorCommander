@@ -8,8 +8,7 @@ import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.timer.TimerManager;
 import com.mitchellbosecke.seniorcommander.utils.DatabaseManager;
 import com.mitchellbosecke.seniorcommander.utils.ExecutorUtils;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
+import com.mitchellbosecke.seniorcommander.utils.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,12 +39,7 @@ public class SeniorCommanderImpl implements SeniorCommander {
      */
     private volatile boolean running = true;
 
-    private Object startupLock = new Object();
-
-    /**
-     * Global session factory
-     */
-    private final SessionFactory sessionFactory;
+    private final Object startupLock = new Object();
 
     /**
      * Global message queue
@@ -68,16 +62,16 @@ public class SeniorCommanderImpl implements SeniorCommander {
 
     public SeniorCommanderImpl(List<Extension> extensions) {
 
-        // initiate session factory
+        // migrate database and create transaction manager
         DatabaseManager databaseManager = new DatabaseManager();
         databaseManager.migrate();
-        sessionFactory = databaseManager.getSessionFactory();
+        TransactionManager.initiate(databaseManager.getSessionFactory());
 
         // message queue
         messageQueue = new MessageQueue();
 
         // timer manager
-        timerManager = new TimerManager(Executors.newScheduledThreadPool(5), sessionFactory);
+        timerManager = new TimerManager(Executors.newScheduledThreadPool(5));
 
         // add core extension to list of user-provided extensions
         // extension registry
@@ -126,11 +120,9 @@ public class SeniorCommanderImpl implements SeniorCommander {
             synchronized (startupLock) {
                 if (message != null && running) {
                     logger.trace("Message from queue: [" + message.getType() + ": " + message.getContent() + "]");
-                    Session session = sessionFactory.getCurrentSession();
-                    session.beginTransaction();
-                    try {
 
-                        logger.debug("Primary transaction beginning [{}]", session.getTransaction().getStatus());
+                    TransactionManager.runInTransaction(session -> {
+                        logger.debug("Primary transaction beginning");
                         eventHandlers.forEach(eventHandler -> {
                             try {
                                 eventHandler.handle(message);
@@ -140,15 +132,7 @@ public class SeniorCommanderImpl implements SeniorCommander {
                             }
                         });
                         logger.debug("Committing primary transaction");
-                        session.getTransaction().commit();
-                    } catch (Exception ex) {
-                        logger.error("Rolling back primary transaction");
-                        session.getTransaction().rollback();
-
-                        throw ex;
-                    } finally {
-                        session.close();
-                    }
+                    });
                 }
             }
 
@@ -161,51 +145,40 @@ public class SeniorCommanderImpl implements SeniorCommander {
         synchronized (startupLock) {
             if (running) {
                 running = false;
-
                 timerManager.shutdown();
-                extensions.forEach(extension -> extension.onShutdown(sessionFactory));
+                extensions.forEach(Extension::onShutdown);
                 channels.forEach(Channel::shutdown);
                 ExecutorUtils.shutdown(channelThreadPool, 10, TimeUnit.SECONDS);
-                sessionFactory.close();
+                TransactionManager.shutdown();
             }
         }
     }
 
     private void initExtensions() {
 
-        Session session = sessionFactory.getCurrentSession();
-        try {
-            session.beginTransaction();
-
+        TransactionManager.runInTransaction(session -> {
             for (Extension extension : extensions) {
 
                 // build channels
-                channels.addAll(extension.buildChannels(session));
+                channels.addAll(extension.buildChannels());
 
                 // start timers
-                extension.buildTimers(sessionFactory, messageQueue, channels).forEach(timerManager::addTimer);
+                extension.buildTimers(messageQueue, channels).forEach(timerManager::addTimer);
 
                 // command handlers
-                commandHandlers.addAll(extension.buildCommandHandlers(sessionFactory, messageQueue, timerManager));
+                commandHandlers.addAll(extension.buildCommandHandlers(messageQueue, timerManager));
 
                 // event handlers
-                eventHandlers
-                        .addAll(extension.buildEventHandlers(sessionFactory, messageQueue, channels, commandHandlers));
+                eventHandlers.addAll(extension.buildEventHandlers(messageQueue, channels, commandHandlers));
             }
-            session.getTransaction().commit();
-        } catch (Exception ex) {
-            session.getTransaction().rollback();
-            throw ex;
-        } finally {
-            session.close();
-        }
+        });
     }
 
     private static class ShutdownHook extends Thread {
         private final WeakReference<SeniorCommander> botRef;
         private final Thread mainThread;
 
-        public ShutdownHook(SeniorCommander bot, Thread mainThread) {
+        ShutdownHook(SeniorCommander bot, Thread mainThread) {
             this.botRef = new WeakReference<>(bot);
             this.mainThread = mainThread;
         }

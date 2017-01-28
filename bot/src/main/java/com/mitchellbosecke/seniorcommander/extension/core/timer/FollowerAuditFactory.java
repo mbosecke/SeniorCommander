@@ -4,7 +4,6 @@ import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.domain.TimerModel;
 import com.mitchellbosecke.seniorcommander.extension.core.channel.TwitchChannel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;
-import org.hibernate.SessionFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -16,16 +15,15 @@ public class FollowerAuditFactory extends AbstractTimerFactory<FollowerAudit> {
 
     private final UserService userService;
 
-    public FollowerAuditFactory(SessionFactory sessionFactory, List<Channel> channels, UserService userService) {
-        super(sessionFactory, channels);
+    public FollowerAuditFactory(List<Channel> channels, UserService userService) {
+        super(channels);
         this.userService = userService;
     }
 
     @Override
-    protected FollowerAudit constructTimerFromModel(TimerModel timerModel, SessionFactory sessionFactory,
-                                                    Map<Long, Channel> channels) {
+    protected FollowerAudit constructTimerFromModel(TimerModel timerModel, Map<Long, Channel> channels) {
         return new FollowerAudit(timerModel.getId(), timerModel.getInterval(), (TwitchChannel) channels
-                .get(timerModel.getChannelModel().getId()), userService, sessionFactory);
+                .get(timerModel.getChannelModel().getId()), userService);
     }
 
     @Override

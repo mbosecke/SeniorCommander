@@ -5,8 +5,8 @@ import com.mitchellbosecke.seniorcommander.domain.CommandLogModel;
 import com.mitchellbosecke.seniorcommander.domain.CommandModel;
 import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
 import com.mitchellbosecke.seniorcommander.domain.CommunityUserModel;
+import com.mitchellbosecke.seniorcommander.utils.TransactionManager;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 
 import javax.persistence.NoResultException;
 
@@ -15,13 +15,8 @@ import javax.persistence.NoResultException;
  */
 public class CommandService extends BaseService {
 
-
-    public CommandService(SessionFactory sessionFactory) {
-        super(sessionFactory);
-    }
-
-    public void addCommand(CommunityModel communityModel, String trigger, String message, long cooldown, AccessLevel
-            accessLevel) {
+    public void addCommand(CommunityModel communityModel, String trigger, String message, long cooldown,
+                           AccessLevel accessLevel) {
         CommandModel commandModel = new CommandModel();
         commandModel.setCommunityModel(communityModel);
         commandModel.setTrigger(trigger);
@@ -35,11 +30,10 @@ public class CommandService extends BaseService {
     public void deleteCommand(CommunityModel communityModel, String trigger) {
 
         CommandModel commandModel = findCommand(communityModel, trigger);
-        Session session = sessionFactory.getCurrentSession();
+        Session session = TransactionManager.getCurrentSession();
         // commandModel logs
-        session.createQuery("DELETE FROM CommandLogModel cl WHERE cl.commandModel = :command").setParameter("command",
-                commandModel)
-                .executeUpdate();
+        session.createQuery("DELETE FROM CommandLogModel cl WHERE cl.commandModel = :command")
+                .setParameter("command", commandModel).executeUpdate();
 
         session.delete(commandModel);
     }
@@ -49,7 +43,7 @@ public class CommandService extends BaseService {
         CommandLogModel log = null;
         try {
             //@formatter:off
-            log = sessionFactory.getCurrentSession()
+            log = TransactionManager.getCurrentSession()
                     .createQuery("SELECT cl " +
                             "FROM CommandLogModel cl " +
                             "WHERE cl.commandModel = :command " +
@@ -66,7 +60,7 @@ public class CommandService extends BaseService {
     public CommandModel findCommand(CommunityModel communityModel, String trigger) {
         try {
             //@formatter:off
-            return sessionFactory.getCurrentSession()
+            return TransactionManager.getCurrentSession()
                     .createQuery("SELECT c " +
                             "FROM CommandModel c " +
                             "WHERE c.communityModel = :community " +
