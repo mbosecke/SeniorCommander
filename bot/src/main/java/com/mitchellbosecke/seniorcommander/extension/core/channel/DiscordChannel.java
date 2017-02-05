@@ -51,6 +51,7 @@ public class DiscordChannel implements Channel {
 
         ClientBuilder clientBuilder = new ClientBuilder();
         clientBuilder.withToken(token);
+        clientBuilder.setMaxReconnectAttempts(0);
         try {
             discordClient = clientBuilder.login();
             discordClient.getDispatcher().registerListener(this);
