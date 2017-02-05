@@ -6,7 +6,6 @@ import com.mitchellbosecke.seniorcommander.extension.core.CoreExtension;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.message.MessageUtils;
-import com.mitchellbosecke.seniorcommander.utils.ExecutorUtils;
 import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.cap.EnableCapHandler;
@@ -20,23 +19,13 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by mitch_000 on 2016-07-03.
  */
 public class TwitchChannel extends ListenerAdapter implements Channel {
 
-    Logger logger = LoggerFactory.getLogger(getClass());
-
-    /**
-     * Ensure that either startup or shutdown are performed exclusively.
-     */
-    private Object startupLock = new Object();
-
-    private volatile boolean running = true;
+    private static final Logger logger = LoggerFactory.getLogger(TwitchChannel.class);
 
     private final long id;
 
@@ -54,11 +43,9 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
 
     private PircBotX ircClient;
 
-    private volatile boolean online = false;
+    private volatile boolean communityOnline = false;
 
-    private final ExecutorService reconnectionExecutorService = Executors.newSingleThreadExecutor();
-
-    private static final int RECONNECTION_RATE = 5 * 60 * 1000;
+    private boolean listening = false;
 
     public TwitchChannel(long id, String server, Integer port, String username, String password, String channel) {
         this.id = id;
@@ -71,27 +58,10 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
 
     @Override
     public void listen(MessageQueue messageQueue) throws IOException {
-        synchronized (startupLock) {
-            if (running) {
-                this.messageQueue = messageQueue;
-                connect();
-            }
-            estabishAutomaticReconnection();
-        }
-    }
-
-    private void estabishAutomaticReconnection() {
-        reconnectionExecutorService.submit(() -> {
-            while (true) {
-                synchronized (startupLock) {
-                    if (running && ircClient != null && !ircClient.isConnected()) {
-                        logger.debug("Reconnecting twitch channel");
-                        connect();
-                    }
-                }
-                Thread.sleep(RECONNECTION_RATE);
-            }
-        });
+        logger.debug("Twitch listen start");
+        this.messageQueue = messageQueue;
+        connect(); // blocks
+        logger.debug("Twitch listen end");
     }
 
     private void connect() throws IOException {
@@ -116,25 +86,19 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
                 .setAutoReconnect(false).buildConfiguration();
 
         ircClient = new PircBotX(configuration);
-
-        logger.debug("Connecting to IRC [{}]", channel);
+        logger.debug("Connecting to twitch [{}]", channel);
         try {
-            ircClient.startBot();
+            ircClient.startBot(); // blocks
         } catch (IrcException | IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void disconnect() {
-        try {
-            ircClient.stopBotReconnect();
-            ircClient.sendIRC().quitServer();
-            logger.debug("IRC channel disconnected");
-        } catch (Exception ex) {
-            logger.error("Exception occurred while shutting down IRC server", ex);
-            // may throw an exception if the library has already
-            // registered a shutdown hook and has stopped itself
-        }
+    @Override
+    public void onConnect(ConnectEvent event) throws Exception {
+        super.onConnect(event);
+        logger.debug("Connected on thread: " + Thread.currentThread().getName());
+        listening = true;
     }
 
     /**
@@ -145,7 +109,6 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
      */
     @Override
     public void onGenericMessage(GenericMessageEvent event) throws Exception {
-
 
         String[] split = MessageUtils.splitRecipient(event.getMessage());
         String recipient = split[0];
@@ -172,7 +135,7 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
     public void onUnknown(UnknownEvent event) throws Exception {
         IrcProtocolMessage ircProtocolMessage = new IrcProtocolMessage(event.getLine());
         String command = ircProtocolMessage.getCommand();
-        switch(command){
+        switch (command) {
             case "WHISPER":
                 if (username.equalsIgnoreCase(ircProtocolMessage.getNick())) {
                     return;
@@ -226,60 +189,59 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
 
     @Override
     public void sendMessage(String content) {
-        if (running) {
-            CoreExtension.TWITCH_MESSAGE_RATE_LIMITER.submit(() -> ircClient.sendIRC().message(channel, content));
-        }
+        CoreExtension.TWITCH_MESSAGE_RATE_LIMITER.submit(() -> ircClient.sendIRC().message(channel, content));
     }
 
     @Override
     public void sendMessage(String recipient, String content) {
-        if (running) {
-            CoreExtension.TWITCH_MESSAGE_RATE_LIMITER
-                    .submit(() -> ircClient.sendIRC().message(channel, "@" + recipient + ", " + content));
-        }
+        CoreExtension.TWITCH_MESSAGE_RATE_LIMITER
+                .submit(() -> ircClient.sendIRC().message(channel, "@" + recipient + ", " + content));
     }
 
     @Override
     public void sendWhisper(String recipient, String content) {
-        if (running) {
-            CoreExtension.TWITCH_MESSAGE_RATE_LIMITER.submit(() -> ircClient.sendRaw()
-                    .rawLine(String.format("PRIVMSG %s :/w %s %s", channel, recipient, content)));
-        }
+        CoreExtension.TWITCH_MESSAGE_RATE_LIMITER.submit(() -> ircClient.sendRaw()
+                .rawLine(String.format("PRIVMSG %s :/w %s %s", channel, recipient, content)));
     }
 
     @Override
     public void timeout(String user, long duration) {
-        if (running) {
-            CoreExtension.TWITCH_MESSAGE_RATE_LIMITER.submit(() -> ircClient.sendIRC()
-                    .message(channel, String.format(".timeout %s %d", user, duration)));
-        }
+        CoreExtension.TWITCH_MESSAGE_RATE_LIMITER
+                .submit(() -> ircClient.sendIRC().message(channel, String.format(".timeout %s %d", user, duration)));
+    }
+
+    @Override
+    public boolean isListening() {
+        logger.trace("Is listening? [{}]", listening);
+        return listening;
     }
 
     @Override
     public void onDisconnect(DisconnectEvent event) throws Exception {
         super.onDisconnect(event);
-        if (running) {
-            logger.debug("Disconnected.");
-        }
+        logger.debug("Disconnected.");
+        listening = false;
     }
 
     @Override
     public void onConnectAttemptFailed(ConnectAttemptFailedEvent event) throws Exception {
         super.onConnectAttemptFailed(event);
-        if (running) {
-            logger.debug("Connection attempt failed.");
-        }
+        logger.debug("Connection attempt failed.");
     }
 
     @Override
     public void shutdown() {
-        synchronized (startupLock) {
-            if (running) {
-                running = false;
+        try {
+            if(listening) {
                 logger.debug("Shutting down.");
-                ExecutorUtils.shutdown(reconnectionExecutorService, 2, TimeUnit.SECONDS);
-                disconnect();
+                ircClient.stopBotReconnect();
+                ircClient.sendIRC().quitServer();
+                logger.debug("Twitch channel disconnected");
             }
+        } catch (Exception ex) {
+            logger.error("Exception occurred while shutting down IRC server", ex);
+            // may throw an exception if the library has already
+            // registered a shutdown hook and has stopped itself
         }
     }
 
@@ -294,15 +256,20 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
 
     @Override
     public boolean isCommunityOnline() {
-        return online;
+        return communityOnline;
     }
 
-    public void setOnline(boolean online) {
-        this.online = online;
+    public void setCommunityOnline(boolean communityOnline) {
+        this.communityOnline = communityOnline;
     }
 
     @Override
     public String getBotUsername() {
         return username;
+    }
+
+    @Override
+    public String toString() {
+        return "twitch (" + username + "@" + channel + ")";
     }
 }

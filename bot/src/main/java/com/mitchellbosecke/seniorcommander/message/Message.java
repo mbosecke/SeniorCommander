@@ -8,7 +8,7 @@ import com.mitchellbosecke.seniorcommander.channel.Channel;
 public class Message {
 
     public enum Type {
-        USER, OUTPUT, MEMBERSHIP_NAMES, MEMBERSHIP_JOIN, MEMBERSHIP_PART, MOD_LIST
+        USER, OUTPUT, MEMBERSHIP_NAMES, MEMBERSHIP_JOIN, MEMBERSHIP_PART, MOD_LIST, CHANNEL_STOP, CHANNEL_START, CHANNEL_RESTART
     }
 
     private final Type type;
@@ -106,6 +106,18 @@ public class Message {
 
     public static Message modList(Channel channel, String content){
         return new Message(Type.MOD_LIST, channel, null, null, content, false);
+    }
+
+    public static Message startChannel(Channel channel){
+        return new Message(Type.CHANNEL_START, channel, null, null, null, false);
+    }
+
+    public static Message stopChannel(Channel channel){
+        return new Message(Type.CHANNEL_STOP, channel, null, null, null, false);
+    }
+
+    public static Message restartChannel(Channel channel){
+        return new Message(Type.CHANNEL_RESTART, channel, null, null, null, false);
     }
 }
 

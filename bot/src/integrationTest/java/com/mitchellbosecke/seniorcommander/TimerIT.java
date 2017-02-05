@@ -16,8 +16,9 @@ public class TimerIT extends AbstractIT {
 
     @Test
     public void newTimer() throws InterruptedException {
-        addTimer("Hello World", 10, 0);
-        Thread.sleep(10 * 1000);
+        int interval = 2;
+        addTimer("Hello World", interval, 0);
+        Thread.sleep(interval * 1000);
         recv("Hello World");
     }
 
@@ -30,7 +31,7 @@ public class TimerIT extends AbstractIT {
 
     @Test
     public void newTimerWithChatLinesRequirement() throws InterruptedException {
-        int interval = 10;
+        int interval = 2;
         addTimer("Hello World", interval, 1);
         Thread.sleep(interval * 1000);
         recv("Hello World"); // first time a timer ignores chat lines
@@ -43,14 +44,16 @@ public class TimerIT extends AbstractIT {
 
     @Test
     public void disableAndEnableTimer() throws InterruptedException {
-        int interval = 10;
-        long id = addTimer("Hello World", interval, 0);
+        int interval = 2;
+        long id = addTimer("Hello World", interval, 1);
         send("moderator: !timer disable " + id);
         recv(String.format("Timer #%d has been disabled", id));
+        send("user: chat line requirement");
         Thread.sleep(interval * 1000);
         expectNoBotOutput();
         send("moderator: !timer enable " + id);
         recv(String.format("Timer #%d has been enabled", id));
+        send("user: chat line requirement");
         Thread.sleep(interval * 1000);
         recv("Hello World");
     }

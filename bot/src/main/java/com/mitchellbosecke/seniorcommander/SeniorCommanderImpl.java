@@ -1,13 +1,14 @@
 package com.mitchellbosecke.seniorcommander;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
+import com.mitchellbosecke.seniorcommander.channel.ChannelManager;
 import com.mitchellbosecke.seniorcommander.extension.Extension;
 import com.mitchellbosecke.seniorcommander.extension.core.CoreExtension;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.timer.TimerManager;
 import com.mitchellbosecke.seniorcommander.utils.DatabaseManager;
-import com.mitchellbosecke.seniorcommander.utils.ExecutorUtils;
 import com.mitchellbosecke.seniorcommander.utils.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,9 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by mitch_000 on 2016-07-04.
@@ -27,11 +26,6 @@ import java.util.concurrent.TimeUnit;
 public class SeniorCommanderImpl implements SeniorCommander {
 
     private static final Logger logger = LoggerFactory.getLogger(SeniorCommanderImpl.class);
-
-    /**
-     * Executor service used to run the individual channels
-     */
-    private ExecutorService channelThreadPool;
 
     /**
      * A boolean used to determine if the bot should be running or not. If set to false, the polling of the message
@@ -47,6 +41,8 @@ public class SeniorCommanderImpl implements SeniorCommander {
     private final MessageQueue messageQueue;
 
     private final TimerManager timerManager;
+
+    private ChannelManager channelManager;
 
     /**
      * Components created from the extensions
@@ -79,9 +75,6 @@ public class SeniorCommanderImpl implements SeniorCommander {
         allExtensions.add(new CoreExtension());
         allExtensions.addAll(extensions);
         this.extensions = allExtensions;
-
-        // setup a shutdown hook
-        Runtime.getRuntime().addShutdownHook(new ShutdownHook(this, Thread.currentThread()));
     }
 
     /**
@@ -91,26 +84,20 @@ public class SeniorCommanderImpl implements SeniorCommander {
     @Override
     public void run() {
 
+        // setup a shutdown hook
+        Runtime.getRuntime().addShutdownHook(new ShutdownHook(this, Thread.currentThread()));
+
         synchronized (startupLock) {
             if (running) {
 
                 // build components from each extension
                 initExtensions();
 
-                // each channel runs on it's own thread
-                channelThreadPool = Executors.newFixedThreadPool(channels.size());
+                // start channels
+                channelManager = new ChannelManager(channels, Executors
+                        .newFixedThreadPool(channels.size(), new ThreadFactoryBuilder().setNameFormat("channels-%d").build()), messageQueue);
 
-                // run each channel on it's own thread
-                for (Channel channel : channels) {
-                    channelThreadPool.submit(() -> {
-                        try {
-                            channel.listen(messageQueue);
-                        } catch (Exception e) {
-                            logger.debug("Exception in channel: " + e.getMessage());
-                            throw new RuntimeException(e);
-                        }
-                    });
-                }
+                channelManager.startAllChannels();
             }
         }
 
@@ -147,9 +134,11 @@ public class SeniorCommanderImpl implements SeniorCommander {
                 running = false;
                 timerManager.shutdown();
                 extensions.forEach(Extension::onShutdown);
-                channels.forEach(Channel::shutdown);
-                ExecutorUtils.shutdown(channelThreadPool, 10, TimeUnit.SECONDS);
+                channelManager.shutdown();
                 TransactionManager.shutdown();
+                logger.debug("SeniorCommander has been shut down.");
+            }else{
+                logger.debug("Actually, it's not running");
             }
         }
     }
@@ -169,9 +158,34 @@ public class SeniorCommanderImpl implements SeniorCommander {
                 commandHandlers.addAll(extension.buildCommandHandlers(messageQueue, timerManager));
 
                 // event handlers
-                eventHandlers.addAll(extension.buildEventHandlers(messageQueue, channels, commandHandlers));
+                eventHandlers.addAll(extension.buildEventHandlers(this));
             }
         });
+    }
+
+    @Override
+    public MessageQueue getMessageQueue() {
+        return messageQueue;
+    }
+
+    @Override
+    public ChannelManager getChannelManager() {
+        return channelManager;
+    }
+
+    @Override
+    public List<EventHandler> getEventHandlers() {
+        return Collections.unmodifiableList(eventHandlers);
+    }
+
+    @Override
+    public List<CommandHandler> getCommandHandlers() {
+        return Collections.unmodifiableList(commandHandlers);
+    }
+
+    @Override
+    public TimerManager getTimerManager() {
+        return timerManager;
     }
 
     private static class ShutdownHook extends Thread {
@@ -187,11 +201,12 @@ public class SeniorCommanderImpl implements SeniorCommander {
         public void run() {
             SeniorCommander bot = botRef.get();
             if (bot != null) {
+                logger.debug("Shutting down the bot due to VM dying");
                 bot.shutdown();
             }
             try {
                 // wait for the main thread to finish
-                mainThread.join();
+                mainThread.join(20000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }

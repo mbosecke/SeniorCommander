@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
  */
 public class SocketChannel implements Channel {
 
-    Logger logger = LoggerFactory.getLogger(getClass());
+    private static final Logger logger = LoggerFactory.getLogger(SocketChannel.class);
 
     private ServerSocket serverSocket;
 
@@ -32,12 +32,7 @@ public class SocketChannel implements Channel {
 
     private static Pattern targetedMessage = Pattern.compile("(\\w+):\\s*(.*)");
 
-    /**
-     * Ensure that either startup or shutdown are performed exclusively.
-     */
-    private Object startupLock = new Object();
-
-    private volatile boolean running = true;
+    private volatile boolean listening = true;
 
     private final long id;
 
@@ -57,61 +52,58 @@ public class SocketChannel implements Channel {
     @Override
     public void listen(MessageQueue messageQueue) throws IOException {
         BufferedReader input = null;
+        listening = true;
 
-        synchronized (startupLock) {
-            if (running) {
-                serverSocket = new ServerSocket(port);
-            }
-        }
+        serverSocket = new ServerSocket(port);
 
-        while (running) {
+        while (listening) {
 
             Socket clientSocket;
             // block until a client connects
             try {
+                logger.debug("Socket channel listening on port {}", port);
                 clientSocket = serverSocket.accept();
             } catch (SocketException ex) {
                 // socket has been closed
                 break;
             }
-            logger.debug("Socket channel connection established");
+            logger.debug("Socket connection established on port {}", port);
             clientSocket.setSoTimeout(READ_TIMEOUT);
 
             output = new PrintWriter(clientSocket.getOutputStream(), true);
             input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
             handleConnection(messageQueue, input, output);
+            clientSocket.close();
         }
 
     }
 
-    private void handleConnection(MessageQueue messageQueue, BufferedReader input,
-                                  PrintWriter output) throws IOException {
-        if (input != null) {
+    protected void handleConnection(MessageQueue messageQueue, BufferedReader input,
+                                    PrintWriter output) throws IOException {
 
-            // indefinite connection until channel is explicitly shutdown
-            while (true) {
-                String inputLine = null;
+        // indefinite connection until channel is explicitly shutdown
+        while (true) {
+            String inputLine = null;
 
-                try {
-                    inputLine = input.readLine();
-                } catch (SocketTimeoutException ex) {
-                    // do nothing
-                }
+            try {
+                inputLine = input.readLine();
+            } catch (SocketTimeoutException ex) {
+                // do nothing
+            }
 
-                if (inputLine != null) {
-                    String[] senderSplit = splitSender(inputLine);
-                    String sender = senderSplit[0];
-                    String message = senderSplit[1];
+            if (inputLine != null) {
+                String[] senderSplit = splitSender(inputLine);
+                String sender = senderSplit[0];
+                String message = senderSplit[1];
 
-                    String[] recipientSplit = MessageUtils.splitRecipient(message);
-                    String recipient = recipientSplit[0];
-                    message = recipientSplit[1];
-                    messageQueue.add(Message.userInput(this, sender, recipient, message, false));
-                }
-                if (!running) {
-                    break;
-                }
+                String[] recipientSplit = MessageUtils.splitRecipient(message);
+                String recipient = recipientSplit[0];
+                message = recipientSplit[1];
+                messageQueue.add(Message.userInput(this, sender, recipient, message, false));
+            }
+            if (!listening) {
+                break;
             }
         }
     }
@@ -131,14 +123,14 @@ public class SocketChannel implements Channel {
 
     @Override
     public void sendMessage(String content) {
-        if (running && output != null) {
+        if (output != null) {
             output.println(content);
         }
     }
 
     @Override
     public void sendMessage(String recipient, String content) {
-        if (running && output != null) {
+        if (output != null) {
             content = String.format("@%s, %s", recipient, content);
             output.println(content);
         }
@@ -146,7 +138,7 @@ public class SocketChannel implements Channel {
 
     @Override
     public void sendWhisper(String recipient, String content) {
-        if (running && output != null) {
+        if (output != null) {
             content = String.format("/w @%s, %s", recipient, content);
             output.println(content);
         }
@@ -158,17 +150,22 @@ public class SocketChannel implements Channel {
     }
 
     @Override
+    public boolean isListening() {
+        // for some reason calling serverSocket.isBound
+        // and serverSocket.isClosed would cause
+        // deadlocks so unfortunately we don't really
+        // detect unexpected disconnections.
+        return listening;
+    }
+
+    @Override
     public void shutdown() {
-        synchronized (startupLock) {
-            running = false;
-            if (serverSocket != null) {
-                logger.debug("Shutting down socket channel.");
-                try {
-                    serverSocket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+        logger.debug("Shutting down socket channel.");
+        listening = false;
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -185,6 +182,11 @@ public class SocketChannel implements Channel {
     @Override
     public String getBotUsername() {
         return SeniorCommander.getName();
+    }
+
+    @Override
+    public String toString() {
+        return "socket (" + port + ")";
     }
 }
 

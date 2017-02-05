@@ -24,7 +24,7 @@ public class TwitchOnlineChecker implements Timer {
     public void perform() {
         String twitchClientId = ConfigFactory.load().getConfig("seniorcommander").getString("twitch.clientId");
         boolean isOnline = new TwitchApi(twitchClientId).stream(channel.getChannel()) != null;
-        channel.setOnline(isOnline);
+        channel.setCommunityOnline(isOnline);
     }
 
     @Override

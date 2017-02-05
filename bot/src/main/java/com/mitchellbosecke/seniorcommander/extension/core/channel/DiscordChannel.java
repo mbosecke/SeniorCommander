@@ -9,10 +9,7 @@ import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.EventSubscriber;
-import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
-import sx.blah.discord.handle.impl.events.ReadyEvent;
-import sx.blah.discord.handle.impl.events.UserJoinEvent;
-import sx.blah.discord.handle.impl.events.UserLeaveEvent;
+import sx.blah.discord.handle.impl.events.*;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.DiscordException;
@@ -28,18 +25,13 @@ import java.io.IOException;
  */
 public class DiscordChannel implements Channel {
 
-    Logger logger = LoggerFactory.getLogger(getClass());
-    /**
-     * Ensure that either startup or shutdown are performed exclusively.
-     */
-    private Object startupLock = new Object();
-
-    private volatile boolean running = true;
+    private static final Logger logger = LoggerFactory.getLogger(DiscordChannel.class);
 
     private final long id;
     private final String token;
     private final String guildName;
     private final String channelName;
+    private boolean listening = false;
 
     private IDiscordClient discordClient;
     private IChannel channel;
@@ -55,23 +47,18 @@ public class DiscordChannel implements Channel {
     @Override
     public void listen(MessageQueue messageQueue) throws IOException {
 
-        synchronized (startupLock) {
-            if (running) {
-                this.messageQueue = messageQueue;
+        this.messageQueue = messageQueue;
 
-                ClientBuilder clientBuilder = new ClientBuilder();
-                clientBuilder.withToken(token);
-                try {
-                    discordClient = clientBuilder.login();
-                    discordClient.getDispatcher().registerListener(this);
+        ClientBuilder clientBuilder = new ClientBuilder();
+        clientBuilder.withToken(token);
+        try {
+            discordClient = clientBuilder.login();
+            discordClient.getDispatcher().registerListener(this);
 
-                } catch (DiscordException e) {
-                    throw new RuntimeException(e);
-                }
-                logger.debug("Discord channel started [{}]", channelName);
-            }
+        } catch (DiscordException e) {
+            throw new RuntimeException(e);
         }
-
+        logger.debug("Discord channel started [{}]", channelName);
     }
 
     @EventSubscriber
@@ -118,25 +105,31 @@ public class DiscordChannel implements Channel {
         messageQueue.add(Message.part(this, event.getUser().getName()));
     }
 
+    @EventSubscriber
+    public void onLoginEvent(LoginEvent event){
+        listening = true;
+    }
+
+    @EventSubscriber
+    public void onDisconnected(DisconnectedEvent event){
+        listening = false;
+    }
+
     @Override
     public void sendMessage(String content) {
-        if (running && channel != null) {
-            try {
-                channel.sendMessage(content);
-            } catch (MissingPermissionsException | RateLimitException | DiscordException e) {
-                throw new RuntimeException(e);
-            }
+        try {
+            channel.sendMessage(content);
+        } catch (MissingPermissionsException | RateLimitException | DiscordException e) {
+            throw new RuntimeException(e);
         }
     }
 
     @Override
     public void sendMessage(String recipient, String content) {
-        if (running && channel != null) {
-            try {
-                channel.sendMessage(String.format("@%s, %s", recipient, content));
-            } catch (MissingPermissionsException | RateLimitException | DiscordException e) {
-                throw new RuntimeException(e);
-            }
+        try {
+            channel.sendMessage(String.format("@%s, %s", recipient, content));
+        } catch (MissingPermissionsException | RateLimitException | DiscordException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -151,16 +144,19 @@ public class DiscordChannel implements Channel {
     }
 
     @Override
+    public boolean isListening() {
+        logger.trace("Is listening? [{}]", listening);
+        return listening;
+    }
+
+    @Override
     public void shutdown() {
-        synchronized (startupLock) {
-            running = false;
-            if (discordClient != null) {
-                logger.debug("Shutting down discord channel.");
-                try {
-                    discordClient.logout();
-                } catch (DiscordException e) {
-                    throw new RuntimeException(e);
-                }
+        if (discordClient != null && listening) {
+            logger.debug("Shutting down discord channel.");
+            try {
+                discordClient.logout();
+            } catch (DiscordException e) {
+                throw new RuntimeException(e);
             }
         }
     }
@@ -178,5 +174,10 @@ public class DiscordChannel implements Channel {
     @Override
     public String getBotUsername() {
         return discordClient.getOurUser().getName();
+    }
+
+    @Override
+    public String toString() {
+        return "discord (" + channelName + "@" + guildName + ")";
     }
 }

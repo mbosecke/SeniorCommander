@@ -1,6 +1,7 @@
 package com.mitchellbosecke.seniorcommander.extension.core.event;
 
 import com.mitchellbosecke.seniorcommander.EventHandler;
+import com.mitchellbosecke.seniorcommander.SeniorCommander;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.domain.ChannelModel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.ChannelService;
@@ -19,7 +20,7 @@ public class OutputHandler implements EventHandler {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final List<Channel> channels;
+    private final SeniorCommander seniorCommander;
 
     private final ChannelService channelService;
 
@@ -27,8 +28,8 @@ public class OutputHandler implements EventHandler {
 
     private final String CONFIG_MUTE = "mute";
 
-    public OutputHandler(List<Channel> channels, ChannelService channelService, UserService userService) {
-        this.channels = channels;
+    public OutputHandler(SeniorCommander seniorCommander, ChannelService channelService, UserService userService) {
+        this.seniorCommander = seniorCommander;
         this.channelService = channelService;
         this.userService = userService;
     }
@@ -42,7 +43,7 @@ public class OutputHandler implements EventHandler {
             if (message.getChannel() != null) {
                 outputChannels.add(message.getChannel());
             } else {
-                outputChannels.addAll(channels);
+                outputChannels.addAll(seniorCommander.getChannelManager().getChannels());
             }
 
             for (Channel channel : outputChannels) {

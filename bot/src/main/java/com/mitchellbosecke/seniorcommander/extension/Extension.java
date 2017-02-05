@@ -2,6 +2,7 @@ package com.mitchellbosecke.seniorcommander.extension;
 
 import com.mitchellbosecke.seniorcommander.CommandHandler;
 import com.mitchellbosecke.seniorcommander.EventHandler;
+import com.mitchellbosecke.seniorcommander.SeniorCommander;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.timer.Timer;
@@ -17,13 +18,10 @@ public interface Extension {
     /**
      * Builds and returns all event handlers.
      *
-     * @param messageQueue
-     * @param channels
-     * @param commandHandlers
+     * @param seniorCommander
      * @return
      */
-    List<EventHandler> buildEventHandlers(MessageQueue messageQueue, List<Channel> channels,
-                                          List<CommandHandler> commandHandlers);
+    List<EventHandler> buildEventHandlers(SeniorCommander seniorCommander);
 
     /**
      * Builds and returns channel factories

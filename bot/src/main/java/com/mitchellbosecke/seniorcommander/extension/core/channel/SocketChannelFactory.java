@@ -1,7 +1,6 @@
 package com.mitchellbosecke.seniorcommander.extension.core.channel;
 
 import com.mitchellbosecke.seniorcommander.channel.Channel;
-import com.mitchellbosecke.seniorcommander.channel.ChannelFactory;
 import com.mitchellbosecke.seniorcommander.domain.ChannelModel;
 import com.mitchellbosecke.seniorcommander.utils.TransactionManager;
 

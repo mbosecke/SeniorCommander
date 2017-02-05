@@ -29,6 +29,8 @@ public interface Channel {
 
     void timeout(String user, long duration);
 
+    boolean isListening();
+
     void shutdown();
 
     /**

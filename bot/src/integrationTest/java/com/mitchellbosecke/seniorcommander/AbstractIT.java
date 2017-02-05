@@ -1,5 +1,6 @@
 package com.mitchellbosecke.seniorcommander;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.mitchellbosecke.seniorcommander.message.MessageUtils;
 import com.mitchellbosecke.seniorcommander.utils.DatabaseManager;
 import com.mitchellbosecke.seniorcommander.utils.ExecutorUtils;
@@ -47,7 +48,8 @@ public class AbstractIT {
         DatabaseManager manager = new DatabaseManager();
         manager.teardown();
 
-        executorService = Executors.newFixedThreadPool(1);
+        executorService = Executors
+                .newFixedThreadPool(1, new ThreadFactoryBuilder().setNameFormat("test-bot-%d").build());
 
         commander = new SeniorCommanderImpl();
         executorService.submit(() -> commander.run());
@@ -98,7 +100,6 @@ public class AbstractIT {
         } finally {
 
             // shutdown everything
-            logger.debug("Shutting down executor service");
             commander.shutdown();
             ExecutorUtils.shutdown(executorService, 10, TimeUnit.SECONDS);
         }

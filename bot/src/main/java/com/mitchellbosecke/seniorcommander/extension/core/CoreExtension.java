@@ -2,12 +2,10 @@ package com.mitchellbosecke.seniorcommander.extension.core;
 
 import com.mitchellbosecke.seniorcommander.CommandHandler;
 import com.mitchellbosecke.seniorcommander.EventHandler;
+import com.mitchellbosecke.seniorcommander.SeniorCommander;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
-import com.mitchellbosecke.seniorcommander.channel.ChannelFactory;
 import com.mitchellbosecke.seniorcommander.extension.Extension;
-import com.mitchellbosecke.seniorcommander.extension.core.channel.DiscordChannelFactory;
-import com.mitchellbosecke.seniorcommander.extension.core.channel.SocketChannelFactory;
-import com.mitchellbosecke.seniorcommander.extension.core.channel.TwitchChannelFactory;
+import com.mitchellbosecke.seniorcommander.extension.core.channel.*;
 import com.mitchellbosecke.seniorcommander.extension.core.command.*;
 import com.mitchellbosecke.seniorcommander.extension.core.event.*;
 import com.mitchellbosecke.seniorcommander.extension.core.service.*;
@@ -52,6 +50,8 @@ public class CoreExtension implements Extension {
 
         List<Channel> channels = new ArrayList<>();
         factories.forEach(f -> channels.addAll(f.build()));
+
+        channels.add(new HttpChannel(8080, channels));
         return channels;
     }
 
@@ -69,8 +69,7 @@ public class CoreExtension implements Extension {
     }
 
     @Override
-    public List<EventHandler> buildEventHandlers(MessageQueue messageQueue, List<Channel> channels,
-                                                 List<CommandHandler> commandHandlers) {
+    public List<EventHandler> buildEventHandlers(SeniorCommander seniorCommander) {
 
         List<EventHandler> eventHandlers = new ArrayList<>();
 
@@ -81,13 +80,15 @@ public class CoreExtension implements Extension {
         GiveawayService giveawayService = new GiveawayService();
 
         // handlers
+        eventHandlers.add(new ChannelManagementHandler(seniorCommander));
         eventHandlers.add(new LoggingHandler(userService));
-        eventHandlers.add(new OutputHandler(channels, channelService, userService));
-        eventHandlers.add(new ConversationalHandler(messageQueue));
+        eventHandlers.add(new OutputHandler(seniorCommander, channelService, userService));
+        eventHandlers.add(new ConversationalHandler(seniorCommander.getMessageQueue()));
         eventHandlers.add(new UserChatHandler(userService));
         eventHandlers.add(new JoinPartHandler(userService));
         eventHandlers.add(new NamesHandler(userService));
-        eventHandlers.add(new CommandBroker(messageQueue, commandHandlers, userService, commandService));
+        eventHandlers.add(new CommandBroker(seniorCommander.getMessageQueue(), seniorCommander
+                .getCommandHandlers(), userService, commandService));
         eventHandlers.add(new ModListHandler(userService));
         eventHandlers.add(new GiveawayKeywordHandler(giveawayService, userService));
 

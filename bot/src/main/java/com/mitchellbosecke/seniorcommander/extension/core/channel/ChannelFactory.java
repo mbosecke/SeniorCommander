@@ -1,4 +1,6 @@
-package com.mitchellbosecke.seniorcommander.channel;
+package com.mitchellbosecke.seniorcommander.extension.core.channel;
+
+import com.mitchellbosecke.seniorcommander.channel.Channel;
 
 import java.util.List;
 
