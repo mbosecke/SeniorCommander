@@ -51,7 +51,7 @@ public class CoreExtension implements Extension {
         List<Channel> channels = new ArrayList<>();
         factories.forEach(f -> channels.addAll(f.build()));
 
-        channels.add(new HttpChannel(8080, channels));
+        channels.add(new HttpChannel(8888, channels));
         return channels;
     }
 

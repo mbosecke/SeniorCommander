@@ -97,7 +97,6 @@ public class TwitchChannel extends ListenerAdapter implements Channel {
     @Override
     public void onConnect(ConnectEvent event) throws Exception {
         super.onConnect(event);
-        logger.debug("Connected on thread: " + Thread.currentThread().getName());
         listening = true;
     }
 

@@ -107,6 +107,9 @@ public class HttpChannel extends SocketChannel {
                         messageQueue.add(Message.restartChannel(channel));
                         httpResponse(output, 200, "Channel restarted");
                         break;
+                    case "STATUS":
+                        httpResponse(output, 200, String.valueOf(channel.isListening()));
+                        break;
                     default:
                         httpResponse(output, 400, "Unknown command");
                 }
