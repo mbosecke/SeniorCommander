@@ -1,1 +1,0 @@
-ALTER TABLE quote ALTER COLUMN created_date TYPE timestamp without time zone;

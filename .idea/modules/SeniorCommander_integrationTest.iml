@@ -12,6 +12,7 @@
     <orderEntry type="library" name="Gradle: com.typesafe:config:1.3.0" level="project" />
     <orderEntry type="module" module-name="SeniorCommander_main" />
     <orderEntry type="module" module-name="SeniorCommander_test" production-on-test="" />
+    <orderEntry type="library" name="Gradle: com.mitchellbosecke:seniorcommander-jpa:1.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Gradle: org.postgresql:postgresql:9.4.1208" level="project" />
     <orderEntry type="library" name="Gradle: org.hibernate:hibernate-core:5.2.3.Final" level="project" />
     <orderEntry type="library" name="Gradle: org.flywaydb:flyway-core:4.0.3" level="project" />

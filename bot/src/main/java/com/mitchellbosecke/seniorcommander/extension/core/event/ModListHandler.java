@@ -1,7 +1,7 @@
 package com.mitchellbosecke.seniorcommander.extension.core.event;
 
-import com.mitchellbosecke.seniorcommander.AccessLevel;
 import com.mitchellbosecke.seniorcommander.EventHandler;
+import com.mitchellbosecke.seniorcommander.domain.AccessLevel;
 import com.mitchellbosecke.seniorcommander.domain.CommunityUserModel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;
 import com.mitchellbosecke.seniorcommander.message.Message;

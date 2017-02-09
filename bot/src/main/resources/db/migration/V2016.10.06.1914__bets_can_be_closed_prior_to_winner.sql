@@ -1,1 +1,0 @@
-alter table betting_game add closed boolean not null;

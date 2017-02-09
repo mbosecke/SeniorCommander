@@ -1,1 +1,0 @@
-alter table command add constraint command_trigger_uq unique (community_id, trigger);

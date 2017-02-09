@@ -1,10 +1,6 @@
 package com.mitchellbosecke.seniorcommander.extension.core.service;
 
-import com.mitchellbosecke.seniorcommander.AccessLevel;
-import com.mitchellbosecke.seniorcommander.domain.CommandLogModel;
-import com.mitchellbosecke.seniorcommander.domain.CommandModel;
-import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
-import com.mitchellbosecke.seniorcommander.domain.CommunityUserModel;
+import com.mitchellbosecke.seniorcommander.domain.*;
 import com.mitchellbosecke.seniorcommander.utils.TransactionManager;
 import org.hibernate.Session;
 

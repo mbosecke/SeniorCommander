@@ -1,6 +1,6 @@
 package com.mitchellbosecke.seniorcommander.extension.core.timer;
 
-import com.mitchellbosecke.seniorcommander.AccessLevel;
+import com.mitchellbosecke.seniorcommander.domain.AccessLevel;
 import com.mitchellbosecke.seniorcommander.domain.CommunityUserModel;
 import com.mitchellbosecke.seniorcommander.extension.core.channel.TwitchChannel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;

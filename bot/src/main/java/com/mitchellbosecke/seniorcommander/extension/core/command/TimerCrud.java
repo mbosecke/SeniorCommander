@@ -1,7 +1,7 @@
 package com.mitchellbosecke.seniorcommander.extension.core.command;
 
-import com.mitchellbosecke.seniorcommander.AccessLevel;
 import com.mitchellbosecke.seniorcommander.CommandHandler;
+import com.mitchellbosecke.seniorcommander.domain.AccessLevel;
 import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
 import com.mitchellbosecke.seniorcommander.domain.TimerModel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.TimerService;

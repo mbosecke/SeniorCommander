@@ -1,7 +1,7 @@
 package com.mitchellbosecke.seniorcommander.extension.core.service;
 
-import com.mitchellbosecke.seniorcommander.AccessLevel;
 import com.mitchellbosecke.seniorcommander.channel.Channel;
+import com.mitchellbosecke.seniorcommander.domain.AccessLevel;
 import com.mitchellbosecke.seniorcommander.domain.ChannelModel;
 import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
 import com.mitchellbosecke.seniorcommander.domain.CommunityUserModel;
@@ -73,11 +73,10 @@ public class UserService extends BaseService {
         }
 
         Duration duration = Duration.between(user.getLastOnline(), ZonedDateTime.now(ZoneId.of("UTC")));
-        user.setTimeOnline(user.getTimeOnline() + (duration.toMillis()/1000));
+        user.setTimeOnline(user.getTimeOnline() + (duration.toMillis() / 1000));
 
         return user;
     }
-
 
     public void giveOnlineUsersPoints(Channel channel, int points) {
         ChannelModel channelModel = find(ChannelModel.class, channel.getId());
