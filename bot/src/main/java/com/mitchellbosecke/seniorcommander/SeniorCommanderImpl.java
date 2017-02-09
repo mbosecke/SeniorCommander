@@ -108,18 +108,19 @@ public class SeniorCommanderImpl implements SeniorCommander {
                 if (message != null && running) {
                     logger.trace("Message from queue: [" + message.getType() + ": " + message.getContent() + "]");
 
-                    TransactionManager.runInTransaction(session -> {
-                        logger.debug("Primary transaction beginning");
-                        eventHandlers.forEach(eventHandler -> {
-                            try {
+                    try {
+                        TransactionManager.runInTransaction(session -> {
+                            logger.debug("Primary transaction beginning");
+                            eventHandlers.forEach(eventHandler -> {
                                 eventHandler.handle(message);
-                            } catch (Exception ex) {
-                                // we don't want to die! Just log the error.
-                                logger.error("Error when handling message", ex);
-                            }
+                            });
+                            logger.debug("Committing primary transaction");
                         });
-                        logger.debug("Committing primary transaction");
-                    });
+                    }catch (Exception ex){
+                        // don't die, just log the exception
+                        logger.debug("An exception occurred while handling a message", ex);
+
+                    }
                 }
             }
 

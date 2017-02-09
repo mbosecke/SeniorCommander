@@ -83,7 +83,7 @@ public class CoreExtension implements Extension {
         eventHandlers.add(new ChannelManagementHandler(seniorCommander));
         eventHandlers.add(new LoggingHandler(userService));
         eventHandlers.add(new OutputHandler(seniorCommander, channelService, userService));
-        eventHandlers.add(new ConversationalHandler(seniorCommander.getMessageQueue()));
+        eventHandlers.add(new AiHandler(seniorCommander.getMessageQueue()));
         eventHandlers.add(new UserChatHandler(userService));
         eventHandlers.add(new JoinPartHandler(userService));
         eventHandlers.add(new NamesHandler(userService));

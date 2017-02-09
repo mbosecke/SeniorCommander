@@ -78,8 +78,8 @@ dependencies {
     // twitch
     compile group: 'com.mitchellbosecke', name: 'twitchapi', version: '1.0-SNAPSHOT'
 
-    // cleverbot
-    compile group: 'ca.pjer', name: 'chatter-bot-api', version: '1.4.2'
+    // AI
+    compile group: 'ai.api', name: 'libai', version: '1.3.5'
 
     // logging
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
