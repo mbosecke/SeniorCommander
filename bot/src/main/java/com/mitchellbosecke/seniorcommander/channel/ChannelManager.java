@@ -1,8 +1,14 @@
 package com.mitchellbosecke.seniorcommander.channel;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.mitchellbosecke.seniorcommander.domain.ChannelModel;
+import com.mitchellbosecke.seniorcommander.extension.core.channel.ChannelFactory;
+import com.mitchellbosecke.seniorcommander.extension.core.channel.HttpChannel;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
+import com.mitchellbosecke.seniorcommander.utils.ConfigUtils;
 import com.mitchellbosecke.seniorcommander.utils.ExecutorUtils;
+import com.mitchellbosecke.seniorcommander.utils.NetworkUtils;
+import com.mitchellbosecke.seniorcommander.utils.TransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,11 +24,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ChannelManager {
 
     /**
-     * All the channels and their known state.
+     * All the channelStates and their known state.
      */
-    private final Map<Channel, State> channels;
+    private final List<ChannelFactory> channelFactories;
 
-    private final ExecutorService executorService;
+    private final Map<Channel, State> channelStates;
+
+    private final Map<Long, Channel> channels;
+
+    private ExecutorService executorService;
 
     private final ExecutorService monitoringExecutorService = Executors
             .newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat("channel-monitor-%d").build());
@@ -40,36 +50,70 @@ public class ChannelManager {
     private volatile boolean monitoring = true;
 
     /**
-     * Starting and stopping channels is synchronized because it can be called from
-     * many threads and we want to carefully track which channels are SUPPOSED to be
+     * Starting and stopping channelStates is synchronized because it can be called from
+     * many threads and we want to carefully track which channelStates are SUPPOSED to be
      * running, to better support to auto-reconnection feature.
      */
     private static final Object lock = new Object();
 
-    public ChannelManager(List<Channel> channels, ExecutorService executorService, MessageQueue messageQueue) {
+    public ChannelManager(List<ChannelFactory> channelFactories, MessageQueue messageQueue) {
 
-        this.channels = new HashMap<>();
-        channels.forEach(c -> this.channels.put(c, State.STOPPED));
-
-        this.executorService = executorService;
+        this.channelFactories = channelFactories;
         this.messageQueue = messageQueue;
+        this.channelStates = new HashMap<>();
+        this.channels = new HashMap<>();
 
         channelMonitoring();
     }
 
-    public void startAllChannels() {
+    public void start() {
         synchronized (lock) {
-            channels.forEach((channel, running) -> startChannel(channel));
+
+            List<ChannelModel> channelModels = new ArrayList<>();
+            TransactionManager.runInTransaction(session -> {
+                //@formatter:off
+                channelModels.addAll(session
+                        .createQuery("" +
+                                "SELECT cm " +
+                                "FROM ChannelModel cm " +
+                                "LEFT JOIN FETCH cm.settings " +
+                                "WHERE cm.communityModel.server = :server", ChannelModel.class)
+                        .setParameter("server",  NetworkUtils.getLocalHostname())
+                        .getResultList());
+                //@formatter:on
+
+                List<Channel> channels = new ArrayList<>();
+                for (ChannelModel channelModel : channelModels) {
+                    for (ChannelFactory factory : channelFactories) {
+                        if (factory.supports(channelModel.getType())) {
+                            channels.add(factory.build(channelModel));
+                            break;
+                        }
+                    }
+                }
+
+                channels.add(new HttpChannel(ConfigUtils.getInt("http.port"), channels));
+
+                for (Channel channel : channels) {
+                    this.channelStates.put(channel, State.STOPPED);
+                    this.channels.put(channel.getId(), channel);
+                }
+
+                this.executorService = Executors.newFixedThreadPool(this.channels.size(), new ThreadFactoryBuilder()
+                        .setNameFormat("channels-%d").build());
+            });
+
+            this.channels.values().forEach(channel -> startChannel(channel));
         }
     }
 
     public void startChannel(Channel channel) {
         synchronized (lock) {
-            State state = channels.get(channel);
+            State state = channelStates.get(channel);
             if (state == State.STOPPED || (state == State.STARTED && !channel.isListening())) {
 
                 logger.debug("Starting channel [{}]", channel);
-                channels.put(channel, State.STARTING_UP);
+                channelStates.put(channel, State.STARTING_UP);
                 numberOfRunningChannels.incrementAndGet();
                 executorService.submit(() -> {
                     try {
@@ -86,11 +130,11 @@ public class ChannelManager {
     /**
      * There are a few things we are looking for.
      * <p>
-     * First, channels that were known to be starting up and are now fully listening.
+     * First, channelStates that were known to be starting up and are now fully listening.
      * However, it's possible that this channel has since been flagged to be stopped
      * so we will actually initiate the shutdown procedure for it at this point.
      * <p>
-     * Secondly, channels that were known to be
+     * Secondly, channelStates that were known to be
      * started but for some unexpected reason they've stopped listening (and should be
      * reconnected).
      */
@@ -100,16 +144,16 @@ public class ChannelManager {
 
                 logger.trace("Channel monitoring engaged");
                 synchronized (lock) {
-                    channels.forEach((channel, state) -> {
+                    channelStates.forEach((channel, state) -> {
                         if (state == State.STARTING_UP && channel.isListening()) {
 
                             logger.debug("A channel starting up has fully started [{}]", channel);
-                            channels.put(channel, State.STARTED);
+                            channelStates.put(channel, State.STARTED);
                             if (channelsToBeStopped.contains(channel)) {
                                 logger.debug("A channel starting up has fully started but needs to be stopped [{}]", channel);
                                 stopChannel(channel);
                             }
-                            // track when channels have fully started
+                            // track when channelStates have fully started
                         } else if (state == State.STARTED && !channel.isListening()) {
 
                             // channel must have unexpectedly disconnected itself
@@ -130,10 +174,10 @@ public class ChannelManager {
 
     public void stopChannel(Channel channel) {
         synchronized (lock) {
-            State currentState = channels.get(channel);
+            State currentState = channelStates.get(channel);
             if (currentState == State.STARTED) {
                 logger.debug("Stopping channel [{}]", channel);
-                channels.put(channel, State.STOPPED);
+                channelStates.put(channel, State.STOPPED);
                 channel.shutdown();
                 numberOfRunningChannels.decrementAndGet();
 
@@ -154,19 +198,23 @@ public class ChannelManager {
         }
     }
 
-    public Set<Channel> getChannels() {
-        return Collections.unmodifiableSet(channels.keySet());
+    public Set<Channel> getChannelStates() {
+        return Collections.unmodifiableSet(channelStates.keySet());
+    }
+
+    public Optional<Channel> getChannel(long id) {
+        return Optional.ofNullable(channels.get(id));
     }
 
     public void shutdown() {
         synchronized (lock) {
-            channels.forEach((channel, running) -> {
+            channelStates.forEach((channel, running) -> {
                 stopChannel(channel);
             });
         }
 
         while (numberOfRunningChannels.get() > 0) {
-            logger.debug("Waiting for " + numberOfRunningChannels.get() + " channels to shutdown");
+            logger.debug("Waiting for " + numberOfRunningChannels.get() + " channelStates to shutdown");
 
             try {
                 Thread.sleep(1000);

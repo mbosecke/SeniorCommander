@@ -1,8 +1,8 @@
 package com.mitchellbosecke.seniorcommander.extension.core.command;
 
 import com.mitchellbosecke.seniorcommander.CommandHandler;
+import com.mitchellbosecke.seniorcommander.SeniorCommander;
 import com.mitchellbosecke.seniorcommander.message.Message;
-import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 
 import java.util.Random;
 import java.util.StringTokenizer;
@@ -12,10 +12,10 @@ import java.util.StringTokenizer;
  */
 public class Roll implements CommandHandler {
 
-    private final MessageQueue messageQueue;
+    private final SeniorCommander seniorCommander;
 
-    public Roll(MessageQueue messageQueue) {
-        this.messageQueue = messageQueue;
+    public Roll(SeniorCommander seniorCommander) {
+        this.seniorCommander = seniorCommander;
     }
 
     @Override
@@ -26,6 +26,6 @@ public class Roll implements CommandHandler {
         Integer roll = Integer.valueOf(tokenizer.nextToken());
         Random generator = new Random();
         int result = generator.nextInt(roll) + 1;
-        messageQueue.add(Message.response(message, "You rolled a " + result));
+        seniorCommander.getMessageQueue().add(Message.response(message, "You rolled a " + result));
     }
 }

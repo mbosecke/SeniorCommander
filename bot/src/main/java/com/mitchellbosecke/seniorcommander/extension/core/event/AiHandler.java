@@ -9,7 +9,7 @@ import com.mitchellbosecke.seniorcommander.EventHandler;
 import com.mitchellbosecke.seniorcommander.SeniorCommander;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
-import com.typesafe.config.ConfigFactory;
+import com.mitchellbosecke.seniorcommander.utils.ConfigUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +27,7 @@ public class AiHandler implements EventHandler {
     public AiHandler(MessageQueue messageQueue) {
         this.messageQueue = messageQueue;
 
-        String clientId = ConfigFactory.load().getConfig("seniorcommander").getString("ai.clientId");
+        String clientId = ConfigUtils.getString("ai.clientId");
         AIConfiguration configuration = new AIConfiguration(clientId);
         bot = new AIDataService(configuration);
     }

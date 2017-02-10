@@ -1,6 +1,7 @@
 package com.mitchellbosecke.seniorcommander.extension.core.command;
 
 import com.mitchellbosecke.seniorcommander.CommandHandler;
+import com.mitchellbosecke.seniorcommander.SeniorCommander;
 import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
 import com.mitchellbosecke.seniorcommander.domain.QuoteModel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.QuoteService;
@@ -28,12 +29,12 @@ public class RandomQuote implements CommandHandler {
 
     private final QuoteService quoteService;
 
-    private final MessageQueue messageQueue;
+    private final SeniorCommander seniorCommander;
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.CANADA);
 
-    public RandomQuote(MessageQueue messageQueue, QuoteService quoteService) {
-        this.messageQueue = messageQueue;
+    public RandomQuote(SeniorCommander seniorCommander, QuoteService quoteService) {
+        this.seniorCommander = seniorCommander;
         this.quoteService = quoteService;
     }
 
@@ -62,6 +63,7 @@ public class RandomQuote implements CommandHandler {
     }
 
     private void shoutQuote(Message message, QuoteModel quoteModel) {
+        MessageQueue messageQueue = seniorCommander.getMessageQueue();
         if (quoteModel == null) {
             messageQueue.add(Message.response(message, "Quote does not exist"));
         } else {

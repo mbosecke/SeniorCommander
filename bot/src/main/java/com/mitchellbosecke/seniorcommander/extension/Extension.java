@@ -3,10 +3,8 @@ package com.mitchellbosecke.seniorcommander.extension;
 import com.mitchellbosecke.seniorcommander.CommandHandler;
 import com.mitchellbosecke.seniorcommander.EventHandler;
 import com.mitchellbosecke.seniorcommander.SeniorCommander;
-import com.mitchellbosecke.seniorcommander.channel.Channel;
-import com.mitchellbosecke.seniorcommander.message.MessageQueue;
+import com.mitchellbosecke.seniorcommander.extension.core.channel.ChannelFactory;
 import com.mitchellbosecke.seniorcommander.timer.Timer;
-import com.mitchellbosecke.seniorcommander.timer.TimerManager;
 
 import java.util.List;
 
@@ -28,24 +26,22 @@ public interface Extension {
      *
      * @return
      */
-    List<Channel> buildChannels();
+    List<ChannelFactory> buildChannelFactories();
 
     /**
      * Builds and returns timers
      *
-     * @param messageQueue
-     * @param channels
+     * @param seniorCommander
      */
-    List<Timer> buildTimers(MessageQueue messageQueue, List<Channel> channels);
+    List<Timer> buildTimers(SeniorCommander seniorCommander);
 
     /**
      * Builds and returns all command handlers.
      *
-     * @param messageQueue
-     * @param timerManager
+     * @param seniorCommander
      * @return
      */
-    List<CommandHandler> buildCommandHandlers(MessageQueue messageQueue, TimerManager timerManager);
+    List<CommandHandler> buildCommandHandlers(SeniorCommander seniorCommander);
 
     /**
      * A hook for the bot shutdown which can be used to perform any cleanup.

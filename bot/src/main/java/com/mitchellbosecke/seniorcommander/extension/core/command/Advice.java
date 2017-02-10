@@ -1,9 +1,9 @@
 package com.mitchellbosecke.seniorcommander.extension.core.command;
 
 import com.mitchellbosecke.seniorcommander.CommandHandler;
-import com.mitchellbosecke.seniorcommander.utils.PhraseProvider;
+import com.mitchellbosecke.seniorcommander.SeniorCommander;
 import com.mitchellbosecke.seniorcommander.message.Message;
-import com.mitchellbosecke.seniorcommander.message.MessageQueue;
+import com.mitchellbosecke.seniorcommander.utils.PhraseProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,15 +14,16 @@ public class Advice implements CommandHandler {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final MessageQueue messageQueue;
+    private final SeniorCommander seniorCommander;
 
-    public Advice(MessageQueue messageQueue) {
-        this.messageQueue = messageQueue;
+    public Advice(SeniorCommander seniorCommander) {
+        this.seniorCommander = seniorCommander;
     }
 
     @Override
     public void execute(Message message) {
-        messageQueue.add(Message.response(message, PhraseProvider.getPhrase(PhraseProvider.Category.ADVICE)));
+        seniorCommander.getMessageQueue()
+                .add(Message.response(message, PhraseProvider.getPhrase(PhraseProvider.Category.ADVICE)));
     }
 
 }

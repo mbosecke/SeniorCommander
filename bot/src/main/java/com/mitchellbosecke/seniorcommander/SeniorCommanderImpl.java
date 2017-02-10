@@ -1,10 +1,9 @@
 package com.mitchellbosecke.seniorcommander;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.channel.ChannelManager;
 import com.mitchellbosecke.seniorcommander.extension.Extension;
 import com.mitchellbosecke.seniorcommander.extension.core.CoreExtension;
+import com.mitchellbosecke.seniorcommander.extension.core.channel.ChannelFactory;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.timer.TimerManager;
@@ -48,7 +47,7 @@ public class SeniorCommanderImpl implements SeniorCommander {
      * Components created from the extensions
      */
     private final List<Extension> extensions;
-    private List<Channel> channels = new LinkedList<>();
+    private List<ChannelFactory> channelFactories = new LinkedList<>();
     private List<EventHandler> eventHandlers = new LinkedList<>();
     private List<CommandHandler> commandHandlers = new LinkedList<>();
 
@@ -94,10 +93,9 @@ public class SeniorCommanderImpl implements SeniorCommander {
                 initExtensions();
 
                 // start channels
-                channelManager = new ChannelManager(channels, Executors
-                        .newFixedThreadPool(channels.size(), new ThreadFactoryBuilder().setNameFormat("channels-%d").build()), messageQueue);
+                channelManager = new ChannelManager(channelFactories, messageQueue);
 
-                channelManager.startAllChannels();
+                channelManager.start();
             }
         }
 
@@ -150,13 +148,13 @@ public class SeniorCommanderImpl implements SeniorCommander {
             for (Extension extension : extensions) {
 
                 // build channels
-                channels.addAll(extension.buildChannels());
+                channelFactories.addAll(extension.buildChannelFactories());
 
                 // start timers
-                extension.buildTimers(messageQueue, channels).forEach(timerManager::addTimer);
+                extension.buildTimers(this).forEach(timerManager::addTimer);
 
                 // command handlers
-                commandHandlers.addAll(extension.buildCommandHandlers(messageQueue, timerManager));
+                commandHandlers.addAll(extension.buildCommandHandlers(this));
 
                 // event handlers
                 eventHandlers.addAll(extension.buildEventHandlers(this));
@@ -188,6 +186,8 @@ public class SeniorCommanderImpl implements SeniorCommander {
     public TimerManager getTimerManager() {
         return timerManager;
     }
+
+
 
     private static class ShutdownHook extends Thread {
         private final WeakReference<SeniorCommander> botRef;

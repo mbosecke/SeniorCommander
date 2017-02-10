@@ -1,6 +1,7 @@
 package com.mitchellbosecke.seniorcommander.extension.core.command;
 
 import com.mitchellbosecke.seniorcommander.CommandHandler;
+import com.mitchellbosecke.seniorcommander.SeniorCommander;
 import com.mitchellbosecke.seniorcommander.domain.AuctionModel;
 import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
 import com.mitchellbosecke.seniorcommander.domain.CommunityUserModel;
@@ -29,18 +30,19 @@ public class Auction implements CommandHandler {
 
     private final AuctionService auctionService;
 
-    private final MessageQueue messageQueue;
+    private final SeniorCommander seniorCommander;
 
     private final UserService userService;
 
-    public Auction(MessageQueue messageQueue, AuctionService auctionService, UserService userService) {
-        this.messageQueue = messageQueue;
+    public Auction(SeniorCommander seniorCommander, AuctionService auctionService, UserService userService) {
+        this.seniorCommander = seniorCommander;
         this.auctionService = auctionService;
         this.userService = userService;
     }
 
     @Override
     public void execute(Message message) {
+        MessageQueue messageQueue = seniorCommander.getMessageQueue();
 
         ParsedCommand parsed = new CommandParser().parse(message.getContent());
         CommunityModel communityModel = auctionService.findCommunity(message.getChannel());

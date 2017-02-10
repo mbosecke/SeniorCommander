@@ -1,6 +1,7 @@
 package com.mitchellbosecke.seniorcommander.extension.core.command;
 
 import com.mitchellbosecke.seniorcommander.CommandHandler;
+import com.mitchellbosecke.seniorcommander.SeniorCommander;
 import com.mitchellbosecke.seniorcommander.domain.*;
 import com.mitchellbosecke.seniorcommander.extension.core.service.BettingService;
 import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;
@@ -28,16 +29,18 @@ public class Betting implements CommandHandler {
 
     private final BettingService bettingService;
 
-    private final MessageQueue messageQueue;
+    private final SeniorCommander seniorCommander;
 
-    public Betting(MessageQueue messageQueue, BettingService bettingService, UserService userService) {
-        this.messageQueue = messageQueue;
+    public Betting(SeniorCommander seniorCommander, BettingService bettingService, UserService userService) {
+        this.seniorCommander = seniorCommander;
         this.bettingService = bettingService;
         this.userService = userService;
     }
 
     @Override
     public void execute(Message message) {
+
+        MessageQueue messageQueue = seniorCommander.getMessageQueue();
 
         ParsedCommand parsed = new CommandParser().parse(message.getContent());
         CommunityModel communityModel = bettingService.findCommunity(message.getChannel());
@@ -183,6 +186,8 @@ public class Betting implements CommandHandler {
      */
     private boolean attemptToPlaceBet(BettingGameModel game, Message message, String optionString,
                                       String amountString) {
+
+        MessageQueue messageQueue = seniorCommander.getMessageQueue();
 
         boolean parsedOption = false;
         boolean parsedAmount = false;

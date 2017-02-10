@@ -1,6 +1,7 @@
 package com.mitchellbosecke.seniorcommander.extension.core.command;
 
 import com.mitchellbosecke.seniorcommander.CommandHandler;
+import com.mitchellbosecke.seniorcommander.SeniorCommander;
 import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
 import com.mitchellbosecke.seniorcommander.domain.CommunityUserModel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.UserService;
@@ -24,15 +25,15 @@ public class Points implements CommandHandler {
 
     private final UserService userService;
 
-    private final MessageQueue messageQueue;
+    private final SeniorCommander seniorCommander;
 
     public static final String DEFAULT_POINT_SINGULAR = "point";
     public static final String DEFAULT_POINT_PLURAL = "points";
     public static final String SETTING_POINT_SINGULAR = "points.singular";
     public static final String SETTING_POINT_PLURAL = "points.plural";
 
-    public Points(MessageQueue messageQueue, UserService userService) {
-        this.messageQueue = messageQueue;
+    public Points(SeniorCommander seniorCommander, UserService userService) {
+        this.seniorCommander = seniorCommander;
         this.userService = userService;
     }
 
@@ -40,6 +41,7 @@ public class Points implements CommandHandler {
     public void execute(Message message) {
         ParsedCommand parsed = new CommandParser().parse(message.getContent());
 
+        MessageQueue messageQueue = seniorCommander.getMessageQueue();
         String pointsName = getPointsName(message);
 
         if (parsed.getComponents().isEmpty()) {
@@ -70,6 +72,7 @@ public class Points implements CommandHandler {
     }
 
     private void attemptToManipulatePoints(boolean give, Message message, ParsedCommand parsed) {
+        MessageQueue messageQueue = seniorCommander.getMessageQueue();
         int amountIndex = -1;
         int amount = -1;
         try {

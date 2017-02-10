@@ -1,6 +1,7 @@
 package com.mitchellbosecke.seniorcommander.extension.core.command;
 
 import com.mitchellbosecke.seniorcommander.CommandHandler;
+import com.mitchellbosecke.seniorcommander.SeniorCommander;
 import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
 import com.mitchellbosecke.seniorcommander.domain.QuoteModel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.QuoteService;
@@ -25,16 +26,17 @@ public class QuoteCrud implements CommandHandler {
 
     private final QuoteService quoteService;
 
-    private final MessageQueue messageQueue;
+    private final SeniorCommander seniorCommander;
 
-    public QuoteCrud(MessageQueue messageQueue, QuoteService quoteService) {
-        this.messageQueue = messageQueue;
+    public QuoteCrud(SeniorCommander seniorCommander, QuoteService quoteService) {
+        this.seniorCommander = seniorCommander;
         this.quoteService = quoteService;
     }
 
     @Override
     public void execute(Message message) {
 
+        MessageQueue messageQueue = seniorCommander.getMessageQueue();
         ParsedCommand parsed = new CommandParser().parse(message.getContent());
         CommunityModel communityModel = quoteService.findCommunity(message.getChannel());
 
@@ -45,10 +47,12 @@ public class QuoteCrud implements CommandHandler {
             if (parsed.getQuotedText() == null) {
                 messageQueue.add(Message.response(message, "You are missing the quoted text"));
             } else {
-                QuoteModel result = quoteService.addQuote(communityModel, parsed.getComponents().get(1), parsed.getQuotedText());
-                messageQueue.add(Message.response(message, String.format("Quote #%d has been added", result.getCommunitySequence())));
+                QuoteModel result = quoteService
+                        .addQuote(communityModel, parsed.getComponents().get(1), parsed.getQuotedText());
+                messageQueue.add(Message
+                        .response(message, String.format("Quote #%d has been added", result.getCommunitySequence())));
             }
-        } else if ("edit".equalsIgnoreCase(subCommand)){
+        } else if ("edit".equalsIgnoreCase(subCommand)) {
             long id = Long.parseLong(parsed.getComponents().get(1));
             QuoteModel quoteModel = quoteService.findQuote(communityModel, id);
             quoteModel.setContent(parsed.getQuotedText());

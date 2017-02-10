@@ -2,10 +2,9 @@ package com.mitchellbosecke.seniorcommander;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.mitchellbosecke.seniorcommander.message.MessageUtils;
+import com.mitchellbosecke.seniorcommander.utils.ConfigUtils;
 import com.mitchellbosecke.seniorcommander.utils.DatabaseManager;
 import com.mitchellbosecke.seniorcommander.utils.ExecutorUtils;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -54,7 +53,7 @@ public class AbstractIT {
         commander = new SeniorCommanderImpl();
         executorService.submit(() -> commander.run());
 
-        Config config = ConfigFactory.load().getConfig("seniorcommander");
+        int port = ConfigUtils.getInt("socket.port");
 
         // connect to socket channel
         socket = null;
@@ -65,7 +64,7 @@ public class AbstractIT {
             retryCounter++;
             try {
                 logger.debug(retryCounter + ": Attempting to connect to socket channel.");
-                socket = new Socket("localhost", config.getInt("socket.port"));
+                socket = new Socket("localhost", port);
                 socket.setSoTimeout(READ_TIMEOUT);
                 break;
             } catch (IOException ex) {

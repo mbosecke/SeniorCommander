@@ -1,6 +1,6 @@
 package com.mitchellbosecke.seniorcommander.extension.core.timer;
 
-import com.mitchellbosecke.seniorcommander.channel.Channel;
+import com.mitchellbosecke.seniorcommander.SeniorCommander;
 import com.mitchellbosecke.seniorcommander.domain.TimerModel;
 import com.mitchellbosecke.seniorcommander.timer.Timer;
 import com.mitchellbosecke.seniorcommander.utils.NetworkUtils;
@@ -8,18 +8,16 @@ import com.mitchellbosecke.seniorcommander.utils.TransactionManager;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Created by mitch_000 on 2016-09-26.
  */
 public abstract class AbstractTimerFactory<T extends Timer> {
 
-    private final List<Channel> channels;
+    private final SeniorCommander seniorCommander;
 
-    public AbstractTimerFactory(List<Channel> channels) {
-        this.channels = channels;
+    public AbstractTimerFactory(SeniorCommander seniorCommander) {
+        this.seniorCommander = seniorCommander;
     }
 
     public List<T> build() {
@@ -38,15 +36,13 @@ public abstract class AbstractTimerFactory<T extends Timer> {
                 .getResultList();
         //@formatter:on
 
-        Map<Long, Channel> channelMap = channels.stream().collect(Collectors.toMap(Channel::getId, c -> c));
-
         for (TimerModel timerModel : timerModels) {
-            timers.add(constructTimerFromModel(timerModel, channelMap));
+            timers.add(constructTimerFromModel(seniorCommander, timerModel));
         }
         return timers;
     }
 
-    protected abstract T constructTimerFromModel(TimerModel timerModel, Map<Long, Channel> channels);
+    protected abstract T constructTimerFromModel(SeniorCommander seniorCommander, TimerModel timerModel);
 
     protected abstract Class<T> getTimerClass();
 }

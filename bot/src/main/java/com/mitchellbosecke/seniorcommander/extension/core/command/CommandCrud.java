@@ -1,6 +1,7 @@
 package com.mitchellbosecke.seniorcommander.extension.core.command;
 
 import com.mitchellbosecke.seniorcommander.CommandHandler;
+import com.mitchellbosecke.seniorcommander.SeniorCommander;
 import com.mitchellbosecke.seniorcommander.domain.AccessLevel;
 import com.mitchellbosecke.seniorcommander.domain.CommandModel;
 import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
@@ -32,13 +33,13 @@ public class CommandCrud implements CommandHandler {
 
     private final UserService userService;
 
-    private final MessageQueue messageQueue;
+    private final SeniorCommander seniorCommander;
 
     private String[] cooldownOption = {"cooldown", "cd"};
     private String[] accessLevel = {"access", "ac"};
 
-    public CommandCrud(MessageQueue messageQueue, CommandService commandService, UserService userService) {
-        this.messageQueue = messageQueue;
+    public CommandCrud(SeniorCommander seniorCommander, CommandService commandService, UserService userService) {
+        this.seniorCommander = seniorCommander;
         this.commandService = commandService;
         this.userService = userService;
     }
@@ -51,6 +52,8 @@ public class CommandCrud implements CommandHandler {
 
         String subCommand = parsed.getComponents().get(0);
         String commandName = parsed.getComponents().get(1);
+
+        MessageQueue messageQueue = seniorCommander.getMessageQueue();
 
         if ("add".equalsIgnoreCase(subCommand)) {
 
@@ -108,9 +111,9 @@ public class CommandCrud implements CommandHandler {
                 cooldown = Long.valueOf(cooldownText);
             } else {
                 // convert minutes to seconds
-                cooldown = (cooldownText == null? 0 : Long.valueOf(cooldownText)) * 60;
+                cooldown = (cooldownText == null ? 0 : Long.valueOf(cooldownText)) * 60;
             }
-        }else {
+        } else {
             cooldown = (cooldownText == null ? 0 : Long.valueOf(cooldownText)) * 60;
         }
         return cooldown;

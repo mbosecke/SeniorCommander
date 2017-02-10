@@ -3,20 +3,20 @@ package com.mitchellbosecke.seniorcommander.extension.core;
 import com.mitchellbosecke.seniorcommander.CommandHandler;
 import com.mitchellbosecke.seniorcommander.EventHandler;
 import com.mitchellbosecke.seniorcommander.SeniorCommander;
-import com.mitchellbosecke.seniorcommander.channel.Channel;
 import com.mitchellbosecke.seniorcommander.extension.Extension;
-import com.mitchellbosecke.seniorcommander.extension.core.channel.*;
+import com.mitchellbosecke.seniorcommander.extension.core.channel.ChannelFactory;
+import com.mitchellbosecke.seniorcommander.extension.core.channel.DiscordChannelFactory;
+import com.mitchellbosecke.seniorcommander.extension.core.channel.SocketChannelFactory;
+import com.mitchellbosecke.seniorcommander.extension.core.channel.TwitchChannelFactory;
 import com.mitchellbosecke.seniorcommander.extension.core.command.*;
 import com.mitchellbosecke.seniorcommander.extension.core.event.*;
 import com.mitchellbosecke.seniorcommander.extension.core.service.*;
 import com.mitchellbosecke.seniorcommander.extension.core.timer.*;
-import com.mitchellbosecke.seniorcommander.message.MessageQueue;
 import com.mitchellbosecke.seniorcommander.timer.Timer;
-import com.mitchellbosecke.seniorcommander.timer.TimerManager;
+import com.mitchellbosecke.seniorcommander.utils.ConfigUtils;
 import com.mitchellbosecke.seniorcommander.utils.NetworkUtils;
 import com.mitchellbosecke.seniorcommander.utils.RateLimiter;
 import com.mitchellbosecke.seniorcommander.utils.TransactionManager;
-import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,29 +42,24 @@ public class CoreExtension implements Extension {
     private static final Logger logger = LoggerFactory.getLogger(CoreExtension.class);
 
     @Override
-    public List<Channel> buildChannels() {
+    public List<ChannelFactory> buildChannelFactories() {
         List<ChannelFactory> factories = new ArrayList<>();
         factories.add(new TwitchChannelFactory());
         factories.add(new SocketChannelFactory());
         factories.add(new DiscordChannelFactory());
-
-        List<Channel> channels = new ArrayList<>();
-        factories.forEach(f -> channels.addAll(f.build()));
-
-        channels.add(new HttpChannel(8888, channels));
-        return channels;
+        return factories;
     }
 
     @Override
-    public List<Timer> buildTimers(MessageQueue messageQueue, List<Channel> channels) {
+    public List<Timer> buildTimers(SeniorCommander seniorCommander) {
 
         UserService userService = new UserService();
         List<Timer> timers = new ArrayList<>();
-        new ShoutTimerFactory(channels, messageQueue).build().forEach(timers::add);
-        new PointTimerFactory(channels, userService).build().forEach(timers::add);
-        new TwitchOnlineCheckerFactory(channels).build().forEach(timers::add);
-        new FollowerAuditFactory(channels, userService).build().forEach(timers::add);
-        new ModAuditFactory(channels, userService).build().forEach(timers::add);
+        new ShoutTimerFactory(seniorCommander).build().forEach(timers::add);
+        new PointTimerFactory(seniorCommander, userService).build().forEach(timers::add);
+        new TwitchOnlineCheckerFactory(seniorCommander).build().forEach(timers::add);
+        new FollowerAuditFactory(seniorCommander, userService).build().forEach(timers::add);
+        new ModAuditFactory(seniorCommander, userService).build().forEach(timers::add);
         return timers;
     }
 
@@ -96,7 +91,7 @@ public class CoreExtension implements Extension {
     }
 
     @Override
-    public List<CommandHandler> buildCommandHandlers(MessageQueue messageQueue, TimerManager timerManager) {
+    public List<CommandHandler> buildCommandHandlers(SeniorCommander seniorCommander) {
 
         // service tiers
         CommandService commandService = new CommandService();
@@ -109,17 +104,17 @@ public class CoreExtension implements Extension {
 
         // handlers
         List<CommandHandler> commandHandlers = new ArrayList<>();
-        commandHandlers.add(new Roll(messageQueue));
-        commandHandlers.add(new Advice(messageQueue));
-        commandHandlers.add(new Roulette(messageQueue));
-        commandHandlers.add(new CommandCrud(messageQueue, commandService, userService));
-        commandHandlers.add(new QuoteCrud(messageQueue, quoteService));
-        commandHandlers.add(new RandomQuote(messageQueue, quoteService));
-        commandHandlers.add(new TimerCrud(messageQueue, timerService, timerManager, userService));
-        commandHandlers.add(new Betting(messageQueue, bettingService, userService));
-        commandHandlers.add(new Points(messageQueue, userService));
-        commandHandlers.add(new Giveaway(messageQueue, giveawayService));
-        commandHandlers.add(new Auction(messageQueue, auctionService, userService));
+        commandHandlers.add(new Roll(seniorCommander));
+        commandHandlers.add(new Advice(seniorCommander));
+        commandHandlers.add(new Roulette(seniorCommander));
+        commandHandlers.add(new CommandCrud(seniorCommander, commandService, userService));
+        commandHandlers.add(new QuoteCrud(seniorCommander, quoteService));
+        commandHandlers.add(new RandomQuote(seniorCommander, quoteService));
+        commandHandlers.add(new TimerCrud(seniorCommander, timerService, userService));
+        commandHandlers.add(new Betting(seniorCommander, bettingService, userService));
+        commandHandlers.add(new Points(seniorCommander, userService));
+        commandHandlers.add(new Giveaway(seniorCommander, giveawayService));
+        commandHandlers.add(new Auction(seniorCommander, auctionService, userService));
 
         return commandHandlers;
     }
@@ -129,7 +124,7 @@ public class CoreExtension implements Extension {
         logger.debug("shutting down core extension");
         TransactionManager.runInTransaction(session -> {
 
-            String schema = ConfigFactory.load().getConfig("seniorcommander").getString("database.schema");
+            String schema = ConfigUtils.getString("database.schema");
             //@formatter:off
             int result = session.createNativeQuery("" +
                     "DELETE FROM " + schema + ".online_channel_user ocu " +

@@ -43,7 +43,7 @@ public class OutputHandler implements EventHandler {
             if (message.getChannel() != null) {
                 outputChannels.add(message.getChannel());
             } else {
-                outputChannels.addAll(seniorCommander.getChannelManager().getChannels());
+                outputChannels.addAll(seniorCommander.getChannelManager().getChannelStates());
             }
 
             for (Channel channel : outputChannels) {

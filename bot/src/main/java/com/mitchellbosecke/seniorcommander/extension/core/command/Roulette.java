@@ -1,6 +1,7 @@
 package com.mitchellbosecke.seniorcommander.extension.core.command;
 
 import com.mitchellbosecke.seniorcommander.CommandHandler;
+import com.mitchellbosecke.seniorcommander.SeniorCommander;
 import com.mitchellbosecke.seniorcommander.utils.PhraseProvider;
 import com.mitchellbosecke.seniorcommander.message.Message;
 import com.mitchellbosecke.seniorcommander.message.MessageQueue;
@@ -14,10 +15,10 @@ public class Roulette implements CommandHandler {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final MessageQueue messageQueue;
+    private final SeniorCommander seniorCommander;
 
-    public Roulette(MessageQueue messageQueue) {
-        this.messageQueue = messageQueue;
+    public Roulette(SeniorCommander seniorCommander) {
+        this.seniorCommander = seniorCommander;
     }
 
     @Override
@@ -27,12 +28,11 @@ public class Roulette implements CommandHandler {
 
         boolean survives = Math.random() > 0.5;
 
+        MessageQueue messageQueue = seniorCommander.getMessageQueue();
         if (survives) {
-            messageQueue.add(Message
-                    .response(message, PhraseProvider.getPhrase(PhraseProvider.Category.CLOSE_CALL)));
+            messageQueue.add(Message.response(message, PhraseProvider.getPhrase(PhraseProvider.Category.CLOSE_CALL)));
         } else {
-            messageQueue
-                    .add(Message.response(message, PhraseProvider.getPhrase(PhraseProvider.Category.GRIEF)));
+            messageQueue.add(Message.response(message, PhraseProvider.getPhrase(PhraseProvider.Category.GRIEF)));
             message.getChannel().timeout(user, 5 * 60l);
         }
     }

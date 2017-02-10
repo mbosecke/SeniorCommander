@@ -1,6 +1,7 @@
 package com.mitchellbosecke.seniorcommander.extension.core.command;
 
 import com.mitchellbosecke.seniorcommander.CommandHandler;
+import com.mitchellbosecke.seniorcommander.SeniorCommander;
 import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
 import com.mitchellbosecke.seniorcommander.domain.GiveawayModel;
 import com.mitchellbosecke.seniorcommander.extension.core.service.GiveawayService;
@@ -28,18 +29,19 @@ public class Giveaway implements CommandHandler {
 
     private final GiveawayService giveawayService;
 
-    private final MessageQueue messageQueue;
+    private final SeniorCommander seniorCommander;
 
     private final String[] keywordOption = {"keyword", "kw"};
 
-    public Giveaway(MessageQueue messageQueue, GiveawayService giveawayService) {
-        this.messageQueue = messageQueue;
+    public Giveaway(SeniorCommander seniorCommander, GiveawayService giveawayService) {
+        this.seniorCommander = seniorCommander;
         this.giveawayService = giveawayService;
     }
 
     @Override
     public void execute(Message message) {
 
+        MessageQueue messageQueue = seniorCommander.getMessageQueue();
         ParsedCommand parsed = new CommandParser().parse(message.getContent());
         CommunityModel communityModel = giveawayService.findCommunity(message.getChannel());
         GiveawayModel existingGiveaway = giveawayService.findActiveGiveaway(communityModel);
@@ -90,10 +92,12 @@ public class Giveaway implements CommandHandler {
                 if (mostRecentGiveaway != null) {
                     Optional<String> winner = giveawayService.drawWinner(mostRecentGiveaway);
 
-                    if(winner.isPresent()) {
-                        messageQueue.add(Message.response(message, String.format("The giveaway is closed and a winner has been chosen. The winner is %s.", winner.get())));
-                    }else{
-                        messageQueue.add(Message.response(message,"The giveaway is over; there were no entries."));
+                    if (winner.isPresent()) {
+                        messageQueue.add(Message.response(message, String
+                                .format("The giveaway is closed and a winner has been chosen. The winner is %s.", winner
+                                        .get())));
+                    } else {
+                        messageQueue.add(Message.response(message, "The giveaway is over; there were no entries."));
                     }
                 } else {
                     messageQueue.add(Message.response(message, "There has never been a giveaway."));

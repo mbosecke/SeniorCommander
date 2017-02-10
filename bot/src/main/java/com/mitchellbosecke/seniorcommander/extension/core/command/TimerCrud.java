@@ -1,6 +1,7 @@
 package com.mitchellbosecke.seniorcommander.extension.core.command;
 
 import com.mitchellbosecke.seniorcommander.CommandHandler;
+import com.mitchellbosecke.seniorcommander.SeniorCommander;
 import com.mitchellbosecke.seniorcommander.domain.AccessLevel;
 import com.mitchellbosecke.seniorcommander.domain.CommunityModel;
 import com.mitchellbosecke.seniorcommander.domain.TimerModel;
@@ -33,20 +34,16 @@ public class TimerCrud implements CommandHandler {
 
     private final TimerService timerService;
 
-    private final MessageQueue messageQueue;
-
-    private final TimerManager timerManager;
+    private final SeniorCommander seniorCommander;
 
     private final UserService userService;
 
     private String[] intervalOption = {"interval", "in"};
     private String[] chatLinesOption = {"chat-lines", "cl"};
 
-    public TimerCrud(MessageQueue messageQueue, TimerService timerService, TimerManager timerManager,
-                     UserService userService) {
-        this.messageQueue = messageQueue;
+    public TimerCrud(SeniorCommander seniorCommander, TimerService timerService, UserService userService) {
+        this.seniorCommander = seniorCommander;
         this.timerService = timerService;
-        this.timerManager = timerManager;
         this.userService = userService;
     }
 
@@ -58,6 +55,9 @@ public class TimerCrud implements CommandHandler {
 
         String subCommand = parsed.getComponents().get(0);
 
+        MessageQueue messageQueue = seniorCommander.getMessageQueue();
+        TimerManager timerManager = seniorCommander.getTimerManager();
+
         if ("add".equalsIgnoreCase(subCommand)) {
 
             if (parsed.getQuotedText() == null) {
@@ -66,7 +66,7 @@ public class TimerCrud implements CommandHandler {
                 TimerModel timerModel = timerService.addTimer(message.getChannel(), parsed
                         .getQuotedText(), getInterval(message, parsed), getChatLines(parsed));
                 ShoutTimer shoutTimer = new ShoutTimer(timerModel.getId(), timerModel.getInterval(), message
-                        .getChannel(), messageQueue, timerModel.getMessage());
+                        .getChannel().getId(), seniorCommander, timerModel.getMessage());
                 timerManager.addTimer(shoutTimer);
                 messageQueue.add(Message.response(message, String
                         .format("Timer #%d has been added", timerModel.getCommunitySequence())));
