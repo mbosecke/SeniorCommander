@@ -71,10 +71,11 @@ public class ChannelManager {
 
             List<ChannelModel> channelModels = new ArrayList<>();
             TransactionManager.runInTransaction(session -> {
+
                 //@formatter:off
                 channelModels.addAll(session
                         .createQuery("" +
-                                "SELECT cm " +
+                                "SELECT DISTINCT cm " +
                                 "FROM ChannelModel cm " +
                                 "LEFT JOIN FETCH cm.settings " +
                                 "WHERE cm.communityModel.server = :server", ChannelModel.class)
@@ -82,14 +83,10 @@ public class ChannelManager {
                         .getResultList());
                 //@formatter:on
 
+
                 List<Channel> channels = new ArrayList<>();
                 for (ChannelModel channelModel : channelModels) {
-                    for (ChannelFactory factory : channelFactories) {
-                        if (factory.supports(channelModel.getType())) {
-                            channels.add(factory.build(channelModel));
-                            break;
-                        }
-                    }
+                    channels.add(buildChannel(channelModel));
                 }
 
                 channels.add(new HttpChannel(ConfigUtils.getInt("http.port"), channels));
@@ -103,28 +100,75 @@ public class ChannelManager {
                         .setNameFormat("channels-%d").build());
             });
 
-            this.channels.values().forEach(channel -> startChannel(channel));
+            this.channels.values().forEach(channel -> startChannel(channel, false));
         }
     }
 
-    public void startChannel(Channel channel) {
+    /**
+     *
+     * @param channel
+     * @param fullRefresh If doing a full refresh it will query the database for the latest settings
+     */
+    public void startChannel(Channel channel, boolean fullRefresh) {
         synchronized (lock) {
             State state = channelStates.get(channel);
             if (state == State.STOPPED || (state == State.STARTED && !channel.isListening())) {
 
-                logger.debug("Starting channel [{}]", channel);
-                channelStates.put(channel, State.STARTING_UP);
-                numberOfRunningChannels.incrementAndGet();
-                executorService.submit(() -> {
-                    try {
-                        channel.listen(messageQueue);
-                    } catch (Exception e) {
-                        logger.error("Exception in channel", e);
-                        throw new RuntimeException(e);
-                    }
+                TransactionManager.runInTransaction(session -> {
+                    logger.debug("Starting channel [{}]", channel);
+
+                    Channel newChannel;
+
+                        if(fullRefresh && !(channel instanceof  HttpChannel)) {
+                            //@formatter:off
+                            ChannelModel channelModel = session
+                                .createQuery("" +
+                                        "SELECT cm " +
+                                        "FROM ChannelModel cm " +
+                                        "LEFT JOIN FETCH cm.settings " +
+                                        "WHERE cm.id = :id", ChannelModel.class)
+                                .setParameter("id",  channel.getId())
+                                .getSingleResult();
+                            //@formatter:on
+
+                            newChannel = buildChannel(channelModel);
+
+                            // remove old data
+                            channelStates.remove(channel);
+                            channels.remove(channel.getId());
+
+                            // add new data
+                            channelStates.put(newChannel, State.STARTING_UP);
+                            channels.put(newChannel.getId(), newChannel);
+
+                        }else{
+                            newChannel = channel;
+                        }
+
+                    numberOfRunningChannels.incrementAndGet();
+                    executorService.submit(() -> {
+                        try {
+                            newChannel.listen(messageQueue);
+                        } catch (Exception e) {
+                            logger.error("Exception in channel", e);
+                            throw new RuntimeException(e);
+                        }
+                    });
                 });
+
             }
         }
+    }
+
+    private Channel buildChannel(ChannelModel channelModel) {
+        Channel result = null;
+        for (ChannelFactory factory : channelFactories) {
+            if (factory.supports(channelModel.getType())) {
+                result = factory.build(channelModel);
+                break;
+            }
+        }
+        return result;
     }
 
     /**
@@ -158,7 +202,7 @@ public class ChannelManager {
 
                             // channel must have unexpectedly disconnected itself
                             logger.debug("Reconnecting channel [{}]", channel);
-                            startChannel(channel);
+                            startChannel(channel, false);
                         }
                     });
                 }

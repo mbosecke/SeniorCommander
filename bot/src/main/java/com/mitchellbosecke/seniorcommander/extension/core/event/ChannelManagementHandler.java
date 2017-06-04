@@ -25,7 +25,7 @@ public class ChannelManagementHandler implements EventHandler {
         switch (message.getType()) {
             case CHANNEL_START:
                 logger.debug("Starting channel [{}]", message.getChannel());
-                seniorCommander.getChannelManager().startChannel(message.getChannel());
+                seniorCommander.getChannelManager().startChannel(message.getChannel(), true);
                 break;
             case CHANNEL_STOP:
                 logger.debug("Stopping channel [{}]", message.getChannel());
@@ -34,7 +34,7 @@ public class ChannelManagementHandler implements EventHandler {
             case CHANNEL_RESTART:
                 logger.debug("Restarting channel [{}]", message.getChannel());
                 seniorCommander.getChannelManager().stopChannel(message.getChannel());
-                seniorCommander.getChannelManager().startChannel(message.getChannel());
+                seniorCommander.getChannelManager().startChannel(message.getChannel(), true);
                 break;
             default:
                 // unhandled
